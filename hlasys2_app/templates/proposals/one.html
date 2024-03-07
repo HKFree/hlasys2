@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='one.css') }}">
+{% endblock head %}
+
+{% block header %}
+    <h1 id="h-one-subj">
+        {% block title %}{{ data['subject'] }}{% endblock %}
+    </h1>
+    
+    {% if accepted%}
+        <span id="s-one-accepted">✔ schváleno ✔</span>
+    {% elif accepted == False %}
+        <span id="s-one-rejected">✖ zamítnuto ✖</span>
+    {% else %}
+        <span id="s-one-unknown"><b>?</b> nerozhodnuto <b>?</b></span>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div>
+        <p id="p-desc">{{ data['description'] | trim | urlize(nofollow=False, target='_blank') }}</p>
+        <hr>
+        <div class="d-one-detail-row" id="d-one-bot">
+            <p class="p-one-detail">
+                Odhad ceny: {{ "{:,}".format(data['cost']) }} Kč
+            </p>
+            <p class="p-one-detail">
+                Vložil  <a href="/user/{{ data['id'] }}">{{ data['name'] }}</a>
+                v {{ data['created'].strftime('%A %d.%m.%Y %H:%M') }}
+            </p>
+        </div>
+        <hr>
+        {% include 'proposals/decisions.html' %}
+    </div>
+    {# {% for key, value in data.items() %}
+        <pre>{{ key }}: {{ value }}</pre>\
+    {% endfor%}
+    {{ events }} #}
+{% endblock %}

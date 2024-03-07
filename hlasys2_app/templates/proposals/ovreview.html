@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block title %}Přehled{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    |    
+    <a href="/overview/{{ 'so' if filter['vv'] else 'vv+so' }}">
+        <span id="toggle_vv">
+            {% if filter["vv"] %}✔{% else %}✖{% endif %}
+        </span>
+        <label for="toggle_vv">VV</label>
+    </a>
+    |
+    <a href="/overview/{{ 'vv' if filter['so'] else 'vv+so' }}">
+        <span id="toggle_so">
+            {% if filter["so"] %}✔{% else %}✖{% endif %}
+        </span>
+        <label for="toggle_so">SO</label>
+    </a>
+    |
+    {% for p in proposals %}
+        <a href="{{ url_for('proposals.one_proposal', proposal_id=p['id']) }}">
+            <pre>{{ p }}</pre>
+        </a>
+    {% endfor %}
+{% endblock %}

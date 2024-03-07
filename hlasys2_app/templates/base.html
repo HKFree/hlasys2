@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="cs-cz">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+        <title>{% block title %}{% endblock title %} - HlaSys v2</title>
+
+        {% block head %}{% endblock head %}
+    </head>
+    <body>
+        <nav>
+            <h1>HlaSys v2</h1>
+            <ul>
+                <li><a href="{{ url_for('proposals.overview', query_filter='vv') }}">Přehled</a>
+            </ul>
+        </nav>
+        <section class="content">
+            <header>
+                {% block header %}{% endblock %}
+            </header>
+            {% for message in get_flashed_messages() %}
+            <div class="flash">{{ message }}</div>
+            {% endfor %}
+            {% block content %}{% endblock %}
+        </section>
+        
+    </body>
+</html>
