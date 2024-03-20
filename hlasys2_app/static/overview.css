@@ -1,0 +1,16 @@
+.t-proposals {
+    margin-top: 10px;
+    width: 100%;
+}
+
+.tr-proposal {
+    width: 100%;
+}
+
+.tr-proposal:hover {
+    background-color: aliceblue;
+}
+
+.s-author-created {
+    float: right;
+}

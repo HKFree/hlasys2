@@ -1,5 +1,3 @@
-import functools
-
 from flask import (
     Blueprint,
     flash,
@@ -38,7 +36,7 @@ def overview(query_filter):
 
     proposals = db.execute(
         f"""
-        SELECT proposal.id, user.name, user.email, subject, description, cost, type 
+        SELECT proposal.id, user.name, user.email, user.id as user_id, subject, description, cost, type, created
         FROM proposal
         LEFT JOIN user ON proposal.author_id = user.id 
         {filter_str}"""
@@ -91,7 +89,7 @@ def one_proposal(proposal_id):
 
     accepted = None
     if proposal['type'] == 0: # VV
-        if len(voted_for) > 4:
+        if len(voted_for) >= 4:
             accepted = True
         elif len(voted_against) > 4:
             accepted = False

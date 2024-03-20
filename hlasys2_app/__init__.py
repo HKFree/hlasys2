@@ -19,6 +19,9 @@ def create_app():
     from . import proposals
     app.register_blueprint(proposals.bp)
 
+    from . import users
+    app.register_blueprint(users.bp)
+
     # ensure the instance folder exists
     try:
         os.makedirs(app.instance_path)

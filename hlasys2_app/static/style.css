@@ -7,3 +7,7 @@ body {
     margin: 0 auto;
 }
 
+nav {
+   max-width: 600px;
+   margin: 0 auto;
+}
