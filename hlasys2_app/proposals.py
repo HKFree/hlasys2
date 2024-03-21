@@ -93,13 +93,14 @@ def one_proposal(proposal_id):
     if proposal['type'] == 0: # VV
         num_vv = util.num_vv()
 
-        if len(voted_for) > 4:
+        if len(voted_for) >= 4:
             accepted = True
-        elif len(voted_against) > 4:
+        elif len(voted_against) >= 4:
             accepted = False
+        
     else: # SO
         num_so = util.num_so()
-        if len(voted_for) > ceil(num_so / 2):
+        if len(voted_for) >= ceil(num_so / 2):
             accepted = True
         elif len(voted_against) > ceil(num_so / 2):
             accepted=False

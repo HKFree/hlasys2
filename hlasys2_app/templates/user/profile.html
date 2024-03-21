@@ -16,7 +16,7 @@
     <br>
     <br>
     {% for event in timeline %}
-        {% if not event['decision'] and not event['comment'] %} 
+        {% if event['decision'] == None and  event['comment'] == None %} 
             {{ event['created'].strftime('%A %d.%m.%Y %H:%M')}}
             <br>
             + navrh
@@ -29,10 +29,10 @@
             + hlas {{ '✔' if event['decision'] else '✖'}}
             na navrhu 
             <a href="{{ url_for('proposals.one_proposal', proposal_id=event['proposal_id']) }}">
-                {{ event['events_subject'] | truncate(15) }}
+                {{ event['events_subject'] | truncate(20) }}
             </a>
             {% if event['comment'] %}
-                s komentarem {{ event['comment'] | truncate(15) }}
+                s komentarem {{ event['comment'] | truncate(40) }}
             {% endif %}
         {% endif %}
         <hr>
