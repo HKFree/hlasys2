@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, redirect
+from flask import Flask, redirect, session
 import locale
 
 locale.setlocale(locale.LC_TIME, "cs_CZ.UTF-8")
@@ -16,6 +16,9 @@ def create_app():
     from . import db
     db.init_app(app=app)
 
+    from . import auth
+    app.wsgi_app = auth.middleware(app.wsgi_app)
+
     from . import proposals
     app.register_blueprint(proposals.bp)
 
@@ -30,6 +33,12 @@ def create_app():
 
     @app.route("/")
     def hello():
+        return redirect('/overview/vv')
+
+    @app.route("/tmp/<int:id>")
+    def tmp(id):
+        print(f"Registering {id}")
+        session['id'] = id
         return redirect('/overview/vv')
 
     return app
