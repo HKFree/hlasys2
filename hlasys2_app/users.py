@@ -24,19 +24,29 @@ def user_ovreview(user_id):
     ).fetchone()
 
     timeline = db.execute("""
-        SELECT user_id, created, proposal_id, decision, comment, NULL AS subject, NULL AS proposal_id
-        FROM event
-        UNION ALL
-        SELECT author_id AS user_id, created, NULL AS proposal_id, NULL AS decision, NULL AS comment, subject, id AS proposal_id
-        FROM proposal
+        SELECT * FROM (
+            SELECT event.user_id AS user_id, event.created, proposal.subject AS events_subject, proposal_id, decision, comment, NULL AS subject, NULL AS proposals_id
+            FROM event
+            JOIN proposal ON event.proposal_id = proposal.id
+            UNION ALL
+            SELECT author_id AS user_id, created, NULL AS events_subject, NULL AS proposal_id, NULL AS decision, NULL AS comment, subject, id AS proposals_id
+            FROM proposal
+        )
         WHERE user_id = :user_id
         ORDER BY created DESC""",
         {"user_id": user_id}
     ).fetchall()
 
+    if user['role'] == 0:
+        user['role_str'] = 'root'
+    elif user['role'] == 1:
+        user['role_str'] = 'admin'
+    else:
+        user['role_str'] = 'user'
+
+
     if not user:
-        # user neni
+        # flash("No user")
         return redirect("/overview")
 
-    # print(timeline)
-    return timeline
+    return render_template("user/profile.html", user=user, timeline=timeline)

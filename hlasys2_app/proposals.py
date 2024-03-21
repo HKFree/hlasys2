@@ -9,8 +9,10 @@ from flask import (
     url_for,
     abort,
 )
+from math import ceil
 
 from hlasys2_app.db import get_db
+from . import util
 
 bp = Blueprint("proposals", __name__)
 
@@ -84,19 +86,23 @@ def one_proposal(proposal_id):
         {"proposal_id": proposal_id},
     ).fetchall()
 
-    print("for", len(voted_for), voted_for)
-    print("against", len(voted_against), voted_against)
+    print("for", len(voted_for))
+    print("against", len(voted_against))
 
     accepted = None
     if proposal['type'] == 0: # VV
-        if len(voted_for) >= 4:
+        num_vv = util.num_vv()
+
+        if len(voted_for) > 4:
             accepted = True
         elif len(voted_against) > 4:
             accepted = False
     else: # SO
-        pass
-
-    # accepted=True
+        num_so = util.num_so()
+        if len(voted_for) > ceil(num_so / 2):
+            accepted = True
+        elif len(voted_against) > ceil(num_so / 2):
+            accepted=False
 
     return render_template(
         "proposals/one.html",

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='user.css') }}">
+{% endblock head %}
+
+{% block header %}
+    <h1 id="h-one-subj">
+        {% block title %}Uživatel {{ user['name'] }}{% endblock %}
+    </h1>
+{% endblock %}
+
+{% block content %}
+    <small>id: {{ user['id'] }} | email: {{ user['email'] }} | role: {{ user['role_str'] }}</small>
+    <br>
+    <br>
+    {% for event in timeline %}
+        {% if not event['decision'] and not event['comment'] %} 
+            {{ event['created'].strftime('%A %d.%m.%Y %H:%M')}}
+            <br>
+            + navrh
+            <a href="{{ url_for('proposals.one_proposal', proposal_id=event['proposals_id']) }}">
+                {{ event['subject'] }}
+            </a> 
+        {% else %}
+            {{ event['created'].strftime('%A %d.%m.%Y %H:%M')}}
+            <br>
+            + hlas {{ '✔' if event['decision'] else '✖'}}
+            na navrhu 
+            <a href="{{ url_for('proposals.one_proposal', proposal_id=event['proposal_id']) }}">
+                {{ event['events_subject'] | truncate(15) }}
+            </a>
+            {% if event['comment'] %}
+                s komentarem {{ event['comment'] | truncate(15) }}
+            {% endif %}
+        {% endif %}
+        <hr>
+    {% endfor %}
+
+{% endblock %}

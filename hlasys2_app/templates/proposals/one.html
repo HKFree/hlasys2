@@ -10,6 +10,8 @@
         {% block title %}{{ data['subject'] }}{% endblock %}
     </h1>
     
+    pro <strong>{{ 'so' if data['type'] == 1 else 'vv' }}</strong>
+
     {% if accepted%}
         <span id="s-one-accepted">✔ schváleno ✔</span>
     {% elif accepted == False %}

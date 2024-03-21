@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask
+from flask import Flask, redirect
 import locale
 
 locale.setlocale(locale.LC_TIME, "cs_CZ.UTF-8")
@@ -30,6 +30,6 @@ def create_app():
 
     @app.route("/")
     def hello():
-        return 'Hello, World!'
+        return redirect('/overview/vv')
 
     return app
