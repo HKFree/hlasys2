@@ -47,6 +47,23 @@ def overview(query_filter):
         ORDER BY proposal.created DESC"""
     ).fetchall()
 
+    for p in proposals:
+        p["accepted"] = None
+        if p['type'] == 0: # VV
+            num_vv = util.num_vv()
+
+            if p['n_voted_for'] >= 4:
+                p['accepted'] = True
+            elif p['n_voted_against'] >= 4:
+                p['accepted'] = False
+        
+        else: # SO
+            num_so = util.num_so()
+            if p['n_voted_for'] >= ceil(num_so / 2):
+                p['accepted'] = True
+            elif p['n_voted_against'] > ceil(num_so / 2):
+                p['accepted'] = False
+
     return render_template("proposals/ovreview.html", proposals=proposals, filter=f)
 
 

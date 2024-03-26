@@ -29,7 +29,7 @@
     <table class="t-proposals">
         <tbody>
             {% for p in proposals %}
-                <tr class="tr-proposal tr-proposal-red">
+	    	<tr class="tr-proposal {{ 'tr-proposal-green' if p['accepted'] else 'tr-proposal-red' }}">
                     <td>
                         <a href="{{ url_for('proposals.one_proposal', proposal_id=p['id']) }}">
                             <b>{{ p['subject'] }}</b>

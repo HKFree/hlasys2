@@ -14,3 +14,10 @@
 .s-author-created {
     float: right;
 }
+
+.tr-proposal-red {
+    background-color: lightred;
+}
+.tr-proposal-green {
+    background-color: lightgreen;
+}
