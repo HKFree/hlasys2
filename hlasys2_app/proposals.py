@@ -32,16 +32,19 @@ def overview(query_filter):
     if not f["vv"] and not f["so"]:
         return redirect("/overview/vv+so")
     elif f["vv"] and not f["so"]:
-        filter_str = "WHERE type = 0"
+        filter_str = "WHERE proposal.type = 0"
     elif not f["vv"] and f["so"]:
-        filter_str = "WHERE type = 1"
+        filter_str = "WHERE proposal.type = 1"
 
     proposals = db.execute(
         f"""
-        SELECT proposal.id, user.name, user.email, user.id as user_id, subject, description, cost, type, created
+        SELECT proposal.id, user.name, user.email, user.id as user_id, subject, description, cost, type, created,
+        ( SELECT COUNT(*) FROM event WHERE event.proposal_id = proposal.id AND event.decision = 1 ) AS n_voted_for,
+        ( SELECT COUNT(*) FROM event WHERE event.proposal_id = proposal.id AND event.decision = 1 ) AS n_voted_against
         FROM proposal
-        LEFT JOIN user ON proposal.author_id = user.id 
-        {filter_str}"""
+        LEFT JOIN user ON proposal.author_id = user.id
+        {filter_str}
+        ORDER BY proposal.created DESC"""
     ).fetchall()
 
     return render_template("proposals/ovreview.html", proposals=proposals, filter=f)

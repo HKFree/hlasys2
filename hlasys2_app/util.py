@@ -3,7 +3,11 @@ import json
 import base64
 from datetime import datetime, timedelta
 
-from . import config
+try:
+    from . import config
+except ImportError:
+    print("No config.py file")
+    exit(1)
 
 # TODO: propper error handling
 class UserDBData:
