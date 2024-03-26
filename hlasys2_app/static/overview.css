@@ -1,6 +1,7 @@
 .t-proposals {
     margin-top: 10px;
     width: 100%;
+    border-collapse: collapse;
 }
 
 .tr-proposal {
@@ -8,7 +9,8 @@
 }
 
 .tr-proposal:hover {
-    background-color: aliceblue;
+    #background-color: aliceblue;
+    filter: brightness(85%);
 }
 
 .s-author-created {
@@ -16,7 +18,7 @@
 }
 
 .tr-proposal-red {
-    background-color: lightred;
+    background-color: lightpink;
 }
 .tr-proposal-green {
     background-color: lightgreen;
