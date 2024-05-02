@@ -41,4 +41,26 @@ def create_app():
         session['id'] = id
         return redirect('/overview/vv')
 
+    from .util import HkfreeRole
+    @app.route("/login/<int:login_id>")
+    def login_tmp(login_id):
+        tmp_auth = {
+            9025: HkfreeRole.VV,
+            9026: HkfreeRole.SO,
+            9000: HkfreeRole.SO,
+            9001: HkfreeRole.MEMBER
+        }
+
+        session['user_id'] = login_id
+        session['user_hkf_role'] = tmp_auth.get(login_id, HkfreeRole.MEMBER)
+        print(f"Logged in as {login_id}")
+
+        return redirect("/overview/vv")
+
+    @app.route("/s")
+    def session_tmp():
+        print(session)
+        return 'Session data printed to stdout.'
+
+
     return app

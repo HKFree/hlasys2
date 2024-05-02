@@ -1,5 +1,6 @@
 from urllib import request
 import json
+import enum
 import base64
 from datetime import datetime, timedelta
 
@@ -8,6 +9,12 @@ try:
 except ImportError:
     print("No config.py file")
     exit(1)
+
+class HkfreeRole(int, enum.Enum):
+    VV = 0
+    SO = 1
+    MEMBER = 2
+
 
 # TODO: propper error handling
 class UserDBData:

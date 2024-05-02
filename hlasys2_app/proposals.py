@@ -13,6 +13,7 @@ from math import ceil
 
 from hlasys2_app.db import get_db
 from . import util
+from .util import HkfreeRole
 
 bp = Blueprint("proposals", __name__)
 
@@ -40,7 +41,7 @@ def overview(query_filter):
         f"""
         SELECT proposal.id, user.name, user.email, user.id as user_id, subject, description, cost, type, created,
         ( SELECT COUNT(*) FROM event WHERE event.proposal_id = proposal.id AND event.decision = 1 ) AS n_voted_for,
-        ( SELECT COUNT(*) FROM event WHERE event.proposal_id = proposal.id AND event.decision = 1 ) AS n_voted_against
+        ( SELECT COUNT(*) FROM event WHERE event.proposal_id = proposal.id AND event.decision = 0 ) AS n_voted_against
         FROM proposal
         LEFT JOIN user ON proposal.author_id = user.id
         {filter_str}
@@ -125,11 +126,25 @@ def one_proposal(proposal_id):
         elif len(voted_against) > ceil(num_so / 2):
             accepted=False
 
+    # TODO: handle if allready voted
+    if session.get('user_hkf_role') == HkfreeRole.VV:
+        can_vote = True
+    elif session.get('user_hkf_role') == HkfreeRole.SO and proposal['type'] == 1:
+        can_vote = True
+    else:
+        can_vote = False
+
+
     return render_template(
         "proposals/one.html",
         data=proposal,
         events=events,
         voted_for=voted_for,
         voted_against=voted_against,
+        can_vote=can_vote,
         accepted=accepted
     )
+
+@bp.route("/proposal/<int:proposal_id>/vote")
+def vote_on_proposal(proposal_id):
+    pass
