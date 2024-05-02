@@ -6,4 +6,4 @@ It's goal is to replace the current voting system for the organization that shou
 
 ### License 
 
-This project uses the  GNU GPLv3 license.
+This project uses the [GNU GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html) license.
