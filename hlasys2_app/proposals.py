@@ -74,7 +74,7 @@ def one_proposal(proposal_id):
 
     proposal = db.execute(
         """
-        SELECT proposal.subject, proposal.description, proposal.cost, proposal.type,
+        SELECT proposal.id as proposal_id, proposal.subject, proposal.description, proposal.cost, proposal.type,
         proposal.created, user.id, user.name, user.email, user.role FROM proposal 
         LEFT JOIN user ON author_id = user.id
         WHERE proposal.id = :proposal_id""",
@@ -126,14 +126,6 @@ def one_proposal(proposal_id):
         elif len(voted_against) > ceil(num_so / 2):
             accepted=False
 
-    # TODO: handle if allready voted
-    if session.get('user_hkf_role') == HkfreeRole.VV:
-        can_vote = True
-    elif session.get('user_hkf_role') == HkfreeRole.SO and proposal['type'] == 1:
-        can_vote = True
-    else:
-        can_vote = False
-
 
     return render_template(
         "proposals/one.html",
@@ -141,10 +133,6 @@ def one_proposal(proposal_id):
         events=events,
         voted_for=voted_for,
         voted_against=voted_against,
-        can_vote=can_vote,
+        can_vote=util.can_vote(session['user_id'], proposal_id),
         accepted=accepted
     )
-
-@bp.route("/proposal/<int:proposal_id>/vote")
-def vote_on_proposal(proposal_id):
-    pass

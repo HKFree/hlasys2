@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='vote.css') }}">
+{% endblock head %}
+
+{% block header %}
+    <h1 id="h-one-subj">
+        {% block title %}Hlasování{% endblock %}
+    </h1>
+{% endblock %}
+
+{% block content %}
+    {% if not can_vote %}
+        Tak nic
+    {% else %}
+    <div class="d-vote-buttons">
+        <form action="/proposal/{{ proposal_id }}/vote" method="post">
+            <button>jsem PRO ✔</button>
+            <button>jsem PROTI ✖</button>
+        </form>
+    </div>
+    {% endif %}
+    <div class="d-vote">
+        
+    </div>
+{% endblock %}

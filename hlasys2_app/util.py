@@ -3,6 +3,7 @@ import json
 import enum
 import base64
 from datetime import datetime, timedelta
+from flask import session
 
 try:
     from . import config
@@ -14,6 +15,36 @@ class HkfreeRole(int, enum.Enum):
     VV = 0
     SO = 1
     MEMBER = 2
+
+from .db import get_db
+def can_vote(user_id: int, proposal_id: int) -> bool:
+    db = get_db()
+
+    proposal_type = db.execute(
+        "SELECT type FROM proposal WHERE id = :proposal_id",
+        {"proposal_id": proposal_id}
+    ).fetchone()
+    allready_voted = user_voted(user_id, proposal_id)
+    if session.get('user_hkf_role') == HkfreeRole.VV:
+        can_vote = True & (not allready_voted)
+    elif session.get('user_hkf_role') == HkfreeRole.SO and proposal_type['type'] == 1:
+        can_vote = True & (not allready_voted)
+    else:
+        can_vote = False
+
+    return can_vote
+
+def user_voted(user_id: int, proposal_id: int) -> bool:
+    db = get_db()
+
+    voted_r = db.execute(
+        """SELECT 1 as one
+        FROM event
+        WHERE user_id = :user_id AND proposal_id = :proposal_id""",
+        {"user_id": user_id, "proposal_id": proposal_id}
+    ).fetchone()
+
+    return voted_r is not None
 
 
 # TODO: propper error handling

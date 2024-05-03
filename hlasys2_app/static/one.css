@@ -49,3 +49,13 @@
 header span {
     margin-left: 10px;
 }
+
+.d-vote-btn {
+    margin: 5px 0;
+}
+
+.d-vote-btn button {
+    display: block;
+    margin: 0 auto;
+    padding: 7px;
+}

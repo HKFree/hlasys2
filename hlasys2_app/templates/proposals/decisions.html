@@ -10,6 +10,15 @@
         {% endif %}
     </h2>
 </div> #}
+
+{% if can_vote %}
+<div class="d-vote-btn">
+    <form action="/proposal/{{ data['proposal_id'] }}/vote" method="get">
+        <button type="submit">chci hlasovat</button>
+    </form>
+</div>
+{% endif %}
+
 <div id="d-one-decision-box">
     <div class="d-one-decision-col">
         <p>Pro</p>

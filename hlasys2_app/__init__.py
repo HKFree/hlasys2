@@ -25,6 +25,9 @@ def create_app():
     from . import users
     app.register_blueprint(users.bp)
 
+    from . import votes
+    app.register_blueprint(votes.bp)
+
     # ensure the instance folder exists
     try:
         os.makedirs(app.instance_path)
