@@ -11,17 +11,14 @@
 {% endblock %}
 
 {% block content %}
-    {% if not can_vote %}
-        Tak nic
-    {% else %}
-    <div class="d-vote-buttons">
-        <form action="/proposal/{{ proposal_id }}/vote" method="post">
-            <button>jsem PRO ✔</button>
-            <button>jsem PROTI ✖</button>
+    
+    <div class="d-votes">
+        <form action="/proposal/{{ proposal_id }}/vote" method="post" enctype="multipart/form-data">
+            {{ form.csrf_token }}
+            <div>{{ form.decision.label}}: {{ form.decision() }}</div>
+            <div>{{ form.comment.label}}: {{ form.comment() }}</div>
+
+            <input type="submit" value="Hlasovat">
         </form>
-    </div>
-    {% endif %}
-    <div class="d-vote">
-        
     </div>
 {% endblock %}

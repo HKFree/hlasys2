@@ -14,16 +14,17 @@ from hlasys2_app.db import get_db
 
 bp = Blueprint("users", __name__)
 
+
 @bp.route("/user/<int:user_id>")
 def user_ovreview(user_id):
     db = get_db()
 
     user = db.execute(
-        "SELECT * FROM user WHERE id = :user_id",
-        {"user_id": user_id}
+        "SELECT * FROM user WHERE id = :user_id", {"user_id": user_id}
     ).fetchone()
 
-    timeline = db.execute("""
+    timeline = db.execute(
+        """
         SELECT * FROM (
             SELECT event.user_id AS user_id, event.created, proposal.subject AS events_subject, proposal_id, decision, comment, NULL AS subject, NULL AS proposals_id
             FROM event
@@ -34,16 +35,15 @@ def user_ovreview(user_id):
         )
         WHERE user_id = :user_id
         ORDER BY created DESC""",
-        {"user_id": user_id}
+        {"user_id": user_id},
     ).fetchall()
 
-    if user['role'] == 0:
-        user['role_str'] = 'root'
-    elif user['role'] == 1:
-        user['role_str'] = 'admin'
+    if user["role"] == 0:
+        user["role_str"] = "root"
+    elif user["role"] == 1:
+        user["role_str"] = "admin"
     else:
-        user['role_str'] = 'user'
-
+        user["role_str"] = "user"
 
     if not user:
         # flash("No user")

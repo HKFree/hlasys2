@@ -19,6 +19,7 @@ bp = Blueprint("proposals", __name__)
 
 # TODO: send no cache headers
 
+
 @bp.route("/overview")
 def overview_redir():
     return redirect("/overview/vv")
@@ -50,20 +51,20 @@ def overview(query_filter):
 
     for p in proposals:
         p["accepted"] = None
-        if p['type'] == 0: # VV
+        if p["type"] == 0:  # VV
             num_vv = util.num_vv()
 
-            if p['n_voted_for'] >= 4:
-                p['accepted'] = True
-            elif p['n_voted_against'] >= 4:
-                p['accepted'] = False
-        
-        else: # SO
+            if p["n_voted_for"] >= 4:
+                p["accepted"] = True
+            elif p["n_voted_against"] >= 4:
+                p["accepted"] = False
+
+        else:  # SO
             num_so = util.num_so()
-            if p['n_voted_for'] >= ceil(num_so / 2):
-                p['accepted'] = True
-            elif p['n_voted_against'] > ceil(num_so / 2):
-                p['accepted'] = False
+            if p["n_voted_for"] >= ceil(num_so / 2):
+                p["accepted"] = True
+            elif p["n_voted_against"] > ceil(num_so / 2):
+                p["accepted"] = False
 
     return render_template("proposals/ovreview.html", proposals=proposals, filter=f)
 
@@ -111,21 +112,20 @@ def one_proposal(proposal_id):
     print("against", len(voted_against))
 
     accepted = None
-    if proposal['type'] == 0: # VV
+    if proposal["type"] == 0:  # VV
         num_vv = util.num_vv()
 
         if len(voted_for) >= 4:
             accepted = True
         elif len(voted_against) >= 4:
             accepted = False
-        
-    else: # SO
+
+    else:  # SO
         num_so = util.num_so()
         if len(voted_for) >= ceil(num_so / 2):
             accepted = True
         elif len(voted_against) > ceil(num_so / 2):
-            accepted=False
-
+            accepted = False
 
     return render_template(
         "proposals/one.html",
@@ -133,6 +133,11 @@ def one_proposal(proposal_id):
         events=events,
         voted_for=voted_for,
         voted_against=voted_against,
-        can_vote=util.can_vote(session['user_id'], proposal_id),
-        accepted=accepted
+        can_vote=util.can_vote(session["user_id"], proposal_id),
+        accepted=accepted,
     )
+
+
+@bp.route("/proposal/create")
+def create_proposal(): 
+    return render_template("proposals/create.html")

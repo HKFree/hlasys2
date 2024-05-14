@@ -3,18 +3,21 @@ import click
 
 from flask import current_app, g, Flask
 
+
 def init_app(app: Flask):
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
+
 
 def dict_factory(cursor, row):
     fields = [column[0] for column in cursor.description]
     return {key: value for key, value in zip(fields, row)}
 
+
 def get_db():
-    if 'db' not in g:
+    if "db" not in g:
         g.db = sqlite3.connect(
-            current_app.config['DATABASE'],
+            current_app.config["DATABASE"],
             detect_types=sqlite3.PARSE_DECLTYPES,
             check_same_thread=False,
         )
@@ -23,32 +26,39 @@ def get_db():
 
     return g.db
 
+
 def close_db(e=None):
-    db = g.pop('db', None)
+    db = g.pop("db", None)
 
     if db is not None:
         db.close()
 
+
 def init_db():
     db = get_db()
 
-    with current_app.open_resource('schema.sql') as f:
-        db.executescript(f.read().decode('utf8'))
+    with current_app.open_resource("schema.sql") as f:
+        db.executescript(f.read().decode("utf8"))
+
 
 def fill_db_example():
     db = get_db()
 
-    with current_app.open_resource('example_data.sql') as f:
-        db.executescript(f.read().decode('utf8'))
+    with current_app.open_resource("example_data.sql") as f:
+        db.executescript(f.read().decode("utf8"))
 
-@click.command('init-db')
+
+@click.command("init-db")
 def init_db_command():
     """Clear the existing data and create new tables."""
     init_db()
-    click.echo('Initialized the database.')
+    click.echo("Initialized the database.")
 
-@click.command('fill-db-example')
+
+@click.command("fill-db-example")
 def fill_db_example_command():
     """Fill the databse with example data."""
     fill_db_example()
-    click.echo("Filled the db with example data. You can no try running the webserver with 'flask run'")
+    click.echo(
+        "Filled the db with example data. You can no try running the webserver with 'flask run'"
+    )

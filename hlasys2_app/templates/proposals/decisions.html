@@ -25,7 +25,9 @@
         <ul>
             {% for f in voted_for %}
             <li>
-                {{ f['name'] }}
+                <a href="/user/{{ f['id']}}">
+                    {{ f['name'] }}
+                </a>
             </li>
             {% endfor %}
         </ul>
@@ -36,7 +38,9 @@
         <ul>
             {% for a in voted_against %}
             <li>
-                {{ a['name'] }}
+                <a href="/user/{{ a['id']}}">
+                    {{ a['name'] }}
+                </a>
             </li>
             {% endfor %}
         </ul>
