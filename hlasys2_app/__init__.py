@@ -3,6 +3,8 @@ import os
 from flask import Flask, redirect, session
 import locale
 
+from .util import HkfreeRole
+
 locale.setlocale(locale.LC_TIME, "cs_CZ.UTF-8")
 
 def create_app():
@@ -15,9 +17,6 @@ def create_app():
 
     from . import db
     db.init_app(app=app)
-
-    from . import auth
-    app.wsgi_app = auth.middleware(app.wsgi_app)
 
     from . import proposals
     app.register_blueprint(proposals.bp)
@@ -34,6 +33,12 @@ def create_app():
     except OSError:
         pass
 
+    @app.before_request
+    def check_auth():
+        if not session.get('user_id'):
+            session['user_id'] = 9000
+            session['user_hkf_role'] = HkfreeRole.SO
+
     @app.route("/")
     def hello():
         return redirect('/overview/vv')
@@ -41,10 +46,9 @@ def create_app():
     @app.route("/tmp/<int:id>")
     def tmp(id):
         print(f"Registering {id}")
-        session['id'] = id
+        session['user_id'] = id
         return redirect('/overview/vv')
 
-    from .util import HkfreeRole
     @app.route("/login/<int:login_id>")
     def login_tmp(login_id):
         tmp_auth = {
@@ -63,7 +67,7 @@ def create_app():
     @app.route("/s")
     def session_tmp():
         print(session)
-        return 'Session data printed to stdout.'
+        return redirect("/overview/vv")
 
 
     return app

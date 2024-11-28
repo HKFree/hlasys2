@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block content %}
-    <small>id: {{ user['id'] }} | email: {{ user['email'] }} | role: {{ user['role_str'] }}</small>
+    <small>id: {{ user['id'] }} | email: {{ user['email'] }} </small>
     <br>
     <br>
     {% for event in timeline %}
@@ -27,12 +27,12 @@
             {{ event['created'].strftime('%A %d.%m.%Y %H:%M')}}
             <br>
             + hlas {{ '✔' if event['decision'] else '✖'}}
-            na navrhu 
-            <a href="{{ url_for('proposals.one_proposal', proposal_id=event['proposal_id']) }}">
+            na návrhu 
+            <a title="{{ event['events_subject'] }}" href="{{ url_for('proposals.one_proposal', proposal_id=event['proposal_id']) }}">
                 {{ event['events_subject'] | truncate(20) }}
             </a>
             {% if event['comment'] %}
-                s komentarem {{ event['comment'] | truncate(40) }}
+                s komentářem {{ event['comment'] | truncate(40) }}
             {% endif %}
         {% endif %}
         <hr>

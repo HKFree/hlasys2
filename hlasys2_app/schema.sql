@@ -18,8 +18,7 @@ CREATE TABLE user (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     email TEXT,
-    -- 0 - root, 1 - superuser, 2 - admin, 3-4 - reserved
-    -- 5 - executive commitee, 6-9 - reserved, 10 - user
+    -- 0 - root, 1-9 reserved, 10 - user
     role INTEGER NOT NULL DEFAULT 10,
     last_access TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

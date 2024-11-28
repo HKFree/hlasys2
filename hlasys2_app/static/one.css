@@ -2,6 +2,10 @@
     white-space: pre-wrap;
 }
 
+.p-comment {
+    white-space: pre-wrap;
+}
+
 .d-one-detail-row {
     display: flex;
     justify-content: space-between;

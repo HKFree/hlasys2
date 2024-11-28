@@ -14,8 +14,8 @@
             <h1>HlaSys v2</h1>
             <ul>
                 <li><a href="{{ url_for('proposals.overview', query_filter='vv') }}">Přehled</a>
-                <li><a href="{{ url_for('proposals.overview', query_filter='vv') }}">Moje</a>
-                    <li><a href="{{ url_for('proposals.create_proposal') }}">Nový návrh</a>
+                <li><a href="{{ url_for('users.user_ovreview', user_id=session['user_id']) }}">Moje návrhy</a>
+                <li><a href="{{ url_for('proposals.create_proposal') }}">Nový návrh</a>
             </ul>
         </nav>
         <section class="content">

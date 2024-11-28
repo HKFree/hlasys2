@@ -6,10 +6,17 @@
 
 {% block header %}
     <h1 id="h-create-subj">
-        create
+        Vyrobit návrh
     </h1>
 {% endblock %}
 
 {% block content %}
-    create form
+    <form action="/proposal/create", method="post", enctype="multipart/form-data">
+        {{ form.csrf_token }}
+        <div>{{ form.subject.label }}: {{ form.subject }}</div>
+        <div>{{ form.description.label }}: {{ form.description }}</div>
+        <div>{{ form.cost.label }}: {{ form.cost }}</div>
+        <div>{{ form.type.label }}: {{ form.type }}</div>
+        <input type="submit" value="Přidat návrh">
+    </form>
 {% endblock %}

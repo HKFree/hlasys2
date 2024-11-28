@@ -23,6 +23,10 @@ def user_ovreview(user_id):
         "SELECT * FROM user WHERE id = :user_id", {"user_id": user_id}
     ).fetchone()
 
+    if not user:
+        flash("User does not exist...")
+        return redirect("/overview")
+
     timeline = db.execute(
         """
         SELECT * FROM (

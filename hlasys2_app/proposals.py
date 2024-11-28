@@ -14,6 +14,7 @@ from math import ceil
 from hlasys2_app.db import get_db
 from . import util
 from .util import HkfreeRole
+from hlasys2_app.forms import CreateProposalForm, CreateCommentForm
 
 bp = Blueprint("proposals", __name__)
 
@@ -134,10 +135,49 @@ def one_proposal(proposal_id):
         voted_for=voted_for,
         voted_against=voted_against,
         can_vote=util.can_vote(session["user_id"], proposal_id),
+        len=len,
         accepted=accepted,
     )
 
 
-@bp.route("/proposal/create")
+@bp.route("/proposal/create", methods=["GET", "POST"])
 def create_proposal(): 
-    return render_template("proposals/create.html")
+    db = get_db()
+    form: CreateProposalForm = CreateProposalForm()
+    if form.validate_on_submit():
+        db.execute(
+            """ INSERT INTO proposal ('author_id', 'type', 'subject', 'description', 'cost')
+            VALUES (:author_id, :type, :subject, :description, :cost)""",
+            {
+                "author_id": session['user_id'],
+                "type": form.type.data,
+                "subject": form.subject.data,
+                "description": form.description.data,
+                "cost": form.cost.data
+            }
+        )
+        db.commit()
+        return redirect(f"/user/{session['user_id']}")
+    else:
+        return render_template("proposals/create.html", form=form)
+
+@bp.route("/proposal/<int:proposal_id>/comment", methods=["GET", "POST"])
+def create_vote(proposal_id: int): 
+    db = get_db()
+    form: CreateCommentForm = CreateCommentForm()
+    if form.validate_on_submit():
+        print(form.data)
+        db.execute(
+            """ INSERT INTO event ('proposal_id', 'user_id', 'comment')
+            VALUES (:proposal_id, :user_id, :comment)""",
+            {
+                "proposal_id": proposal_id,
+                "user_id": session['user_id'],
+                "comment": form.comment.data
+            }
+        )
+        db.commit()
+        return redirect(f"/proposal/{proposal_id}")
+    else:
+        return render_template("voting/comment.html", form=form, proposal_id=proposal_id)
+

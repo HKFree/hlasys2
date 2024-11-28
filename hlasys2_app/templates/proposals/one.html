@@ -37,8 +37,32 @@
         <hr>
         {% include 'proposals/decisions.html' %}
     </div>
-    {# {% for key, value in data.items() %}
-        <pre>{{ key }}: {{ value }}</pre>\
-    {% endfor%}
-    {{ events }} #}
+    <!-- {% for e in events %}
+        <pre>{{e}}</pre>
+    {% endfor %} -->
+    <h3>Události návrhu: </h3>
+    <hr>
+    {% for e in events %}
+        {{ e['created'].strftime('%A %d.%m.%Y %H:%M')}}
+        <br>
+        {% if e['decision'] == None %}
+            + komentář od <a href="/user/{{ e['user_id']}}">{{ e.name }}</a>:
+            <p class="p-comment">{{ e['comment'] }}</p>
+        {% else %}
+            + hlas {{ '✔' if e['decision'] else '✖'}}
+            od <a href="/user/{{ e['user_id']}}">{{ e.name }}</a>
+            na návrhu 
+            <a href="{{ url_for('proposals.one_proposal', proposal_id=e['proposal_id']) }}">
+                {{ e['events_subject'] | truncate(20) }}
+            </a>
+            {% if e['comment'] %}
+                s komentářem:
+                <p class="p-comment">{{ e['comment'] }}</p>
+            {% endif %}
+        {% endif %}
+        <hr>
+    {% endfor %}
+    {% if len(events) == 0 %}
+        <p>Zatím se zde nic nestalo, je tu ticho jako po pěšině...</p>
+    {% endif %}
 {% endblock %}

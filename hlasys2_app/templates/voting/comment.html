@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='comment.css') }}">
+{% endblock head %}
+
+{% block header %}
+    <h1 id="h-one-subj">
+        {% block title %}Komentování{% endblock %}
+    </h1>
+{% endblock %}
+
+{% block content %}
+    
+    <div class="d-votes">
+        <form action="/proposal/{{ proposal_id }}/comment" method="post" enctype="multipart/form-data">
+            {{ form.csrf_token }}
+            <div>{{ form.comment.label}}: {{ form.comment() }}</div>
+
+            <input type="submit" value="Přidat komentář">
+        </form>
+    </div>
+{% endblock %}
