@@ -4,6 +4,7 @@ import enum
 import base64
 from datetime import datetime, timedelta
 from flask import session
+from enum import Enum
 
 try:
     from . import config
@@ -51,6 +52,15 @@ def user_voted(user_id: int, proposal_id: int) -> bool:
 
     return voted_r is not None
 
+class UserLevel(Enum):
+    VV = 0
+    SO = 1
+    # Cooperative Directors - Představenstvo Družstva
+    CD = 2
+
+    @property
+    def long_name(self) -> str:
+        return ['Výkoný Výbor Spolku', 'Správci Oblastí', 'Představenstvo družstva'][self]
 
 # TODO: propper error handling
 class UserDBData:
@@ -63,19 +73,20 @@ class UserDBData:
     """
 
     _instance = None
-    _last_access_so: datetime = None
-    _last_access_vv: datetime = None
+    _last_access: datetime = None
     _so: int = None
     _vv: int = None
+    _cd: int = None
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = super(UserDBData, cls).__new__(cls, *args, **kwargs)
         return cls._instance
 
-    def _fetch_number(self, vv: bool) -> None:
-        print(f"> Fetching {'VV' if vv else 'SO'} from UserDB")
-        req = request.Request(config.USERDB_API_URL + ("VV" if vv else "SO"))
+    def _fetch_number_of(self, type: UserLevel) -> None:
+        print(f"> Fetching {type.name} from UserDB")
+        # req = request.Request(config.USERDB_API_URL + type.name)
+        req = request.Request(config.USERDB_API_URL + 'ID')
 
         base64_auth_str = base64.b64encode(
             f"{config.USERDB_API_USER}:{config.USERDB_API_KEY}".encode("utf-8")
@@ -90,6 +101,8 @@ class UserDBData:
             # chybicka
             return
 
+        
+
         if vv:
             self._vv = data["spravci"]
             self._last_access_vv = datetime.now()
@@ -97,34 +110,38 @@ class UserDBData:
             self._so = data["spravci"]
             self._last_access_so = datetime.now()
 
-    def _check_validity(self, vv: bool) -> None:
-        if vv:
-            if not self._last_access_vv:  # not cached
-                self._fetch_number(vv=True)
-            else:  # cached
-                data_age: timedelta = datetime.now() - self._last_access_vv
-                if data_age.seconds > (
-                    config.USERDB_API_CACHE_TIMEOUT_HOURS * 3600
-                ):  # cached but old
-                    self._fetch_number(vv=True)
-        else:
-            if not self._last_access_so:  # not cached
-                self._fetch_number(vv=False)
-            else:  # cached
-                data_age: timedelta = datetime.now() - self._last_access_so
-                if data_age.seconds > (
-                    config.USERDB_API_CACHE_TIMEOUT_HOURS * 3600
-                ):  # cached but old
-                    self._fetch_number(vv=False)
+    def _check_validity(self, type: UserLevel) -> None:
+        # if not self._last_access:
+        self._fetch_number_of(type)
+
+
+        # if type == UserLevel.VV:
+        #     if not self._last_access_vv:  # not cached
+        #         self._fetch_number(vv=True)
+        #     else:  # cached
+        #         data_age: timedelta = datetime.now() - self._last_access_vv
+        #         if data_age.seconds > (
+        #             config.USERDB_API_CACHE_TIMEOUT_HOURS * 3600
+        #         ):  # cached but old
+        #             self._fetch_number(vv=True)
+        # elif type == UserLevel.SO:
+        #     if not self._last_access_so:  # not cached
+        #         self._fetch_number(vv=False)
+        #     else:  # cached
+        #         data_age: timedelta = datetime.now() - self._last_access_so
+        #         if data_age.seconds > (
+        #             config.USERDB_API_CACHE_TIMEOUT_HOURS * 3600
+        #         ):  # cached but old
+        #             self._fetch_number(vv=False)
 
     @property
     def n_so(self) -> int:
-        self._check_validity(False)
+        self._check_validity(UserLevel.SO)
         return len(self._so)
 
     @property
     def n_vv(self) -> int:
-        self._check_validity(True)
+        self._check_validity(UserLevel.VV)
         return len(self._vv)
 
     def is_so(self, user_id: int) -> bool:
@@ -146,6 +163,8 @@ def num_so() -> int:
 def num_vv() -> int:
     return dd.n_vv
 
+# def num_id() -> int:
+#     return dd.
 
 def is_so(user_id: int) -> bool:
     return dd.is_so(user_id)

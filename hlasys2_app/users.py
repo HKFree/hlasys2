@@ -20,7 +20,7 @@ def user_ovreview(user_id):
     db = get_db()
 
     user = db.execute(
-        "SELECT * FROM user WHERE id = :user_id", {"user_id": user_id}
+        "SELECT id, name, email, role FROM user WHERE id = :user_id", {"user_id": user_id}
     ).fetchone()
 
     if not user:

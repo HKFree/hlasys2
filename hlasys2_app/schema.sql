@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS user;
 CREATE TABLE proposal (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     author_id INTEGER NOT NULL, -- TODO: foreign key
-    -- 0 = Executive committee (VV), 1 = General committee (SO)
+    -- 0 = Executive committee (VV), 1 = General committee (SO), 2 = Cooperative directors (Představenstvo ID)
     type INTEGER NOT NULL DEFAULT 0,
     subject TEXT NOT NULL,
     description TEXT NOT NULL,

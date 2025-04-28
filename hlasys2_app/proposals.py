@@ -121,12 +121,16 @@ def one_proposal(proposal_id):
         elif len(voted_against) >= 4:
             accepted = False
 
-    else:  # SO
+    elif proposal["type"] == 1:  # SO
         num_so = util.num_so()
         if len(voted_for) >= ceil(num_so / 2):
             accepted = True
         elif len(voted_against) > ceil(num_so / 2):
             accepted = False
+    
+    else:
+        # TODO implement predstavenstov
+        0 == 0
 
     return render_template(
         "proposals/one.html",
