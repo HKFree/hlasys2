@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask, redirect, session
+from flask_oidc import OpenIDConnect
 import locale
 
 from .util import HkfreeRole
@@ -11,9 +12,14 @@ def create_app():
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
-        SECRET_KEY='dev',
+        SECRET_KEY='deasd12312312r21rv',
         DATABASE=os.path.join(app.instance_path, 'hlasys2.sqlite'),
     )
+    app.config["OIDC_SCOPES"] = "phone openid email groupshkfree"
+    app.config["OIDC_CLIENT_SECRETS"] = "client_secrets.json"
+    app.config["OIDC_SERVER_METADATA_URL"] = "https://sso.hkfree.org/realms/hkfree/.well-known/openid-configuration"
+    app.config["OIDC_OVERWRITE_REDIRECT_URI"] = "https://new.hlasovani.hkfree.org/oidc_callback"
+    oidc = OpenIDConnect(app)
 
     from . import db
     db.init_app(app=app)
@@ -40,13 +46,20 @@ def create_app():
             session['user_hkf_role'] = HkfreeRole.SO
 
     @app.route("/")
+    @oidc.require_login
     def hello():
-        return redirect('/overview/vv')
+        print(session['oidc_auth_profile'])
+        return "hiii!"
+    
+    @app.route("/whoami")
+    def what():
+        return str(session.get('oidc_auth_profile') if oidc.user_loggedin else oidc.user_loggedin)
 
     @app.route("/tmp/<int:id>")
     def tmp(id):
         print(f"Registering {id}")
         session['user_id'] = id
+        print(oidc.user_loggedin)
         return redirect('/overview/vv')
 
     @app.route("/login/<int:login_id>")

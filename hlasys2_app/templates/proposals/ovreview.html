@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="d-row-toggle">
+{#<div class="d-row-toggle">
     filtr |
     <a href="/overview/{{ 'so' if filter['vv'] else 'vv+so' }}">
         <span id="toggle_vv">
@@ -25,7 +25,7 @@
         <label for="toggle_so">SO</label>
     </a>
     |
-</div>
+</div>#}
 <table class="t-proposals">
     <tbody>
         {% for p in proposals %}

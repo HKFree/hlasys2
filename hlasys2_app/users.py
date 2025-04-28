@@ -30,7 +30,7 @@ def user_ovreview(user_id):
     timeline = db.execute(
         """
         SELECT * FROM (
-            SELECT event.user_id AS user_id, event.created, proposal.subject AS events_subject, proposal_id, decision, comment, NULL AS subject, NULL AS proposals_id
+            SELECT event.author_id AS user_id, event.created, proposal.subject AS events_subject, proposal_id, decision, comment, NULL AS subject, NULL AS proposals_id
             FROM event
             JOIN proposal ON event.proposal_id = proposal.id
             UNION ALL

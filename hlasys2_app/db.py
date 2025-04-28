@@ -7,6 +7,7 @@ from flask import current_app, g, Flask
 def init_app(app: Flask):
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
+    app.cli.add_command(fill_db_example_command)
 
 
 def dict_factory(cursor, row):
@@ -44,7 +45,7 @@ def init_db():
 def fill_db_example():
     db = get_db()
 
-    with current_app.open_resource("example_data.sql") as f:
+    with current_app.open_resource("../example_data.sql") as f:
         db.executescript(f.read().decode("utf8"))
 
 
@@ -55,7 +56,7 @@ def init_db_command():
     click.echo("Initialized the database.")
 
 
-@click.command("fill-db-example")
+@click.command("fill-db")
 def fill_db_example_command():
     """Fill the databse with example data."""
     fill_db_example()

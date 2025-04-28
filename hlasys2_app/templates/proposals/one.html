@@ -30,7 +30,7 @@
                 Odhad ceny: {{ "{:,}".format(data['cost']) }} Kč
             </p>
             <p class="p-one-detail">
-                Vložil  <a href="/user/{{ data['id'] }}">{{ data['name'] }}</a>
+                Vložil  <a href="/user/{{ data['author_id'] }}">{{ data['author_name'] }}</a>
                 v {{ data['created'].strftime('%A %d.%m.%Y %H:%M') }}
             </p>
         </div>
@@ -46,7 +46,7 @@
         {{ e['created'].strftime('%A %d.%m.%Y %H:%M')}}
         <br>
         {% if e['decision'] == None %}
-            + komentář od <a href="/user/{{ e['user_id']}}">{{ e.name }}</a>:
+            + komentář od <a href="/user/{{ e['author_id']}}">{{ e.name }}</a>:
             <p class="p-comment">{{ e['comment'] }}</p>
         {% else %}
             + hlas {{ '✔' if e['decision'] else '✖'}}

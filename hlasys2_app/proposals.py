@@ -23,7 +23,19 @@ bp = Blueprint("proposals", __name__)
 
 @bp.route("/overview")
 def overview_redir():
-    return redirect("/overview/vv")
+    db = get_db()
+    proposals = db.execute(
+        f"""
+        SELECT proposal.id, author_name, author_id, subject, description, cost, type, created,
+        ( SELECT COUNT(*) FROM event WHERE event.proposal_id = proposal.id AND event.decision = 1 ) AS n_voted_for,
+        ( SELECT COUNT(*) FROM event WHERE event.proposal_id = proposal.id AND event.decision = 0 ) AS n_voted_against
+        FROM proposal
+        ORDER BY proposal.created DESC"""
+    ).fetchall()
+
+    print(proposals)
+
+    return render_template("proposals/ovreview.html", proposals=proposals)
 
 
 @bp.route("/overview/<query_filter>")
@@ -77,8 +89,8 @@ def one_proposal(proposal_id):
     proposal = db.execute(
         """
         SELECT proposal.id as proposal_id, proposal.subject, proposal.description, proposal.cost, proposal.type,
-        proposal.created, user.id, user.name, user.email, user.role FROM proposal 
-        LEFT JOIN user ON author_id = user.id
+        proposal.created, author_id, author_name
+        FROM proposal 
         WHERE proposal.id = :proposal_id""",
         {"proposal_id": proposal_id},
     ).fetchone()
@@ -90,21 +102,18 @@ def one_proposal(proposal_id):
     events = db.execute(
         """
         SELECT * FROM event 
-        LEFT JOIN user ON event.user_id = user.id
         WHERE proposal_id = :proposal_id ORDER BY created DESC""",
         {"proposal_id": proposal_id},
     ).fetchall()
 
     voted_for = db.execute(
         """SELECT * FROM event
-        LEFT JOIN user ON event.user_id = user.id
         WHERE proposal_id = :proposal_id AND decision = 1""",
         {"proposal_id": proposal_id},
     ).fetchall()
 
     voted_against = db.execute(
         """SELECT * FROM event
-        LEFT JOIN user ON event.user_id = user.id
         WHERE proposal_id = :proposal_id AND decision = 0""",
         {"proposal_id": proposal_id},
     ).fetchall()
@@ -113,24 +122,24 @@ def one_proposal(proposal_id):
     print("against", len(voted_against))
 
     accepted = None
-    if proposal["type"] == 0:  # VV
-        num_vv = util.num_vv()
+    # if proposal["type"] == 0:  # VV
+    #     num_vv = util.num_vv()
 
-        if len(voted_for) >= 4:
-            accepted = True
-        elif len(voted_against) >= 4:
-            accepted = False
+    #     if len(voted_for) >= 4:
+    #         accepted = True
+    #     elif len(voted_against) >= 4:
+    #         accepted = False
 
-    elif proposal["type"] == 1:  # SO
-        num_so = util.num_so()
-        if len(voted_for) >= ceil(num_so / 2):
-            accepted = True
-        elif len(voted_against) > ceil(num_so / 2):
-            accepted = False
+    # elif proposal["type"] == 1:  # SO
+    #     num_so = util.num_so()
+    #     if len(voted_for) >= ceil(num_so / 2):
+    #         accepted = True
+    #     elif len(voted_against) > ceil(num_so / 2):
+    #         accepted = False
     
-    else:
-        # TODO implement predstavenstov
-        0 == 0
+    # else:
+    #     # TODO implement predstavenstov
+    #     0 == 0
 
     return render_template(
         "proposals/one.html",
@@ -138,7 +147,7 @@ def one_proposal(proposal_id):
         events=events,
         voted_for=voted_for,
         voted_against=voted_against,
-        can_vote=util.can_vote(session["user_id"], proposal_id),
+        # can_vote=util.can_vote(session["user_id"], proposal_id),
         len=len,
         accepted=accepted,
     )

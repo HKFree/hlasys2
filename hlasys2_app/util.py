@@ -16,7 +16,12 @@ except ImportError:
 class HkfreeRole(int, enum.Enum):
     VV = 0
     SO = 1
-    MEMBER = 2
+    PO = 2
+    KK = 3
+    
+    @property
+    def long_name(self) -> str:
+        return ['Výkoný Výbor Spolku', 'Správci Oblastí', 'Představenstvo družstva', 'Kontrolní komise'][self]
 
 
 from .db import get_db
@@ -52,16 +57,6 @@ def user_voted(user_id: int, proposal_id: int) -> bool:
 
     return voted_r is not None
 
-class UserLevel(Enum):
-    VV = 0
-    SO = 1
-    # Cooperative Directors - Představenstvo Družstva
-    CD = 2
-
-    @property
-    def long_name(self) -> str:
-        return ['Výkoný Výbor Spolku', 'Správci Oblastí', 'Představenstvo družstva'][self]
-
 # TODO: propper error handling
 class UserDBData:
     """
@@ -83,7 +78,7 @@ class UserDBData:
             cls._instance = super(UserDBData, cls).__new__(cls, *args, **kwargs)
         return cls._instance
 
-    def _fetch_number_of(self, type: UserLevel) -> None:
+    def _fetch_number_of(self, type: HkfreeRole) -> None:
         print(f"> Fetching {type.name} from UserDB")
         # req = request.Request(config.USERDB_API_URL + type.name)
         req = request.Request(config.USERDB_API_URL + 'ID')
@@ -110,7 +105,7 @@ class UserDBData:
             self._so = data["spravci"]
             self._last_access_so = datetime.now()
 
-    def _check_validity(self, type: UserLevel) -> None:
+    def _check_validity(self, type: HkfreeRole) -> None:
         # if not self._last_access:
         self._fetch_number_of(type)
 
@@ -136,12 +131,12 @@ class UserDBData:
 
     @property
     def n_so(self) -> int:
-        self._check_validity(UserLevel.SO)
+        self._check_validity(HkfreeRole.SO)
         return len(self._so)
 
     @property
     def n_vv(self) -> int:
-        self._check_validity(UserLevel.VV)
+        self._check_validity(HkfreeRole.VV)
         return len(self._vv)
 
     def is_so(self, user_id: int) -> bool:
