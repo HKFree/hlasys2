@@ -20,7 +20,7 @@ class CreateProposalForm(FlaskForm):
     type = RadioField(
         "schvaluje",
         name="type",
-        choices=[(0, "vv"), (1, "so"), (2, "Představenstvo družstva")],
+        choices=[(0, "Výkonný Výbor spolku"), (1, "Správci oblastí"), (2, "Představenstvo družstva"), (3, "Kontrolní Komise")],
         validators=[DataRequired()]
     )
 

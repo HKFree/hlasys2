@@ -6,7 +6,7 @@
 
 {% block header %}
     <h1 id="h-one-subj">
-        {% block title %}Komentování{% endblock %}
+        {% block title %}Přidat komentář{% endblock %}
     </h1>
 {% endblock %}
 
@@ -15,7 +15,7 @@
     <div class="d-votes">
         <form action="/proposal/{{ proposal_id }}/comment" method="post" enctype="multipart/form-data">
             {{ form.csrf_token }}
-            <div>{{ form.comment.label}}: {{ form.comment() }}</div>
+            <div>{{ form.comment.label}} {{ form.comment() }}</div>
 
             <input type="submit" value="Přidat komentář">
         </form>

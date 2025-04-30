@@ -1,90 +1,180 @@
 BEGIN TRANSACTION;
--- Insert Proposals
-INSERT INTO proposal (id, author_id, author_name, type, subject, description, cost, created, edited) VALUES
-(1, 2, 'Jane Smith', 1, 'Community Development Plan', 'This proposal outlines a comprehensive plan for developing local community centers, enhancing public engagement, and improving recreational spaces in various neighborhoods.\nWe aim to foster a sense of belonging and community through dedicated spaces for activities and meetings.', 18384, '2025-04-28 12:05:01', NULL),
-(2, 6, 'David Black', 3, 'Sustainability Initiative', 'The proposal focuses on introducing sustainable practices in our office and operational environments, reducing waste, and switching to eco-friendly energy sources.\nWe believe these steps will benefit both the environment and the organization in the long term.', 24309, '2025-04-28 12:05:01', NULL),
-(3, 1, 'John Doe', 2, 'Employee Wellness Program', 'This proposal aims to introduce a structured wellness program for all employees, offering gym memberships, mental health resources, and regular health check-ups.\nThe initiative focuses on improving overall well-being and productivity by fostering a healthy work-life balance.', 17923, '2025-04-28 12:05:01', NULL),
-(4, 5, 'Charlie Green', 0, 'Annual Company Retreat', 'A proposal to organize an annual retreat for company employees, which will include team-building activities, workshops, and motivational speeches.\nThe retreat will provide opportunities for employees to bond outside the workplace and improve collaboration and communication skills.', 23456, '2025-04-28 12:05:01', NULL),
-(5, 7, 'Emma Red', 1, 'Technology Upgrade for Offices', 'This proposal recommends the purchase of new hardware and software to modernize the office’s technological infrastructure.\nBy upgrading to the latest systems, we aim to increase efficiency, reduce downtime, and improve data security across all departments.', 12987, '2025-04-28 12:05:01', NULL),
-(6, 3, 'Alice Brown', 0, 'Local Partnerships Expansion', 'This proposal advocates for expanding our network of local partners and suppliers to improve procurement processes and ensure a more sustainable supply chain.\nBuilding relationships with local businesses will strengthen our community ties and reduce the environmental impact of long-distance shipping.', 15000, '2025-04-28 12:05:01', NULL),
-(7, 4, 'Bob White', 2, 'Diversity and Inclusion Training', 'The proposal aims to introduce mandatory diversity and inclusion training programs for all employees.\nBy promoting understanding and respect across diverse groups, we hope to create a more inclusive and supportive workplace culture.', 10230, '2025-04-28 12:05:01', NULL),
-(8, 9, 'Helen Purple', 3, 'Annual Charity Event', 'This proposal suggests organizing an annual charity event to raise funds for a chosen cause, allowing employees to volunteer and participate in philanthropic activities.\nIt aims to boost company morale, foster teamwork, and make a positive impact on the community.', 17999, '2025-04-28 12:05:01', NULL),
-(9, 2, 'Jane Smith', 1, 'Workplace Safety Measures', 'The proposal emphasizes the need for enhanced safety protocols, including new equipment, training, and regular safety audits.\nEnsuring the health and safety of our employees is a top priority, and we are committed to maintaining a secure work environment.', 20000, '2025-04-28 12:05:01', NULL),
-(10, 5, 'Charlie Green', 0, 'New Office Space Proposal', 'This proposal outlines the need for relocating to a larger office space to accommodate the growing team and improve the working environment.\nThe new office will provide modern amenities, a collaborative space, and greater flexibility in terms of workstations and meeting areas.', 50000, '2025-04-28 12:05:01', NULL),
-(11, 10, 'Grace Yellow', 1, 'Employee Recognition Program', 'The proposal focuses on introducing an employee recognition program to reward outstanding contributions and achievements.\nThe initiative will help motivate employees and promote a culture of excellence by acknowledging their hard work and dedication.', 11500, '2025-04-28 12:05:01', NULL),
-(12, 3, 'Alice Brown', 2, 'Health Insurance Plan Update', 'This proposal recommends updating the company’s health insurance plan to provide better coverage and lower premiums.\nBy improving employee benefits, we aim to increase satisfaction, retain talent, and support the health and well-being of our workforce.', 25000, '2025-04-28 12:05:01', NULL),
-(13, 1, 'John Doe', 1, 'Employee Training Programs', 'This proposal aims to implement a variety of employee training programs that will focus on skill development, leadership training, and personal growth.\nInvesting in employees’ professional development will improve performance and employee retention rates.', 22000, '2025-04-28 12:05:01', NULL),
-(14, 6, 'David Black', 0, 'Remote Work Flexibility', 'This proposal encourages offering employees more flexibility in terms of remote work, including the option to work from home a few days each week.\nBy providing greater work-life balance, we believe employees will be more productive and have higher job satisfaction.', 17500, '2025-04-28 12:05:01', NULL),
-(15, 2, 'Jane Smith', 3, 'Team Collaboration Platform', 'The proposal suggests adopting a unified team collaboration platform that integrates communication, project management, and file sharing in one easy-to-use system.\nThe goal is to streamline workflows, improve communication, and increase efficiency across teams.', 28000, '2025-04-28 12:05:01', NULL),
-(16, 4, 'Bob White', 1, 'Client Engagement Strategy', 'This proposal introduces a comprehensive strategy for engaging with clients more effectively, through personalized outreach, regular meetings, and loyalty programs.\nBy strengthening our client relationships, we aim to increase client retention and drive more sales.', 19000, '2025-04-28 12:05:01', NULL),
-(17, 9, 'Helen Purple', 2, 'Environmental Impact Reduction', 'This proposal outlines steps to reduce the company’s carbon footprint, including switching to renewable energy sources and adopting sustainable materials.\nWe are committed to doing our part in protecting the environment and ensuring long-term sustainability for the business.', 22000, '2025-04-28 12:05:01', NULL),
-(18, 8, 'Frank Blue', 0, 'International Expansion Plan', 'The proposal focuses on expanding operations into international markets, specifically targeting Europe and Asia.\nWith careful market research and strategic partnerships, we aim to tap into new customer bases and grow our brand on a global scale.', 34000, '2025-04-28 12:05:01', NULL),
-(19, 3, 'Alice Brown', 1, 'Office Ergonomics Improvement', 'This proposal addresses the need for ergonomic improvements in the office, such as adjustable desks, ergonomic chairs, and specialized equipment for employees who require accommodations.\nImproving comfort will not only reduce health risks but also improve productivity and employee satisfaction.', 15000, '2025-04-28 12:05:01', NULL),
-(20, 7, 'Emma Red', 2, 'Employee Stock Option Plan', 'This proposal recommends introducing an employee stock option plan to incentivize employees and encourage long-term commitment to the company.\nBy offering employees ownership stakes, we aim to align their interests with the company’s growth and success.', 27000, '2025-04-28 12:05:01', NULL);
+-- Inserting proposals
+INSERT INTO proposal (author_id, author_name, type, subject, description, cost, created)
+VALUES
+(277, 'John Doe', 1, 'Increase in annual membership fees', 'Proposal to increase the annual membership fees by 10% to support community programs.', 5000, '2024-02-21 09:42:56'),
+(797, 'Jane Smith', 0, 'New office renovation plan', 'A proposal to approve the office renovation plan for upgrading infrastructure.', 25000, '2024-03-11 10:33:12'),
+(1980, 'George White', 2, 'Cooperative expansion', 'Proposal to expand the cooperative by opening two new branches in nearby cities.', 30000, '2024-01-14 08:22:45'),
+(3135, 'Emily Brown', 3, 'Audit proposal for financial transparency', 'A proposal to hire an external auditor to ensure financial transparency for the past year.', 10000, '2024-05-03 16:14:29'),
+(656, 'Michael Green', 1, 'New IT infrastructure', 'Proposal to approve funds for the upgrade of the IT infrastructure for the organization.', 15000, '2024-07-17 11:27:12'),
+(4291, 'David Harris', 2, 'Renewable energy investment', 'Proposal to invest in renewable energy sources for the cooperative operations.', 20000, '2024-08-19 13:45:02'),
+(3570, 'Sophia Lewis', 0, 'Employee wellness program', 'A proposal to approve the funding for an employee wellness program to improve overall well-being.', 8000, '2024-02-28 17:00:12'),
+(277, 'John Doe', 3, 'Approval of new board members', 'Proposal to approve the nominations for new board members of the organization.', 0, '2024-06-24 14:56:03'),
+(797, 'Jane Smith', 1, 'Team-building activities for employees', 'A proposal to fund team-building activities to improve employee morale and teamwork.', 7000, '2024-01-09 10:18:23'),
+(1980, 'George White', 2, 'Cooperative member training', 'Proposal to introduce a mandatory training program for all cooperative members.', 6000, '2024-05-22 12:10:14'),
+(3135, 'Emily Brown', 3, 'Leadership development program', 'Proposal to launch a leadership development program for current managers and aspiring leaders.', 12000, '2024-03-06 15:35:50'),
+(656, 'Michael Green', 0, 'Sustainability practices implementation', 'Proposal to implement new sustainability practices within the organization.', 10000, '2024-04-10 09:21:45');
 
--- Insert Events
-INSERT INTO event (id, proposal_id, author_id, author_name, decision, comment, created) VALUES
-(1, 1, 9, 'Grace Yellow', NULL, 'Strong support for the proposal, very detailed plan.', '2025-04-28 12:05:01'),
-(2, 2, 3, 'Alice Brown', 0, 'Concerns about the feasibility of the proposal.', '2025-04-28 12:05:01'),
-(3, 3, 4, 'Bob White', 1, 'I support the proposal, the cost is well-justified.', '2025-04-28 12:05:01'),
-(4, 4, 6, 'David Black', NULL, 'I believe the cost is too high and the benefits unclear.', '2025-04-28 12:05:01'),
-(5, 5, 2, 'Jane Smith', 1, 'The proposal aligns with our goals and vision.', '2025-04-28 12:05:01'),
-(6, 6, 7, 'Emma Red', 0, 'I am not sure about the impact this will have on our supply chain in the long run.', '2025-04-28 12:05:01'),
-(7, 7, 10, 'Helen Purple', 1, 'This will create a more inclusive environment for everyone.', '2025-04-28 12:05:01'),
-(8, 8, 3, 'Alice Brown', NULL, 'I fully support this event and am excited to volunteer.', '2025-04-28 12:05:01'),
-(9, 9, 5, 'Charlie Green', 0, 'I don’t think the current safety measures are adequate for our growing team.', '2025-04-28 12:05:01'),
-(10, 10, 4, 'Bob White', NULL, 'The new office space is a great idea, it will accommodate everyone comfortably.', '2025-04-28 12:05:01'),
-(174, 3, 5, 'Charlie Green', 1, NULL, '2025-04-28 12:05:01'),
-(175, 15, 2, 'Jane Smith', NULL, 'I believe this platform is too expensive for our current needs.', '2025-04-28 12:05:01'),
-(176, 18, 10, 'Helen Purple', 1, 'Expanding into international markets is a step forward.', '2025-04-28 12:05:01'),
-(177, 6, 4, 'Bob White', 1, NULL, '2025-04-28 12:05:01'),
-(178, 17, 7, 'Emma Red', 0, 'I think we should focus on local sustainability first.', '2025-04-28 12:05:01'),
-(179, 12, 9, 'Grace Yellow', 1, NULL, '2025-04-28 12:05:01'),
-(180, 19, 2, 'Jane Smith', 1, 'Ergonomics are essential for long-term productivity.', '2025-04-28 12:05:01'),
-(181, 20, 6, 'David Black', 1, NULL, '2025-04-28 12:05:01'),
-(182, 8, 1, 'John Doe', 1, 'The charity event will bring our team together for a good cause.', '2025-04-28 12:05:01'),
-(183, 10, 7, 'Emma Red', 0, 'The new office space may be too costly for our budget right now.', '2025-04-28 12:05:01'),
-(184, 16, 3, 'Alice Brown', 1, 'Client engagement will solidify long-term relationships.', '2025-04-28 12:05:01'),
-(185, 14, 10, 'Helen Purple', 1, NULL, '2025-04-28 12:05:01'),
-(186, 1, 9, 'Grace Yellow', 0, 'I’m concerned about the sustainability of this community development project.', '2025-04-28 12:05:01'),
-(187, 5, 4, 'Bob White', 1, 'Technology upgrades are crucial for staying competitive.', '2025-04-28 12:05:01'),
-(188, 3, 6, 'David Black', 1, NULL, '2025-04-28 12:05:01'),
-(189, 2, 5, 'Charlie Green', 1, NULL, '2025-04-28 12:05:01'),
-(190, 7, 8, 'Frank Blue', 1, NULL, '2025-04-28 12:05:01'),
-(191, 4, 3, 'Alice Brown', 0, 'I believe the retreat will not yield enough return on investment.', '2025-04-28 12:05:01'),
-(192, 11, 9, 'Grace Yellow', 1, NULL, '2025-04-28 12:05:01'),
-(193, 18, 7, 'Emma Red', NULL, 'I think we should focus on expanding regionally first.', '2025-04-28 12:05:01'),
-(194, 13, 6, 'David Black', 1, NULL, '2025-04-28 12:05:01'),
-(195, 16, 2, 'Jane Smith', NULL, 'The client engagement strategy may be too ambitious for our team.', '2025-04-28 12:05:01'),
-(196, 9, 5, 'Charlie Green', 1, 'We need to prioritize workplace safety, especially with the growing team.', '2025-04-28 12:05:01'),
-(197, 12, 3, 'Alice Brown', 1, NULL, '2025-04-28 12:05:01'),
-(198, 19, 9, 'Grace Yellow', NULL, 'I’m not convinced that ergonomics will significantly improve productivity.', '2025-04-28 12:05:01'),
-(199, 15, 8, 'Frank Blue', 1, NULL, '2025-04-28 12:05:01'),
-(200, 20, 5, 'Charlie Green', NULL, 'Stock options will help retain top talent.', '2025-04-28 12:05:01'),
-(201, 14, 10, 'Helen Purple', 1, NULL, '2025-04-28 12:05:01'),
-(202, 5, 1, 'John Doe', NULL, 'We need to modernize our systems to stay competitive.', '2025-04-28 12:05:01'),
-(203, 10, 8, 'Frank Blue', 1, NULL, '2025-04-28 12:05:01'),
-(204, 16, 7, 'Emma Red', NULL, 'Engaging clients is essential for our growth.', '2025-04-28 12:05:01'),
-(205, 19, 6, 'David Black', 1, NULL, '2025-04-28 12:05:01'),
-(206, 11, 3, 'Alice Brown', NULL, 'The recognition program should be more inclusive.', '2025-04-28 12:05:01'),
-(207, 13, 10, 'Helen Purple', 1, NULL, '2025-04-28 12:05:01'),
-(208, 8, 4, 'Bob White', NULL, 'We might want to consider alternative ways of giving back to the community.', '2025-04-28 12:05:01'),
-(209, 5, 9, 'Grace Yellow', 1, NULL, '2025-04-28 12:05:01'),
-(210, 2, 7, 'Emma Red', 0, 'I’m not sure the benefits will outweigh the costs.', '2025-04-28 12:05:01'),
-(211, 20, 3, 'Alice Brown', 1, 'Offering stock options is a smart move to incentivize employees.', '2025-04-28 12:05:01'),
-(212, 15, 1, 'John Doe', 1, NULL, '2025-04-28 12:05:01'),
-(213, 19, 6, 'David Black', 0, 'I think we should look into other ergonomic solutions first.', '2025-04-28 12:05:01'),
-(214, 7, 5, 'Charlie Green', 1, NULL, '2025-04-28 12:05:01'),
-(215, 12, 2, 'Jane Smith', 1, 'Health insurance updates are long overdue.', '2025-04-28 12:05:01'),
-(216, 4, 10, 'Helen Purple', 0, 'The retreat might not be as effective as expected.', '2025-04-28 12:05:01'),
-(217, 9, 1, 'John Doe', 0, 'The workplace safety improvements are essential but costly.', '2025-04-28 12:05:01'),
-(218, 13, 9, 'Grace Yellow', 1, NULL, '2025-04-28 12:05:01'),
-(219, 17, 4, 'Bob White', 0, 'I think we need to focus on local impact first before going global.', '2025-04-28 12:05:01'),
-(220, 3, 6, 'David Black', 1, NULL, '2025-04-28 12:05:01'),
-(221, 6, 10, 'Helen Purple', 1, NULL, '2025-04-28 12:05:01'),
-(222, 18, 2, 'Jane Smith', 0, 'I’m not sure if international expansion is the right direction.', '2025-04-28 12:05:01'),
-(223, 10, 8, 'Frank Blue', 1, NULL, '2025-04-28 12:05:01'),
-(224, 5, 3, 'Alice Brown', 1, 'The technology upgrade is necessary for continued success.', '2025-04-28 12:05:01'),
-(225, 14, 7, 'Emma Red', 1, NULL, '2025-04-28 12:05:01');
+-- Events for Proposal 1 (Increase in annual membership fees)
+INSERT INTO event (proposal_id, author_id, author_name, decision, comment, created)
+VALUES
+(1, 277, 'John Doe', 1, 'In favour of increasing the membership fees to support growth.', '2024-02-21 09:50:42'),
+(1, 797, 'Jane Smith', 0, 'Against the increase; we should explore other ways to raise funds.', '2024-02-21 09:55:35'),
+(1, 3135, 'Emily Brown', 1, 'In favour, we need these funds to improve community services.', '2024-02-21 10:00:25'),
+(1, 656, 'Michael Green', 1, 'In favour, but I have concerns about how it will affect members.', '2024-02-21 10:05:50'),
+(1, 4291, 'David Harris', 0, 'Against. Increasing fees will alienate long-term members.', '2024-02-21 10:10:15'),
+(1, 3570, 'Sophia Lewis', 1, 'In favour. I believe the benefits outweigh the potential downsides.', '2024-02-21 10:12:22');
+
+-- Events for Proposal 2 (New office renovation plan)
+INSERT INTO event (proposal_id, author_id, author_name, decision, comment, created)
+VALUES
+(2, 1980, 'George White', 1, 'In favour of the renovation; its long overdue.', '2024-03-11 10:40:15'),
+(2, 656, 'Michael Green', 0, 'Against. We should allocate the funds elsewhere.', '2024-03-11 10:45:42'),
+(2, 4291, 'David Harris', 1, 'In favour, the office needs a more professional look.', '2024-03-11 10:50:00'),
+(2, 277, 'John Doe', 1, 'I fully support the renovation. It will improve productivity.', '2024-03-11 10:55:25');
+
+-- Events for Proposal 3 (Cooperative expansion)
+INSERT INTO event (proposal_id, author_id, author_name, decision, comment, created)
+VALUES
+(3, 4291, 'David Harris', 1, 'In favour. Expanding will provide us with more opportunities to grow.', '2024-01-14 08:30:12'),
+(3, 3570, 'Sophia Lewis', 0, 'Against. I think we need to consolidate our existing operations first.', '2024-01-14 08:35:10'),
+(3, 797, 'Jane Smith', 1, 'I support the expansion, but we should ensure it is well-planned.', '2024-01-14 08:40:27'),
+(3, 1980, 'George White', NULL, 'I’m not sure yet; I need more details on the market research.', '2024-01-14 08:45:38');
+
+-- Events for Proposal 4 (Audit proposal for financial transparency)
+INSERT INTO event (proposal_id, author_id, author_name, decision, comment, created)
+VALUES
+(4, 277, 'John Doe', 1, 'In favour of the external audit for transparency.', '2024-05-03 16:20:02'),
+(4, 1980, 'George White', 1, 'In favour. Its important to ensure financial accountability.', '2024-05-03 16:25:10'),
+(4, 656, 'Michael Green', 0, 'Against. I believe our internal systems are sufficient for now.', '2024-05-03 16:30:42'),
+(4, 4291, 'David Harris', NULL, 'I need more details on the cost before I decide.', '2024-05-03 16:35:25');
+
+-- Events for Proposal 5 (New IT infrastructure)
+INSERT INTO event (proposal_id, author_id, author_name, decision, comment, created)
+VALUES
+(5, 656, 'Michael Green', 1, 'In favour. We need to improve our IT systems to stay competitive.', '2024-07-17 11:35:14'),
+(5, 4291, 'David Harris', 0, 'Against. We should consider alternatives before spending so much.', '2024-07-17 11:40:02'),
+(5, 3570, 'Sophia Lewis', 1, 'In favour. Better IT infrastructure will boost efficiency.', '2024-07-17 11:45:10'),
+(5, 797, 'Jane Smith', 1, 'In favour, this is essential for the long-term health of the company.', '2024-07-17 11:50:29'),
+(5, 1980, 'George White', NULL, 'I have some reservations about the projected costs, but overall I support the initiative.', '2024-07-17 11:55:50');
+
+-- Events for Proposal 6 (Renewable energy investment)
+INSERT INTO event (proposal_id, author_id, author_name, decision, comment, created)
+VALUES
+(6, 3570, 'Sophia Lewis', 1, 'In favour of renewable energy; its the future.', '2024-08-19 13:50:02'),
+(6, 797, 'Jane Smith', 0, 'Against. I need more assurances on return on investment.', '2024-08-19 13:55:10'),
+(6, 3135, 'Emily Brown', NULL, 'Im undecided. I need more information on the potential savings.', '2024-08-19 13:57:29');
+
+-- Events for Proposal 7 (Employee wellness program)
+INSERT INTO event (proposal_id, author_id, author_name, decision, comment, created)
+VALUES
+(7, 277, 'John Doe', 1, 'In favour of the wellness program. Our employees need support.', '2024-02-28 17:10:10'),
+(7, 4291, 'David Harris', NULL, 'I think we need to focus on the details of the program first.', '2024-02-28 17:15:22'),
+(7, 1980, 'George White', 1, 'In favour of wellness initiatives. They will improve employee productivity.', '2024-02-28 17:20:50');
+
+-- Events for Proposal 8 (Approval of new board members)
+INSERT INTO event (proposal_id, author_id, author_name, decision, comment, created)
+VALUES
+(8, 797, 'Jane Smith', 1, 'In favour of the new members. They bring fresh perspectives.', '2024-06-24 15:00:03'),
+(8, 1980, 'George White', 0, 'Against. Im not sure the new members have enough relevant experience.', '2024-06-24 15:05:07'),
+(8, 656, 'Michael Green', NULL, 'I’m still evaluating the nominees and have no decision yet.', '2024-06-24 15:10:12');
+
+-- Events for Proposal 9 (Team-building activities for employees)
+INSERT INTO event (proposal_id, author_id, author_name, decision, comment, created)
+VALUES
+(9, 3135, 'Emily Brown', 1, 'In favour. Team-building activities will help improve collaboration.', '2024-01-09 10:30:20'),
+(9, 656, 'Michael Green', NULL, 'I support the idea but need to ensure the budget is reasonable.', '2024-01-09 10:35:45');
+
+-- Events for Proposal 10 (Cooperative member training)
+INSERT INTO event (proposal_id, author_id, author_name, decision, comment, created)
+VALUES
+(10, 4291, 'David Harris', 1, 'In favour. Training will strengthen cooperative skills and improve efficiency.', '2024-05-22 12:15:00'),
+(10, 3570, 'Sophia Lewis', NULL, 'I’m still unsure. I need to know the specifics of the training program.', '2024-05-22 12:18:34');
+
+-- Events for Proposal 11 (Leadership development program)
+INSERT INTO event (proposal_id, author_id, author_name, decision, comment, created)
+VALUES
+(11, 277, 'John Doe', 1, 'In favour. Leadership development is essential for company growth.', '2024-03-06 15:45:22'),
+(11, 797, 'Jane Smith', 0, 'Against. We should focus on operational needs before leadership programs.', '2024-03-06 15:50:55');
+
+-- Events for Proposal 12 (Sustainability practices implementation)
+INSERT INTO event (proposal_id, author_id, author_name, decision, comment, created)
+VALUES
+(12, 1980, 'George White', 1, 'In favour. We must reduce our carbon footprint and be more sustainable.', '2024-04-10 09:35:48'),
+(12, 656, 'Michael Green', NULL, 'I support sustainability practices, but I would need more details.', '2024-04-10 09:40:11');
+
+-- Events for Proposal 1 (Increase in annual membership fees)
+-- Majority in favour, 5 votes in favour, 1 against
+INSERT INTO event (proposal_id, author_id, author_name, decision, comment, created)
+VALUES
+(1, 277, 'John Doe', 1, 'In favour of increasing the membership fees to support growth.', '2024-02-21 09:50:42'),
+(1, 797, 'Jane Smith', 0, 'Against the increase; we should explore other ways to raise funds.', '2024-02-21 09:55:35'),
+(1, 3135, 'Emily Brown', 1, 'In favour, we need these funds to improve community services.', '2024-02-21 10:00:25'),
+(1, 656, 'Michael Green', 1, 'In favour, but I have concerns about how it will affect members.', '2024-02-21 10:05:50'),
+(1, 4291, 'David Harris', 0, 'Against. Increasing fees will alienate long-term members.', '2024-02-21 10:10:15'),
+(1, 3570, 'Sophia Lewis', 1, 'In favour. I believe the benefits outweigh the potential downsides.', '2024-02-21 10:12:22'),
+(1, 1234, 'Random User', 1, 'In favour of the increase. We need additional resources.', '2024-02-21 10:15:00');
+
+-- Events for Proposal 2 (New office renovation plan)
+-- Majority against, 4 votes against, 1 in favour
+INSERT INTO event (proposal_id, author_id, author_name, decision, comment, created)
+VALUES
+(2, 1980, 'George White', 1, 'In favour of the renovation; its long overdue.', '2024-03-11 10:40:15'),
+(2, 656, 'Michael Green', 0, 'Against. We should allocate the funds elsewhere.', '2024-03-11 10:45:42'),
+(2, 4291, 'David Harris', 0, 'Against. We need to prioritize other projects first.', '2024-03-11 10:50:00'),
+(2, 277, 'John Doe', 0, 'Against. The cost of the renovation is too high for this period.', '2024-03-11 10:55:25'),
+(2, 797, 'Jane Smith', 0, 'Against. I think there are more urgent needs at the moment.', '2024-03-11 11:00:00');
+
+-- Events for Proposal 3 (Cooperative expansion)
+-- Majority in favour, 4 votes in favour, 1 against
+INSERT INTO event (proposal_id, author_id, author_name, decision, comment, created)
+VALUES
+(3, 4291, 'David Harris', 1, 'In favour. Expanding will provide us with more opportunities to grow.', '2024-01-14 08:30:12'),
+(3, 3570, 'Sophia Lewis', 0, 'Against. I think we need to consolidate our existing operations first.', '2024-01-14 08:35:10'),
+(3, 797, 'Jane Smith', 1, 'I support the expansion, but we should ensure it is well-planned.', '2024-01-14 08:40:27'),
+(3, 277, 'John Doe', 1, 'In favour. The expansion is crucial for future success.', '2024-01-14 08:45:15'),
+(3, 1980, 'George White', 1, 'I am in favour of the expansion. It will strengthen our position in the market.', '2024-01-14 08:50:00'),
+(3, 4567, 'Random User', 1, 'I believe expanding now is a strategic move that will benefit the cooperative.', '2024-01-14 08:55:00');
+
+-- Events for Proposal 4 (Audit proposal for financial transparency)
+-- Majority in favour, 3 votes in favour, 1 against
+INSERT INTO event (proposal_id, author_id, author_name, decision, comment, created)
+VALUES
+(4, 277, 'John Doe', 1, 'In favour of the external audit for transparency.', '2024-05-03 16:20:02'),
+(4, 1980, 'George White', 1, 'In favour. Its important to ensure financial accountability.', '2024-05-03 16:25:10'),
+(4, 656, 'Michael Green', 0, 'Against. I believe our internal systems are sufficient for now.', '2024-05-03 16:30:42'),
+(4, 4291, 'David Harris', 1, 'I support the audit. Transparency is important for trust.', '2024-05-03 16:35:25'),
+(4, 3135, 'Emily Brown', NULL, 'I am undecided. I need more details on how this will impact our operations.', '2024-05-03 16:40:00');
+
+-- Events for Proposal 5 (New IT infrastructure)
+-- Majority in favour, 4 votes in favour, 1 against
+INSERT INTO event (proposal_id, author_id, author_name, decision, comment, created)
+VALUES
+(5, 656, 'Michael Green', 1, 'In favour. We need to improve our IT systems to stay competitive.', '2024-07-17 11:35:14'),
+(5, 4291, 'David Harris', 0, 'Against. We should consider alternatives before spending so much.', '2024-07-17 11:40:02'),
+(5, 3570, 'Sophia Lewis', 1, 'In favour. Better IT infrastructure will boost efficiency.', '2024-07-17 11:45:10'),
+(5, 797, 'Jane Smith', 1, 'In favour, this is essential for the long-term health of the company.', '2024-07-17 11:50:29'),
+(5, 1980, 'George White', 1, 'In favour, this is an important investment in our future.', '2024-07-17 11:55:00'),
+(5, 7654, 'Random User', 1, 'I strongly support this infrastructure upgrade. It is necessary for growth.', '2024-07-17 12:00:00');
+
+-- Events for Proposal 6 (Renewable energy investment)
+-- Majority in favour, 4 votes in favour, 2 against
+INSERT INTO event (proposal_id, author_id, author_name, decision, comment, created)
+VALUES
+(6, 3570, 'Sophia Lewis', 1, 'In favour of renewable energy; its the future.', '2024-08-19 13:50:02'),
+(6, 797, 'Jane Smith', 0, 'Against. I need more assurances on return on investment.', '2024-08-19 13:55:10'),
+(6, 3135, 'Emily Brown', NULL, 'Im undecided. I need more information on the potential savings.', '2024-08-19 13:57:29'),
+(6, 4291, 'David Harris', 1, 'In favour. We need to invest in sustainability and renewable energy.', '2024-08-19 13:59:00'),
+(6, 1980, 'George White', 1, 'Im in favour. Renewable energy is the future.', '2024-08-19 14:05:25'),
+(6, 1893, 'Random User', 1, 'I support this initiative, as it will help us reduce costs in the long run.', '2024-08-19 14:10:00');
+
+-- Events for Proposal 7 (Employee wellness program)
+-- Majority in favour, 3 votes in favour, 1 against
+INSERT INTO event (proposal_id, author_id, author_name, decision, comment, created)
+VALUES
+(7, 277, 'John Doe', 1, 'In favour of the wellness program. Our employees need support.', '2024-02-28 17:10:10'),
+(7, 4291, 'David Harris', NULL, 'I think we need to focus on the details of the program first.', '2024-02-28 17:15:22'),
+(7, 1980, 'George White', 1, 'In favour of wellness initiatives. They will improve employee productivity.', '2024-02-28 17:20:50'),
+(7, 7654, 'Random User', 1, 'I support the wellness program. It will benefit everyone in the long term.', '2024-02-28 17:25:30');
 
 COMMIT;

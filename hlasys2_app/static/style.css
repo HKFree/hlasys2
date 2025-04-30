@@ -1,13 +1,459 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body Styles */
 body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    line-height: 1.6;
     margin: unset;
 }
 
-.content {
-    max-width: 900px;
-    margin: 0 auto;
+/* Navigation Styles */
+nav {
+    /* background-color: #0073e6; Blue background */
+    color: white;
+    padding: 15px 0;
+    width: 100%; /* Full width for background color */
+    box-sizing: border-box;
+    /* position: fixed; */
+    top: 0;
+    left: 0;
+    z-index: 1000;
 }
 
-nav {
-   max-width: 900px;
-   margin: 0 auto;
+nav .container {
+    max-width: 900px; /* Match the content width */
+    margin: 0 auto;
+    padding: 0 20px; /* Add padding inside the container */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+nav h1 {
+    font-size: 24px;
+}
+
+nav ul {
+    list-style-type: none;
+    display: flex;
+}
+
+nav ul li {
+    margin-left: 20px;
+}
+
+nav a {
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+/* Content Section */
+.content {
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 20px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+header strong {
+    color: #0073e6;
+}
+
+#s-one-unknown {
+    color: #ff5722;
+}
+
+/* Accepted Status Style */
+.d-one-accepted {
+    background-color: #99c80095; /* Light green background (same as table accepted row) */
+    border-radius: 4px;
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(40, 167, 69, 0.2); /* Soft green shadow */
+}
+
+/* Rejected Status Style */
+.d-one-rejected {
+    background-color: #ff000070; /* Light red background (same as table rejected row) */
+    border-radius: 4px;
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(220, 53, 69, 0.2); /* Soft red shadow */
+}
+
+.d-one-decision-row {
+    border-radius: 4px;
+    padding-left: 8px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+/* Description and Detail Section */
+#p-desc {
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+.d-one-detail-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.p-one-detail {
+    font-size: 16px;
+}
+
+.d-one-detail-row p a {
+    text-decoration: none;
+    color: #0073e6;
+}
+
+.d-one-detail-row p a:hover {
+    text-decoration: underline;
+}
+
+hr {
+    margin: 20px 0;
+    border: 0;
+    border-top: 1px solid #ddd;
+}
+
+/* Vote & Decision Section */
+#d-one-decision-box {
+    display: flex; /* Use Flexbox to align items side by side */
+    justify-content: space-between; /* Space out the columns */
+    gap: 30px; /* Space between the columns */
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+}
+
+.d-one-decision-col {
+    width: 48%; /* Ensure they don't take up the whole space */
+    padding: 15px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.d-one-decision-col p {
+    font-size: 18px;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.d-one-decision-col ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.d-one-decision-col ul li {
+    margin-bottom: 10px;
+}
+
+.d-one-decision-col ul li a {
+    color: #0073e6;
+    text-decoration: none;
+}
+
+.d-one-decision-col ul li a:hover {
+    text-decoration: underline;
+}
+
+.d-one-decision-col:last-child {
+    margin-right: 0;
+}
+
+.d-vote-btn form {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.d-vote-btn button {
+    background-color: #0073e6;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.d-vote-btn button:hover {
+    background-color: #005bb5;
+}
+
+/* Comment Section */
+h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.p-comment {
+    background-color: #f9f9f9;
+    padding: 10px;
+    border-left: 4px solid #0073e6;
+    margin-bottom: 10px;
+}
+
+.p-comment a {
+    color: #0073e6;
+    text-decoration: none;
+}
+
+.p-comment a:hover {
+    text-decoration: underline;
+}
+
+.p-comment + .p-comment {
+    margin-top: 15px;
+}
+
+/* Form Page Styles */
+form {
+    display: grid;
+    grid-gap: 20px;
+}
+
+form div {
+    display: flex;
+    flex-direction: column;
+}
+
+form label {
+    font-size: 18px;
+    margin-bottom: 8px;
+}
+
+form input[type="text"],
+form input[type="number"],
+form textarea,
+form input[type="radio"] {
+    font-size: 16px;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+form input[type="text"]:focus,
+form input[type="number"]:focus,
+form textarea:focus {
+    border-color: #0073e6;
+    outline: none;
+}
+
+form textarea {
+    resize: vertical;
+}
+
+form input[type="submit"] {
+    background-color: #0073e6;
+    color: white;
+    font-size: 18px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+form input[type="submit"]:hover {
+    background-color: #005bb5;
+}
+
+/* Radio Buttons */
+ul#type {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+ul#type li {
+    margin-bottom: 10px;
+}
+
+ul#type input[type="radio"] {
+    margin-right: 10px;
+}
+
+.nav-content {
+	max-width: 900px;
+	margin: 0 auto;
+	background-color: #0073e6;
+	border-radius: 8px;
+    padding: 8px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    body {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .d-one-detail-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .d-one-decision-col {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 20px;
+    }
+
+    nav h1 {
+        font-size: 20px;
+    }
+
+    nav ul {
+        float: none;
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    nav ul li {
+        display: block;
+        margin: 10px;
+    }
+
+    .content {
+        padding: 10px;
+    }
+
+    form label {
+        font-size: 16px;
+    }
+
+    form input[type="submit"] {
+        font-size: 16px;
+    }
+}
+
+/* Container for the tooltip */
+.tooltip-container {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+/* The actual tooltip text */
+.tooltip-text {
+    visibility: hidden;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 5px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 100%; /* Position above the container */
+    left: 50%;
+    transform: translateX(-50%); /* Centers the tooltip horizontally */
+    white-space: nowrap; /* Prevents the text from wrapping */
+    opacity: 0;
+    transition: opacity 0.3s;
+    width: max-content; /* Tooltip width is determined by content */
+}
+
+.tooltip-visible-text {
+    border-bottom:1px dashed #000;
+}
+
+/* Show the tooltip on hover */
+.tooltip-container:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Ensure borders are collapsed and visible on the rows */
+.t-proposals {
+    width: 100%;
+    border-collapse: collapse; /* Make sure borders are collapsed */
+}
+
+.t-proposals tr {
+    /* border-left: 5px solid transparent; */
+    border-top: 3px solid transparent;
+    border-bottom: 3px solid transparent;
+
+}
+
+.t-proposals td {
+    padding: 2px 0;
+    padding-left: 6px;
+}
+
+/* Accepted Proposal Style */
+.tr-proposal-accepted {
+    background-color: #e6f7e6; /* Light green background */
+    box-shadow: 0 0 10px rgba(40, 167, 69, 0.2); /* Soft green shadow */
+}
+
+.tr-proposal-accepted:hover {
+    background-color: #d4f4d4; /* Slightly darker on hover */
+}
+
+/* Rejected Proposal Style */
+.tr-proposal-rejected {
+    background-color: #f8d7da; /* Light red background */
+    box-shadow: 0 0 10px rgba(220, 53, 69, 0.2); /* Soft red shadow */
+}
+
+.tr-proposal-rejected:hover {
+    background-color: #f5c6cb; /* Slightly darker on hover */
+}
+
+.tr-proposal-undecided:hover {
+    background-color: #e2e2e2; /* Slightly darker on hover */
+    box-shadow: 0 0 10px #e2e2e2; /* Soft red shadow */
+}
+
+/* Footer Styles */
+footer {
+    color: black;
+    padding-top: 10px;
+    font-family: monospace;
+    text-align: center;
+    width: 100%;
+    position: relative; /* Ensures it is part of the document flow */
+    bottom: 0;
+    left: 0;
+}
+
+.flash:before {
+    content: "⚠️ ";
+}
+
+.flash:after {
+    content: " ⚠️";
+}
+
+.flash {
+    font-weight: bold;
+}
+
+.d-one-undecided {
+    overflow: auto;
+    max-height: 20vh;
 }

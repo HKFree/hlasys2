@@ -11,21 +11,28 @@ from flask import (
 )
 
 from hlasys2_app.db import get_db
+from hlasys2_app import oidc
 
 bp = Blueprint("users", __name__)
 
 
 @bp.route("/user/<int:user_id>")
+@oidc.require_login
 def user_ovreview(user_id):
     db = get_db()
 
-    user = db.execute(
-        "SELECT id, name, email, role FROM user WHERE id = :user_id", {"user_id": user_id}
+    user_event = db.execute(
+        "SELECT * FROM event WHERE author_id = :user_id LIMIT 1", {
+            "user_id": user_id}
+    ).fetchone()
+    user_proposal = db.execute(
+        "SELECT * FROM proposal WHERE author_id = :user_id LIMIT 1", {
+            "user_id": user_id}
     ).fetchone()
 
-    if not user:
-        flash("User does not exist...")
-        return redirect("/overview")
+    if not user_event and not user_proposal:
+        flash("Tento uživatel zde zatím nemá timeline...")
+        return redirect("/overview/vvsopdkk")
 
     timeline = db.execute(
         """
@@ -42,15 +49,4 @@ def user_ovreview(user_id):
         {"user_id": user_id},
     ).fetchall()
 
-    if user["role"] == 0:
-        user["role_str"] = "root"
-    elif user["role"] == 1:
-        user["role_str"] = "admin"
-    else:
-        user["role_str"] = "user"
-
-    if not user:
-        # flash("No user")
-        return redirect("/overview")
-
-    return render_template("user/profile.html", user=user, timeline=timeline)
+    return render_template("user/profile.html", user_event=user_event, timeline=timeline)

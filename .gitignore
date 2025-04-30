@@ -16,3 +16,5 @@ build/
 *.egg-info/
 
 config.py
+
+client_secrets.json

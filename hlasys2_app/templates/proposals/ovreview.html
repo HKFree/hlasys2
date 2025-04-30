@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='overview.css') }}">
+<!-- <link rel="stylesheet" href="{{ url_for('static', filename='overview.css') }}"> -->
 {% endblock head %}
 
 {% block header %}
@@ -9,32 +9,46 @@
 {% endblock %}
 
 {% block content %}
-{#<div class="d-row-toggle">
-    filtr |
-    <a href="/overview/{{ 'so' if filter['vv'] else 'vv+so' }}">
+<div class="d-row-toggle">
+    návrhy pro 
+    <a href="/overview/{{ next_filter(filter, 'vv') }}">
         <span id="toggle_vv">
-            {% if filter["vv"] %}✔{% else %}✖{% endif %}
+            {% if 'vv' in filter %}✔{% else %}✖{% endif %}
         </span>
-        <label for="toggle_vv">VV</label>
+        <label for="toggle_vv">Výkonný Výbor</label>
     </a>
     |
-    <a href="/overview/{{ 'vv' if filter['so'] else 'vv+so' }}">
+    <a href="/overview/{{ next_filter(filter, 'so') }}">
         <span id="toggle_so">
-            {% if filter["so"] %}✔{% else %}✖{% endif %}
+            {% if 'so' in filter %}✔{% else %}✖{% endif %}
         </span>
-        <label for="toggle_so">SO</label>
+        <label for="toggle_so">Správce Oblastí</label>
     </a>
     |
-</div>#}
+    <a href="/overview/{{ next_filter(filter, 'pd') }}">
+        <span id="toggle_pd">
+            {% if 'pd' in filter %}✔{% else %}✖{% endif %}
+        </span>
+        <label for="toggle_pd">Představenstvo Družstva</label>
+    </a>
+    |
+    <a href="/overview/{{ next_filter(filter, 'kk') }}">
+        <span id="toggle_kk">
+            {% if 'kk' in filter %}✔{% else %}✖{% endif %}
+        </span>
+        <label for="toggle_kk">Kontrolní Komisi</label>
+    </a>
+    |
+</div>
 <table class="t-proposals">
     <tbody>
         {% for p in proposals %}
         {% if p['accepted'] == True %}
-        <tr class="tr-proposal tr-proposal-green">
+        <tr class="tr-proposal tr-proposal-accepted">
         {% elif p['accepted'] == False %}
-        <tr class="tr-proposal tr-proposal-red">
+        <tr class="tr-proposal tr-proposal-rejected">
         {% else %}
-        <tr class="tr-proposal">
+        <tr class="tr-proposal tr-proposal-undecided">
         {% endif %}
         
             <td>
@@ -43,15 +57,18 @@
                 </a>
             </td>
             <td>
-                {{ "{:,}".format(p['cost']) }},-
+                <div class="tooltip-container">
+                    <span class="tooltip-text">{{ HkfreeRole(p['type']).long_name }}</span>
+                    <span class="tooltip-visible-text">{{ HkfreeRole(p['type']).name }}</span>
+                </div>
+            </td>
+            <td>
+                {{ "{:,d}".format(p['cost']) }},-
             </td>
             <td>
                 <a href="/user/{{ p['user_id'] }}">{{ p['name'] }}</a>
-                @ {{ p['created'].strftime('%A %d.%m.%Y %H:%M') }}
+                {{ p['created'].strftime('%A %d.%m %H:%M') }}
             </td>
-            <!-- <p>
-                        {{ p['description'] | truncate(50) }}
-                    </p> -->
         </tr>
         {% endfor %}
     </tbody>

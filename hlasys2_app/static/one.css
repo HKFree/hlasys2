@@ -1,4 +1,4 @@
-#p-desc {
+/* #p-desc {
     white-space: pre-wrap;
 }
 
@@ -19,14 +19,19 @@
     #d-one-bot {
         flex-direction: column;
     }
+
+    .d-one-decision-col {
+        width: 50% !important;
+    }
 }
 
 #d-one-decision-box {
     display: flex;
+    justify-content: center;
 }
 
 .d-one-decision-col {
-    width: 50%;
+    width: 25%;
     display: inline-block;
 }
 
@@ -62,4 +67,4 @@ header span {
     display: block;
     margin: 0 auto;
     padding: 7px;
-}
+} */

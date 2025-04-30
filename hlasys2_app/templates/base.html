@@ -11,12 +11,14 @@
     </head>
     <body>
         <nav>
-            <h1>HlaSys v2</h1>
-            <ul>
-                <li><a href="{{ url_for('proposals.overview', query_filter='vv') }}">Přehled</a>
-                <li><a href="{{ url_for('users.user_ovreview', user_id=session['user_id']) }}">Moje návrhy</a>
-                <li><a href="{{ url_for('proposals.create_proposal') }}">Nový návrh</a>
-            </ul>
+            <div class="nav-content">
+                <h1>HlaSys v2</h1>
+                <ul>
+                    <li><a href="{{ url_for('proposals.overview', filter='vvsopdkk') }}">Přehled</a>
+                    <li><a href="{{ url_for('users.user_ovreview', user_id=session['user_id']) }}">Moje timeline</a>
+                    <li><a href="{{ url_for('proposals.create_proposal') }}">Nový návrh</a>
+                </ul>
+            </div>
         </nav>
         <section class="content">
             <header>
@@ -26,6 +28,7 @@
             <div class="flash">{{ message }}</div>
             {% endfor %}
             {% block content %}{% endblock %}
+            <footer>HlaSys v2 | pro <a href="https://hkfree.org">hkfree.org</a> vyrobil OndraLhota</footer>
         </section>
         
     </body>

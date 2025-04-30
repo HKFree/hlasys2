@@ -5,7 +5,7 @@ CREATE TABLE proposal (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     author_id INTEGER NOT NULL,
     author_name TEXT NOT NULL,
-    -- 0 = Executive committee (VV), 1 = General committee (SO), 2 = Cooperative directors (Představenstvo Druzstva), 3 = Control Committee (Kontrolni Komise)
+    -- 0 = Executive committee (VV), 1 = General committee (SO), 2 = Cooperative board (Představenstvo Druzstva), 3 = Control Committee (Kontrolni Komise)
     type INTEGER NOT NULL DEFAULT 0,
     subject TEXT NOT NULL,
     description TEXT NOT NULL,

@@ -1,52 +1,74 @@
-{# <div id="d-one-decision-row">
+{% if accepted == None %}
+<div class="d-one-decision-row d-one-unknown">
     <h2>
         Stav:
-        {% if accepted == None %}
-            <span id="s-one-undecided">nerozhodnuto</span>
-        {% elif accepted == True %}
-            <span  id="s-one-accepted">schvaleno</span>
-        {% elif accepted == False %}
-            <span  id="s-one-rejected">zamitnuto</span>
-        {% endif %}
+        <span id="s-one-undecided">? nerozhodnuto ?</span>
     </h2>
-</div> #}
-{#
+</div>
+{% elif accepted == True %}
+<div class="d-one-decision-row d-one-accepted">
+    <h2>
+        Stav:
+        <span  id="s-one-accepted">✔ schváleno ✔</span>
+    </h2>
+</div>
+{% elif accepted == False %}
+<div class="d-one-decision-row d-one-rejected">
+    <h2>
+        Stav:
+        <span  id="s-one-rejected">✖ zamítnuto ✖</span>
+    </h2>
+</div>
+{% endif %}
+    
 <div class="d-vote-btn">
     {% if can_vote %}
-    <form action="/proposal/{{ data['proposal_id'] }}/vote" method="get">
+    <form action="/proposal/{{ data['id'] }}/vote" method="get">
         <button type="submit">chci hlasovat</button>
     </form>
     {% endif %}
-    <form action="/proposal/{{ data['proposal_id'] }}/comment" method="get">
+    <form action="/proposal/{{ data['id'] }}/comment" method="get">
         <button type="submit">chci komentovat</button>
     </form>
 </div>
 
 <div id="d-one-decision-box">
     <div class="d-one-decision-col">
-        <p>Pro</p>
+        <p>✔ Pro ✔</p>
         <ul>
             {% for f in voted_for %}
             <li>
-                <a href="/user/{{ f['id']}}">
-                    {{ f['name'] }}
+                <a href="/user/{{ f['author_id']}}">
+                    {{ f['author_name'] }}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="d-one-decision-col d-one-undecided">
+        <p>Přemýšlí 🤔</p>
+        
+        <ul>
+            {% for undecider in undeciders %}
+            <li>
+                <a href="/user/{{ undecider }}">
+                    {{ undeciders[undecider] }}
                 </a>
             </li>
             {% endfor %}
         </ul>
     </div>
     <div class="d-one-decision-col">
-        <p>Proti</p>
+        <p>✖ Proti ✖</p>
         
         <ul>
             {% for a in voted_against %}
             <li>
-                <a href="/user/{{ a['id']}}">
-                    {{ a['name'] }}
+                <a href="/user/{{ a['author_id']}}">
+                    {{ a['author_name'] }}
                 </a>
             </li>
             {% endfor %}
         </ul>
     </div>
 </div>
-#}

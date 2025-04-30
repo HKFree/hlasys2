@@ -2,23 +2,20 @@
 
 
 {% block head %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='one.css') }}">
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='one.css') }}"> -->
 {% endblock head %}
 
 {% block header %}
     <h1 id="h-one-subj">
         {% block title %}{{ data['subject'] }}{% endblock %}
-    </h1>
+    </h1>   
     
-    pro <strong>{{ ['VV Spolku', 'Správce Oblastí', 'Představenstvo družstva'][data['type']] }}</strong>
+    {# TODO: Use HKFreeRole here #}
+    pro
+    <strong>
+        <a href="/overview/{{ role_str }}">{{ long_role_str }}</a>    
+    </strong>
 
-    {% if accepted%}
-        <span id="s-one-accepted">✔ schváleno ✔</span>
-    {% elif accepted == False %}
-        <span id="s-one-rejected">✖ zamítnuto ✖</span>
-    {% else %}
-        <span id="s-one-unknown"><b>?</b> nerozhodnuto <b>?</b></span>
-    {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -37,24 +34,17 @@
         <hr>
         {% include 'proposals/decisions.html' %}
     </div>
-    <!-- {% for e in events %}
-        <pre>{{e}}</pre>
-    {% endfor %} -->
     <h3>Události návrhu: </h3>
     <hr>
     {% for e in events %}
         {{ e['created'].strftime('%A %d.%m.%Y %H:%M')}}
         <br>
         {% if e['decision'] == None %}
-            + komentář od <a href="/user/{{ e['author_id']}}">{{ e.name }}</a>:
+            + komentář od <a href="/user/{{ e['author_id']}}">{{ e['author_name'] }}</a>:
             <p class="p-comment">{{ e['comment'] }}</p>
         {% else %}
             + hlas {{ '✔' if e['decision'] else '✖'}}
-            od <a href="/user/{{ e['user_id']}}">{{ e.name }}</a>
-            na návrhu 
-            <a href="{{ url_for('proposals.one_proposal', proposal_id=e['proposal_id']) }}">
-                {{ e['events_subject'] | truncate(20) }}
-            </a>
+            od <a href="/user/{{ e['author_id']}}">{{ e['author_name'] }}</a>
             {% if e['comment'] %}
                 s komentářem:
                 <p class="p-comment">{{ e['comment'] }}</p>
