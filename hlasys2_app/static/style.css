@@ -453,7 +453,7 @@ footer {
     font-weight: bold;
 }
 
-.d-one-undecided {
+.d-one-decision-col {
     overflow: auto;
-    max-height: 20vh;
+    max-height: 25vh;
 }
