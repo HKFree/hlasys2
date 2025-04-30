@@ -7,10 +7,12 @@ It's goal is to replace the current voting system for the organization that shou
 ## TODO
 
 - [ ] Finish TODO
-- [ ] Proposals
-- [ ] Votes
-- [ ] Comments
+- [x] Proposals
+- [x] Votes
+- [x] Comments
 - [ ] Markdown support
+- [ ] Correct timezone
+- [ ] Change vote decision
 
 ### License 
 
