@@ -108,9 +108,11 @@ header strong {
     padding-bottom: 4px;
 }
 /* Description and Detail Section */
-#p-desc {
+#txt-desc {
     font-size: 16px;
     margin-bottom: 20px;
+    width: 100%;
+    white-space: pre-wrap;
 }
 
 .d-one-detail-row {
@@ -215,6 +217,7 @@ h3 {
     padding: 10px;
     border-left: 4px solid #0073e6;
     margin-bottom: 10px;
+    white-space: pre-wrap;
 }
 
 .p-comment a {
@@ -441,17 +444,24 @@ footer {
     left: 0;
 }
 
-.flash:before {
+.flashes {
+    font-weight: bold;
+    list-style: none;
+}
+
+.flash-warning:before {
     content: "⚠️ ";
 }
 
-.flash:after {
-    content: " ⚠️";
+.flash-success:before {
+    content: "✅ ";
 }
 
-.flash {
-    font-weight: bold;
+.flash-danger:before {
+    content: "❗";
 }
+
+
 
 .d-one-decision-col {
     overflow: auto;

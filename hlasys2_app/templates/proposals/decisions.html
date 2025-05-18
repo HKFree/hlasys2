@@ -22,9 +22,13 @@
 {% endif %}
     
 <div class="d-vote-btn">
-    {% if can_vote %}
+    {% if can_vote and not user_voted %}
     <form action="/proposal/{{ data['id'] }}/vote" method="get">
         <button type="submit">chci hlasovat</button>
+    </form>
+    {% elif can_vote and user_voted %}
+    <form action="/proposal/{{ data['id'] }}/vote" method="get">
+        <button type="submit">chci změnit hlas</button>
     </form>
     {% endif %}
     <form action="/proposal/{{ data['id'] }}/comment" method="get">

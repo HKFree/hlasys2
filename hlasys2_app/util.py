@@ -165,11 +165,12 @@ class UserDBData:
             bool: True if the user is a member of the given role, False otherwise.
         """
         if role == HkfreeRole.KK:
+            print("WARNING: KK not implemented yet in is_member_of")
             return False
 
         self._refresh()
         members = [self._vv, self._so, self._pd, self._kk][role]
-        return user_id in list(members.keys())
+        return str(user_id) in members.keys()
 
     def not_sure_yet(self, voted_for: dict, voted_against: dict, role: HkfreeRole) -> dict:
         """
@@ -252,9 +253,7 @@ def can_vote(user_id: int, proposal: dict) -> bool:
     Returns:
         bool: True if the user can vote, False otherwise.
     """
-    return userdb_api.is_member_of(user_id, proposal['type']) and not user_voted(
-        user_id, proposal["id"]
-    )
+    return userdb_api.is_member_of(user_id, proposal['type'])
 
 
 def user_voted(user_id: int, proposal_id: int) -> bool:
@@ -351,32 +350,32 @@ def is_proposal_accepted(voted_for: int, voted_against: int, type: HkfreeRole) -
     total_votes = voted_for + voted_against
 
     if config.DEBUG:
-        print("n_of_deciders", n_of_deciders)
-        print("total_votes", total_votes)
-        print("voted_for", voted_for)
+        print("DEBUG: n_of_deciders", n_of_deciders, end="; ")
+        print("total_votes", total_votes, end="; ")
+        print("voted_for", voted_for, end="; ")
         print("voted_against", voted_against)
 
     match type:
         # VV, potřeba nadpoloviční většina
         case HkfreeRole.VV:
-            if voted_against > (n_of_deciders / 2):
-                return False
             if voted_for > (n_of_deciders / 2):
                 return True
+            elif voted_against > (n_of_deciders / 2):
+                return False
 
         # SO, potřeba nad dvě třetiny
         case HkfreeRole.SO:
-            if voted_against > (n_of_deciders * (2 / 3)):
-                return False
             if voted_for > (n_of_deciders * (2 / 3)):
                 return True
+            elif voted_against > (n_of_deciders * (2 / 3)):
+                return False
 
         # Představenstvo, stejně jako VV
         case HkfreeRole.PD:
-            if voted_against > (n_of_deciders / 2):
-                return False
             if voted_for > (n_of_deciders / 2):
                 return True
+            elif voted_against > (n_of_deciders / 2):
+                return False
 
         # Kontrolní Komise, zatím není implemetováno
         case HkfreeRole.KK:

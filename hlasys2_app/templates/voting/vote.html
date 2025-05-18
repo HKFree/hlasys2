@@ -1,9 +1,5 @@
 {% extends 'base.html' %}
 
-{% block head %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='vote.css') }}">
-{% endblock head %}
-
 {#{% block header %}
     <!-- <h1 id="h-one-subj">
         {% block title %}Hlasování{% endblock %}
@@ -13,7 +9,7 @@
 {% block content %}
     
     <div class="d-votes">
-        <form action="/proposal/{{ proposal_id }}/vote" method="post" enctype="multipart/form-data">
+        <form action="/proposal/{{ proposal['id'] }}/vote" method="post" enctype="multipart/form-data">
             {{ form.csrf_token }}
             <div>{{ form.decision.label}}{{ form.decision() }}</div>
             <div>{{ form.comment.label}}{{ form.comment() }}</div>

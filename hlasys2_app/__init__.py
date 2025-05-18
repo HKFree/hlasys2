@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, redirect, session
+from flask import Flask, redirect, session, render_template, flash
 from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_oidc import OpenIDConnect
 import locale
@@ -53,8 +53,15 @@ def create_app():
     @app.route("/whoami")
     @oidc.require_login
     def what():
-        raise Exception('errpr')
-        return str(session.get('oidc_auth_profile') if oidc.user_loggedin else oidc.user_loggedin)
+        profile = session.get('oidc_auth_profile')
+        return f"{profile} <br> {profile.get('groups')}"
+    
+    @app.route("/flash")
+    def flashes():
+        flash("Hlas změněn 🎉", "success")
+        flash("tak tohle ne!!!!", "danger")
+        flash("bachaaaaaaa", "warning")
+        return render_template('base.html')
 
     @app.route("/s")
     def session_tmp():

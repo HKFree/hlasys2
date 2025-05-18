@@ -10,7 +10,6 @@
         {% block title %}{{ data['subject'] }}{% endblock %}
     </h1>   
     
-    {# TODO: Use HKFreeRole here #}
     pro
     <strong>
         <a href="/overview/{{ role_str }}">{{ long_role_str }}</a>    
@@ -20,7 +19,7 @@
 
 {% block content %}
     <div>
-        <p id="p-desc">{{ data['description'] | trim | urlize(nofollow=False, target='_blank') }}</p>
+        <div id="txt-desc">{{ data['description'] | trim | urlize(nofollow=False, target='_blank') }}</div>
         <hr>
         <div class="d-one-detail-row" id="d-one-bot">
             <p class="p-one-detail">
@@ -41,13 +40,13 @@
         <br>
         {% if e['decision'] == None %}
             + komentář od <a href="/user/{{ e['author_id']}}">{{ e['author_name'] }}</a>:
-            <p class="p-comment">{{ e['comment'] }}</p>
+            <p class="p-comment">{{ e['comment'] | urlize(nofollow=False, target='_blank') }}</p>
         {% else %}
             + hlas {{ '✔' if e['decision'] else '✖'}}
             od <a href="/user/{{ e['author_id']}}">{{ e['author_name'] }}</a>
             {% if e['comment'] %}
                 s komentářem:
-                <p class="p-comment">{{ e['comment'] }}</p>
+                <p class="p-comment">{{ e['comment'] | urlize(nofollow=False, target='_blank') }}</p>
             {% endif %}
         {% endif %}
         <hr>

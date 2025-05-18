@@ -4,6 +4,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
         <title>{% block title %}{% endblock title %} - HlaSys v2</title>
 
@@ -15,18 +16,29 @@
                 <h1>HlaSys v2</h1>
                 <ul>
                     <li><a href="{{ url_for('proposals.overview', filter='vvsopdkk') }}">Přehled</a>
-                    <li><a href="{{ url_for('users.user_ovreview', user_id=session['user_id']) }}">Moje timeline</a>
+                    <li><a href="{{ url_for('users.user_ovreview', user_id=session["oidc_auth_profile"]["given_name"]) }}">Moje timeline</a>
                     <li><a href="{{ url_for('proposals.create_proposal') }}">Nový návrh</a>
                 </ul>
             </div>
         </nav>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="content">
+                    <ul class=flashes>
+                    {% for category, message in messages %}
+                    <li class="flash-{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        {% endwith %}
+
         <section class="content">
             <header>
                 {% block header %}{% endblock %}
             </header>
-            {% for message in get_flashed_messages() %}
-            <div class="flash">{{ message }}</div>
-            {% endfor %}
+            
             {% block content %}{% endblock %}
             <footer>HlaSys v2 | pro <a href="https://hkfree.org">hkfree.org</a> vyrobil OndraLhota</footer>
         </section>

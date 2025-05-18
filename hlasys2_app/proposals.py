@@ -7,9 +7,10 @@ from flask import (
 )
 
 from hlasys2_app.db import get_db
-from hlasys2_app.util import HkfreeRole, next_filter, overview_filter, can_vote, is_proposal_accepted, userdb_api
+from hlasys2_app.util import HkfreeRole, next_filter, overview_filter, can_vote, is_proposal_accepted, userdb_api, user_voted
 from hlasys2_app.forms import CreateProposalForm, CreateCommentForm
 from hlasys2_app import oidc
+from hlasys2_app import config
 
 bp = Blueprint("proposals", __name__)
 
@@ -52,20 +53,30 @@ def one_proposal(proposal_id):
     ).fetchone()
 
     if not proposal:
-        flash("neni")
+        flash("Takovej návrh neznám", "danger")
         return redirect("/")
 
-    voted_for = db.execute("""
-        SELECT author_id, author_name, comment, created
-        FROM event
-        WHERE proposal_id = :proposal_id AND decision = 1
-    """, {"proposal_id": proposal_id}).fetchall()
+    latest_votes_query = """
+        SELECT e.author_id, e.author_name, e.decision, e.comment, e.created
+        FROM event e
+        JOIN (
+            SELECT author_id, MAX(created) as max_created
+            FROM event
+            WHERE proposal_id = :proposal_id AND decision IS NOT NULL -- Only consider actual votes
+            GROUP BY author_id
+        ) latest ON e.author_id = latest.author_id AND e.created = latest.max_created
+        WHERE e.proposal_id = :proposal_id AND e.decision IS NOT NULL
+    """
+    latest_votes = db.execute(
+        latest_votes_query, {"proposal_id": proposal_id}).fetchall()
 
-    voted_against = db.execute("""
-        SELECT author_id, author_name, comment, created
-        FROM event
-        WHERE proposal_id = :proposal_id AND decision = 0
-    """, {"proposal_id": proposal_id}).fetchall()
+    if config.DEBUG:
+        print(
+            f"DEBUG: All latest_votes for proposal {proposal_id}\nDEBUG: ", latest_votes)
+
+    # Separate users based on their latest vote
+    voted_for = [vote for vote in latest_votes if vote['decision'] == 1]
+    voted_against = [vote for vote in latest_votes if vote['decision'] == 0]
 
     undeciders = userdb_api.not_sure_yet(
         voted_for, voted_against, proposal['type'])
@@ -88,12 +99,13 @@ def one_proposal(proposal_id):
         events=events,
         voted_for=voted_for,
         voted_against=voted_against,
+        user_voted=user_voted(user_id, proposal['id']),
         can_vote=can_vote(user_id, proposal),
         len=len,
         accepted=accepted,
         role_str=HkfreeRole(proposal['type']).name.lower(),
         long_role_str=HkfreeRole(proposal['type']).long_name,
-        undeciders=undeciders
+        undeciders=undeciders,
     )
 
 
@@ -118,6 +130,7 @@ def create_proposal():
         db.commit()
         last_id = db.execute(
             "SELECT id FROM proposal ORDER BY created DESC LIMIT 1").fetchone()
+        flash("Návrh zapsán", "success")
         return redirect(f"/proposal/{last_id['id']}")
     else:
         return render_template("proposals/create.html", form=form)
@@ -129,7 +142,6 @@ def create_vote(proposal_id: int):
     db = get_db()
     form: CreateCommentForm = CreateCommentForm()
     if form.validate_on_submit():
-        print(form.data)
         db.execute(
             """ INSERT INTO event ('proposal_id', 'author_id', 'author_name', 'comment')
             VALUES (:proposal_id, :author_id, :author_name, :comment)""",
@@ -141,6 +153,7 @@ def create_vote(proposal_id: int):
             },
         )
         db.commit()
+        flash("Komentář zapsán", "success")
         return redirect(f"/proposal/{proposal_id}")
     else:
         return render_template(
