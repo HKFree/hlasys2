@@ -10,8 +10,9 @@ CREATE TABLE proposal (
     subject TEXT NOT NULL,
     description TEXT NOT NULL,
     cost INTEGER,
-    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    edited TIMESTAMP DEFAULT NULL
+    created TIMESTAMP NOT NULL DEFAULT (datetime('now','localtime')),
+    edited TIMESTAMP DEFAULT NULL,
+    deleted TIMESTAMP DEFAULT NULL
 );
 
 CREATE TABLE event (
@@ -22,7 +23,7 @@ CREATE TABLE event (
     -- 0 = against, 1 = in favour
     decision INTEGER,
     comment TEXT,
-    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created TIMESTAMP NOT NULL DEFAULT (datetime('now','localtime')),
     FOREIGN KEY (proposal_id) REFERENCES proposal (id),
     -- It has to be one, or the other
     CHECK (decision IS NOT NULL or comment IS NOT NULL)

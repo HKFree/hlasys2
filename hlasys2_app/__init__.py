@@ -6,7 +6,7 @@ from flask_oidc import OpenIDConnect
 import locale
 
 from .util import HkfreeRole
-from .config import config_app
+from .config import config_app, FLASK_SECRET_KEY
 
 locale.setlocale(locale.LC_TIME, "cs_CZ.UTF-8")
 oidc = OpenIDConnect()
@@ -16,7 +16,7 @@ def create_app():
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
-        SECRET_KEY='deasd12312312r21rv',
+        SECRET_KEY=FLASK_SECRET_KEY,
         DATABASE=os.path.join(app.instance_path, 'hlasys2.sqlite'),
     )
 

@@ -2,6 +2,39 @@
 
 {% block head %}
 <!-- <link rel="stylesheet" href="{{ url_for('static', filename='overview.css') }}"> -->
+ <style>
+    /* Minimal styling for pagination elements for clarity */
+    .pagination-controls a {
+        text-decoration: none;
+        padding: 2px 5px;
+        margin: 0 2px;
+        /* border: 1px solid #ddd; */ /* Optional border */
+        /* border-radius: 3px; */ /* Optional border-radius */
+    }
+    .pagination-controls .disabled {
+        color: #aaa;
+        cursor: default;
+        padding: 2px 5px;
+        margin: 0 2px;
+    }
+    .pagination-controls .page-info {
+        margin: 0 5px;
+        padding: 2px 6px;
+        /* background-color: #f0f0f0; */ /* Optional background */
+        /* border-radius: 3px; */ /* Optional border-radius */
+        font-size: 0.9em;
+        display: inline-block; /* Ensures it aligns well if you add borders/padding */
+    }
+    .d-row-toggle { /* Ensure items can wrap if the line gets too long */
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 5px; /* Adds a small gap between items */
+    }
+    .d-row-toggle > span, .d-row-toggle > a, .d-row-toggle > label, .d-row-toggle .pagination-controls {
+        white-space: nowrap; /* Prevent individual items from wrapping internally */
+    }
+</style>
 {% endblock head %}
 
 {% block header %}
@@ -39,6 +72,33 @@
         <label for="toggle_kk">Kontrolní Komisi</label>
     </a>
     |
+    {% if total_pages is defined and total_pages > 1 %}
+        <span>|</span> {# Separator before pagination controls #}
+        <span class="pagination-controls">
+            {# Previous Page Link #}
+            {% if current_page > 1 %}
+                <a href="{{ url_for('proposals.overview', filter=filter, offset=(current_page-2)*limit) }}">
+                    &laquo; Předchozí
+                </a>
+            {% else %}
+                <span class="disabled">&laquo; Předchozí</span>
+            {% endif %}
+
+            {# Page X of Y Info #}
+            <span class="page-info">
+                Stránka {{ current_page }} z {{ total_pages }}
+            </span>
+
+            {# Next Page Link #}
+            {% if current_page < total_pages %}
+                <a href="{{ url_for('proposals.overview', filter=filter, offset=(current_page)*limit) }}">
+                    Následující &raquo;
+                </a>
+            {% else %}
+                <span class="disabled">Následující &raquo;</span>
+            {% endif %}
+        </span>
+    {% endif %}
 </div>
 <table class="t-proposals">
     <tbody>
