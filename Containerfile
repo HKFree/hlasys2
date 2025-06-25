@@ -1,12 +1,15 @@
-FROM 3.11-alpine
+FROM python:3.11-alpine
 
-WORKDIR /app
+WORKDIR /hlasys2
 
-COPY . /app
+COPY . /hlasys2
 
-RUN ls -la .
-RUN ls -la /app
+RUN ls -la /hlasys2
 
 RUN pip3 install poetry
 RUN poetry config virtualenvs.create false
-RUN poetry install --no-dev
+RUN poetry install
+
+ENV FLASK_APP hlasys2_app
+
+CMD ["./entry.sh"]
