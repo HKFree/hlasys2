@@ -60,6 +60,171 @@ nav a:hover {
     text-decoration: underline;
 }
 
+
+/* === Control Bar Styling (Toggles, Search, Pagination) === */
+
+.d-row-toggle, .d-row {
+    margin-bottom: 20px;
+}
+
+/* Filter Toggles and Pagination Row */
+.d-row-toggle {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px; /* Increased gap for better separation */
+    padding: 10px;
+    background-color: #f8f9fa; /* Lighter, neutral background */
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+}
+
+/* Hide the pipe separators, relying on gap and item styling */
+.d-row-toggle > span:not([class]) {
+    display: none;
+}
+
+.d-row-toggle > span[id^="toggle_"], /* The check/cross icon */
+.d-row-toggle > label {
+    cursor: pointer;
+}
+
+/* Filter Toggle Links */
+.d-row-toggle a {
+    text-decoration: none;
+    color: #007bff; /* Standard link blue */
+    padding: 8px 12px;
+    border-radius: 4px;
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.2s, box-shadow 0.2s, border-color 0.2s;
+    font-size: 0.9em;
+}
+
+.d-row-toggle a:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.d-row-toggle a span[id^="toggle_"] {
+    font-weight: bold;
+    font-size: 1.1em; /* Slightly larger icon */
+    min-width: 1em; /* Ensure space for icon */
+    text-align: center;
+}
+.d-row-toggle a span[id^="toggle_"] + label {
+    color: #495057; /* Darker label text for contrast */
+}
+.d-row-toggle a:hover span[id^="toggle_"] + label {
+    color: #0056b3;
+}
+
+
+/* Pagination Controls */
+.pagination-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pagination-controls a,
+.pagination-controls .disabled {
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+    font-size: 0.9em;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+    color: #007bff;
+}
+
+.pagination-controls a:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.pagination-controls .disabled {
+    color: #6c757d; /* More standard disabled color */
+    background-color: #f8f9fa;
+    cursor: default;
+}
+
+.pagination-controls .page-info {
+    padding: 8px 12px;
+    font-size: 0.9em;
+    color: #495057;
+    background-color: transparent;
+    border: none;
+}
+
+/* Search Bar Styling */
+.d-row { /* Container for the search form */
+    display: flex;
+    justify-content: flex-start; /* Align search to the left by default */
+    margin-top: 10px; /* Space above search if it's after toggles */
+}
+
+.d-row search { /* The HTML5 <search> element wrapper */
+    width: 100%;
+    max-width: 450px; /* Adjust max-width as needed */
+}
+
+.d-row search form {
+    display: flex;
+    width: 100%;
+    border-radius: 6px;
+    overflow: hidden; /* Ensures border-radius clips children */
+    border: 1px solid #ced4da; /* Consistent border */
+    background-color: #fff; /* Background for the form itself */
+}
+
+.d-row search input[type="search"] {
+    flex-grow: 1;
+    border: none;
+    padding: 10px 15px; /* Increased padding */
+    font-size: 1em;
+    outline: none;
+    background-color: transparent; /* Inherit from form */
+    color: #495057;
+}
+.d-row search input[type="search"]::placeholder {
+    color: #6c757d;
+    opacity: 1;
+}
+
+.d-row search button[type="submit"] {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 0; /* Remove padding, rely on width/height */
+    cursor: pointer;
+    flex-shrink: 0;
+    position: relative;
+    width: 44px; /* Fixed width for icon button */
+    height: 42px; /* Match input height, adjust as needed */
+    transition: background-color 0.2s;
+    display: flex; /* For centering icon */
+    align-items: center;
+    justify-content: center;
+}
+
+.d-row search button[type="submit"]:hover {
+    background-color: #2769af;
+}
+
+/* Magnifier icon using Unicode character */
+.d-row search button[type="submit"]::before {
+    content: "\1F50D"; /* Unicode magnifier U+1F50D */
+    font-size: 22px; /* Adjust icon size */
+    line-height: 1; /* Ensure it's centered */
+    font-weight: bold;
+}
+
 /* Content Section */
 .content {
     max-width: 900px;
@@ -83,6 +248,11 @@ header strong {
 
 #s-one-unknown {
     color: #ff5722;
+}
+
+thead th {
+    text-align: left;
+    padding: 2px;
 }
 
 /* Accepted Status Style */
@@ -325,6 +495,10 @@ ul#type input[type="radio"] {
         margin-bottom: 20px;
     }
 
+    #d-one-decision-box {
+        flex-direction: column;
+    }
+
     nav h1 {
         font-size: 20px;
     }
@@ -419,7 +593,7 @@ ul#type input[type="radio"] {
 
 /* Rejected Proposal Style */
 .tr-proposal-rejected {
-    background-color: #f8d7da; /* Light red background */
+    background-color: #ffc3c8; /* Light red background */
     box-shadow: 0 0 10px rgba(220, 53, 69, 0.2); /* Soft red shadow */
 }
 
@@ -427,9 +601,14 @@ ul#type input[type="radio"] {
     background-color: #f5c6cb; /* Slightly darker on hover */
 }
 
+.tr-proposal-undecided {
+    background-color: #ffa04857; /* Slightly darker on hover */
+    box-shadow: 0 0 10px #ffa0485b; /* Soft red shadow */
+}
+
 .tr-proposal-undecided:hover {
-    background-color: #e2e2e2; /* Slightly darker on hover */
-    box-shadow: 0 0 10px #e2e2e2; /* Soft red shadow */
+    background-color: #ffa04883; /* Slightly darker on hover */
+    box-shadow: 0 0 10px #ffa04883; /* Soft red shadow */
 }
 
 /* Footer Styles */
@@ -466,4 +645,23 @@ footer {
 .d-one-decision-col {
     overflow: auto;
     max-height: 25vh;
+}
+
+
+.state-btn {
+    border: 1px solid gray;
+    border-radius: 5px;
+    background-color: lightgrey;
+    padding: 1px 10px;
+    text-decoration: none;
+    color: black;
+    min-width: 75px;
+    display: inline-block;
+    text-align: center;
+    margin: 0.25rem;
+    /* margin-top: 0.25rem */
+}
+
+.state-btn:hover {
+    background-color: darkgray;
 }

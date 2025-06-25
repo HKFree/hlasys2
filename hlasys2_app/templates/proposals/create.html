@@ -1,12 +1,11 @@
 {% extends 'base.html' %}
 
 {% block head %}
-    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='create.css') }}"> -->
 {% endblock head %}
 
 {% block header %}
     <h1 id="h-create-subj">
-        Vyrobit návrh
+        {% block title %}Vyrobit návrh{% endblock %}
     </h1>
 {% endblock %}
 
@@ -17,6 +16,7 @@
         <div>{{ form.description.label }}{{ form.description }}</div>
         <div>{{ form.cost.label }}{{ form.cost }}</div>
         <div>{{ form.type.label }}{{ form.type }}</div>
+        <i>Správci oblastí již neexistují, nelze pro ně tedy vytvořit návrh.</i>
         <input type="submit" value="Přidat návrh">
     </form>
 {% endblock %}

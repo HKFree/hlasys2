@@ -48,7 +48,7 @@ def create_app():
     @oidc.require_login
     def hello():
         print(session['oidc_auth_profile'])
-        return redirect('/overview/vvsopdkk')
+        return redirect('/overview/pd')
 
     @app.route("/whoami")
     @oidc.require_login

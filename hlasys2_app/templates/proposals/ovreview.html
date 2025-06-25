@@ -8,8 +8,8 @@
         text-decoration: none;
         padding: 2px 5px;
         margin: 0 2px;
-        /* border: 1px solid #ddd; */ /* Optional border */
-        /* border-radius: 3px; */ /* Optional border-radius */
+        border: 1px solid #ddd; /* Optional border */
+        border-radius: 3px; /* Optional border-radius */
     }
     .pagination-controls .disabled {
         color: #aaa;
@@ -38,42 +38,42 @@
 {% endblock head %}
 
 {% block header %}
-<h1>{% block title %}Přehled{% endblock %}</h1>
+<h1>{% block title %}Přehled návrhů{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
 <div class="d-row-toggle">
-    návrhy pro 
     <a href="/overview/{{ next_filter(filter, 'vv') }}">
         <span id="toggle_vv">
             {% if 'vv' in filter %}✔{% else %}✖{% endif %}
         </span>
         <label for="toggle_vv">Výkonný Výbor</label>
     </a>
-    |
     <a href="/overview/{{ next_filter(filter, 'so') }}">
         <span id="toggle_so">
             {% if 'so' in filter %}✔{% else %}✖{% endif %}
         </span>
         <label for="toggle_so">Správce Oblastí</label>
     </a>
-    |
     <a href="/overview/{{ next_filter(filter, 'pd') }}">
         <span id="toggle_pd">
             {% if 'pd' in filter %}✔{% else %}✖{% endif %}
         </span>
         <label for="toggle_pd">Představenstvo Družstva</label>
     </a>
-    |
-    <a href="/overview/{{ next_filter(filter, 'kk') }}">
-        <span id="toggle_kk">
-            {% if 'kk' in filter %}✔{% else %}✖{% endif %}
+    <a href="/overview/{{ next_filter(filter, 'cs') }}">
+        <span id="toggle_cs">
+            {% if 'cs' in filter %}✔{% else %}✖{% endif %}
         </span>
-        <label for="toggle_kk">Kontrolní Komisi</label>
+        <label for="toggle_cs">Členové spolku</label>
     </a>
-    |
+    <a href="/overview/{{ next_filter(filter, 'cd') }}">
+        <span id="toggle_cd">
+            {% if 'cd' in filter %}✔{% else %}✖{% endif %}
+        </span>
+        <label for="toggle_cd">Členové družstva</label>
+    </a>
     {% if total_pages is defined and total_pages > 1 %}
-        <span>|</span> {# Separator before pagination controls #}
         <span class="pagination-controls">
             {# Previous Page Link #}
             {% if current_page > 1 %}
@@ -100,7 +100,23 @@
         </span>
     {% endif %}
 </div>
+
+<div class="d-row">
+    <search>
+        <form action="{{ url_for('proposals.overview', filter=filter) }}">
+            <input minlength="3" type="search" id="search_query" name="search_query" value="{{ search_query }}" />
+            <button type="submit"></button>
+        </form>
+    </search>
+</div>
+
 <table class="t-proposals">
+    <thead>
+        <th>Návrh</th>
+        <th>Navrhovatel</th>
+        <th>Odhad ceny</th>
+        <th>Stav</th>
+    </thead>
     <tbody>
         {% for p in proposals %}
         {% if p['accepted'] == True %}
@@ -113,21 +129,29 @@
         
             <td>
                 <a href="{{ url_for('proposals.one_proposal', proposal_id=p['id']) }}">
-                    <b>{{ p['subject'] }}</b>
+                    <b>{{ p['subject'] }}</b> 
                 </a>
             </td>
             <td>
                 <div class="tooltip-container">
-                    <span class="tooltip-text">{{ HkfreeRole(p['type']).long_name }}</span>
-                    <span class="tooltip-visible-text">{{ HkfreeRole(p['type']).name }}</span>
+                    {% if p['author_name'] | length > 20 %}
+                    <span class="tooltip-text">{{ p['author_name'] }}</span>
+                    <span class="tooltip-visible-text">{{ p['author_name'] | truncate(20) }}</span>
+                    {% else %}
+                    <span>{{ p['author_name'] | truncate(20) }}</span>
+                    {% endif %}
                 </div>
+                
             </td>
             <td>
                 {{ "{:,d}".format(p['cost']) }},-
             </td>
             <td>
-                <a href="/user/{{ p['user_id'] }}">{{ p['name'] }}</a>
-                {{ p['created'].strftime('%A %d.%m %H:%M') }}
+                {# <a href="/user/{{ p['user_id'] }}">{{ p['name'] }}</a>
+                {{ p['created'].strftime('%A %d.%m.%Y') }} #}
+                {% if p['state'] %}
+                {{ p['state'] }}
+                {% endif %}
             </td>
         </tr>
         {% endfor %}

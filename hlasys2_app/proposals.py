@@ -27,33 +27,73 @@ def overview(filter):
     offset = request.args.get("offset", default=0, type=int)
     if offset < 0:
         offset = 0
-    limit = 25
+    limit = 25  # Static limit
 
-    print("limit ", limit, " offset ", offset)
+    # Get search query from request arguments
+    search_query = request.args.get("search_query", default="").strip()
+    sql_query_params = {} # To hold all :named parameters for SQL queries
 
-    ids_query = f"""
+    where_conditions = []
+    
+    # Filter conditions from overview_filter(filter)
+    filter_sql_snippet = overview_filter(filter) 
+    if filter_sql_snippet:
+        condition_from_filter = filter_sql_snippet.strip()
+        if condition_from_filter.upper().startswith("WHERE "):
+            condition_from_filter = condition_from_filter[len("WHERE "):].strip() # Remove "WHERE "
+        if condition_from_filter:
+            where_conditions.append(f"({condition_from_filter})")
+
+    # Standard condition: proposal not deleted
+    where_conditions.append("proposal.deleted IS NULL")
+
+    # Add search conditions if a search query is provided
+    if search_query:
+        where_conditions.append(
+            "(proposal.subject LIKE :search_term OR proposal.description LIKE :search_term OR proposal.author_name LIKE :search_term)"
+        )
+        sql_query_params["search_term"] = f"%{search_query}%"
+        
+    final_where_clause = ""
+    if where_conditions:
+        final_where_clause = "WHERE " + " AND ".join(where_conditions)
+    
+    ids_query_sql = f"""
         SELECT proposal.id
         FROM proposal
-        {overview_filter(filter)} AND proposal.deleted IS NULL
+        {final_where_clause}
         ORDER BY proposal.created DESC
         LIMIT :limit OFFSET :offset
     """
-    proposal_ids_rows = db.execute(
-        ids_query, {"limit": limit, "offset": offset}
-    ).fetchall()
+    
+    # Prepare parameters for the ids_query
+    current_ids_params = {"limit": limit, "offset": offset}
+    if search_query:
+        current_ids_params['limit'] = 10000
+        
+    current_ids_params.update(sql_query_params) # Add search_term if present
+
+    proposal_ids_rows = db.execute(ids_query_sql, current_ids_params).fetchall()
 
     proposals_final_list = []
 
     if proposal_ids_rows:
         proposal_ids = [row["id"] for row in proposal_ids_rows]
 
-        # Create a string of placeholders for the IN clause, e.g., "(?, ?, ?)"
-        placeholders = ", ".join(["?"] * len(proposal_ids))
+        # Prepare named placeholders for the IN clause
+        step2_in_clause_params = {}
+        named_id_placeholders_list = []
+        for i, pid in enumerate(proposal_ids):
+            placeholder_name = f"pid_{i}"
+            named_id_placeholders_list.append(f":{placeholder_name}")
+            step2_in_clause_params[placeholder_name] = pid
+        
+        named_id_placeholders_str = ', '.join(named_id_placeholders_list)
 
-        # Fetch full details and vote counts for these specific IDs
+        # --- Step 2: Fetch full details and vote counts for these specific IDs ---
         data_query = f"""
             SELECT
-                p.id, p.author_name, p.author_id, p.subject, p.description, p.cost, p.type, p.created,
+                p.id, p.author_name, p.author_id, p.subject, p.description, p.cost, p.type, p.created, p.state,
                 COALESCE(SUM(CASE WHEN e.decision = 1 THEN 1 ELSE 0 END), 0) AS n_voted_for,
                 COALESCE(SUM(CASE WHEN e.decision = 0 THEN 1 ELSE 0 END), 0) AS n_voted_against
             FROM
@@ -61,43 +101,59 @@ def overview(filter):
             LEFT JOIN
                 event e ON p.id = e.proposal_id
             WHERE
-                p.id IN ({placeholders})
+                p.id IN ({named_id_placeholders_str})
             GROUP BY
                 p.id, p.author_name, p.author_id, p.subject, p.description, p.cost, p.type, p.created
             ORDER BY
-                p.created DESC  -- Re-apply order to be sure, or order by p.id sequence from previous query
+                p.created DESC
         """
-
-        # Parameters for data_query are the proposal_ids
-        proposals_data = db.execute(data_query, proposal_ids).fetchall()
-        proposals_map = {row["id"]: row for row in proposals_data}
+        proposals_data = db.execute(data_query, step2_in_clause_params).fetchall()
+        proposals_map = {row["id"]: dict(row) for row in proposals_data} # Ensure rows are dicts
 
         ordered_proposals_raw = []
         for pid in proposal_ids:
             if pid in proposals_map:
                 ordered_proposals_raw.append(proposals_map[pid])
 
-        # Process 'accepted' status
-        for proposal_row in ordered_proposals_raw:
-            proposal_dict = dict(proposal_row)
-            proposal_dict["accepted"] = is_proposal_accepted(
-                proposal_dict["n_voted_for"],
-                proposal_dict["n_voted_against"],
-                proposal_dict["type"],
+        for proposal_row_dict in ordered_proposals_raw:
+            proposal_row_dict["accepted"] = is_proposal_accepted(
+                proposal_row_dict["n_voted_for"],
+                proposal_row_dict["n_voted_against"],
+                proposal_row_dict["type"],
             )
-            proposals_final_list.append(proposal_dict)
+            proposals_final_list.append(proposal_row_dict)
 
-    n_proposals = db.execute(f"SELECT COUNT(*) as count FROM proposal {overview_filter(filter)}").fetchone()['count']
+    # get total number of proposals matching the filter and search
+    count_query_sql = f"SELECT COUNT(proposal.id) as count FROM proposal {final_where_clause}"
+    
+    # Parameters for count query are the same search params (overview_filter assumed to embed its values)
+    total_proposals_row = db.execute(count_query_sql, sql_query_params).fetchone()
+    n_proposals = total_proposals_row['count'] if total_proposals_row else 0
+        
+    # Calculate total_pages and current_page for pagination
+    total_pages = 0
+    if n_proposals > 0 and limit > 0:
+        total_pages = math.ceil(n_proposals / limit)
+    elif n_proposals == 0 : # If no proposals, still technically 0 or 1 page
+        total_pages = 0 # Or 1, depending on desired display for no results
+
+    current_page = 1
+    if limit > 0 :
+      current_page = math.floor(offset / limit) + 1
+    
+    if search_query:
+        total_pages = 1
         
     return render_template(
         "proposals/ovreview.html",
         proposals=proposals_final_list,
         filter=filter,
-        next_filter=next_filter,
-        HkfreeRole=HkfreeRole,
+        search_query=search_query,
         limit=limit,
-        total_pages=math.floor(n_proposals / limit),
-        current_page=math.ceil(offset / limit) + 1,
+        total_pages=int(total_pages),
+        current_page=int(current_page),
+        next_filter=next_filter, 
+        HkfreeRole=HkfreeRole,
     )
 
 
@@ -108,7 +164,7 @@ def one_proposal(proposal_id):
 
     proposal = db.execute(
         """
-        SELECT proposal.id, author_name, author_id, subject, description, cost, type, created, deleted
+        SELECT proposal.id, author_name, author_id, subject, description, cost, type, created, deleted, state
         FROM proposal
         WHERE id = :proposal_id
         ORDER BY proposal.created DESC""",
@@ -160,7 +216,7 @@ def one_proposal(proposal_id):
     accepted = is_proposal_accepted(
         len(voted_for), len(voted_against), proposal["type"]
     )
-    user_id = session["oidc_auth_profile"]["given_name"]
+    user_id = int(session["oidc_auth_profile"]["given_name"])
 
     return render_template(
         "proposals/one.html",
@@ -172,9 +228,11 @@ def one_proposal(proposal_id):
         can_vote=can_vote(user_id, proposal),
         len=len,
         accepted=accepted,
+        user_id=user_id,
         role_str=HkfreeRole(proposal["type"]).name.lower(),
         long_role_str=HkfreeRole(proposal["type"]).long_name,
         undeciders=undeciders,
+        users_change_state=config.USERS_CHANGE_STATE,
     )
 
 
@@ -229,3 +287,35 @@ def create_vote(proposal_id: int):
         return render_template(
             "voting/comment.html", form=form, proposal_id=proposal_id
         )
+
+@bp.route("/proposal/<int:proposal_id>/state/<new_state>", methods=["GET"])
+@oidc.require_login
+def change_state(proposal_id: int, new_state: str):
+    db = get_db()
+    
+    if int(session["oidc_auth_profile"]["given_name"]) not in config.USERS_CHANGE_STATE:
+        flash("Ty nemůžeš měnit stav", "danger")
+        return redirect(f"/proposal/{proposal_id}")
+    
+
+    curr_state = db.execute("SELECT state FROM proposal WHERE id = :proposal_id", {"proposal_id": proposal_id}).fetchone()
+    if new_state == curr_state['state'] or (new_state == 'Nic' and not curr_state['state']):
+        flash("Stejný stav", "danger")
+        return redirect(f"/proposal/{proposal_id}")
+    
+    db.execute("UPDATE proposal SET state = :new_state WHERE id =  :proposal_id", {"new_state": None if new_state == 'Nic' else new_state, "proposal_id": proposal_id})
+
+    db.execute(
+        """ INSERT INTO event ('proposal_id', 'author_id', 'author_name', 'comment')
+        VALUES (:proposal_id, :author_id, :author_name, :comment)""",
+        {
+            "proposal_id": proposal_id,
+            "author_id": int(session["oidc_auth_profile"]["given_name"]),
+            "author_name": session["oidc_auth_profile"]["family_name"],
+            "comment": f"Změna stavu z {curr_state['state']} na {new_state}",
+        },
+    )
+    db.commit()
+    flash("Změna zapsána", "success")
+    return redirect(f"/proposal/{proposal_id}")
+

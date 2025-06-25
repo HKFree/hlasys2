@@ -33,8 +33,8 @@
             + hlas {{ '✔' if event['decision'] else '✖'}}
             k návrhu 
             <a title="{{ event['events_subject'] }}" href="{{ url_for('proposals.one_proposal', proposal_id=event['proposal_id']) }}">
-                {{ event['events_subject'] | truncate(40) }}
-            </a>
+                {{ event['events_subject'] | truncate(40) }}</a>
+            
             {% if event['comment'] %}
                 s komentářem {{ event['comment'] | truncate(40) }}
             {% endif %}

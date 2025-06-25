@@ -15,7 +15,7 @@
             <div class="nav-content">
                 <h1>HlaSys v2</h1>
                 <ul>
-                    <li><a href="{{ url_for('proposals.overview', filter='vvsopdkk') }}">Přehled</a>
+                    <li><a href="{{ url_for('proposals.overview', filter='pd') }}">Přehled</a>
                     <li><a href="{{ url_for('users.user_ovreview', user_id=session["oidc_auth_profile"]["given_name"]) }}">Moje timeline</a>
                     <li><a href="{{ url_for('proposals.create_proposal') }}">Nový návrh</a>
                 </ul>

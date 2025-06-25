@@ -32,7 +32,7 @@ def user_ovreview(user_id):
 
     if not user_event and not user_proposal:
         flash("Tento uživatel zatím nemá timeline...", "warning")
-        return redirect("/overview/vvsopdkk")
+        return redirect("/overview/vvsopd")
 
     timeline = db.execute(
         """

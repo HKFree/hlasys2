@@ -33,6 +33,17 @@
         <hr>
         {% include 'proposals/decisions.html' %}
     </div>
+
+    <hr>
+    {% if user_id in users_change_state %}
+    <b>Změnit stav na:</b> 
+    <a class="state-btn" href="/proposal/{{ data['id'] }}/state/Objednáno">Objednáno</a>
+    <a class="state-btn" href="/proposal/{{ data['id'] }}/state/K Převzetí">K Převzetí</a> 
+    <a class="state-btn" href="/proposal/{{ data['id'] }}/state/Předáno">Předáno</a>
+    <a class="state-btn" href="/proposal/{{ data['id'] }}/state/Nic">Nic</a>
+    <hr>
+    {% endif %}
+
     <h3>Události návrhu: </h3>
     <hr>
     {% for e in events %}

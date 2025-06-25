@@ -2,25 +2,24 @@
 <div class="d-one-decision-row d-one-unknown">
     <h2>
         Stav:
-        <span id="s-one-undecided">? nerozhodnuto ?</span>
+        <span id="s-one-undecided">? nerozhodnuto ? {% if data['state'] %}- {{ data['state'] }}{% endif %}</span>
     </h2>
 </div>
 {% elif accepted == True %}
 <div class="d-one-decision-row d-one-accepted">
     <h2>
         Stav:
-        <span  id="s-one-accepted">✔ schváleno ✔</span>
+        <span  id="s-one-accepted">✔ schváleno ✔ {% if data['state'] %}- {{ data['state'] }}{% endif %}</span>
     </h2>
 </div>
 {% elif accepted == False %}
 <div class="d-one-decision-row d-one-rejected">
     <h2>
         Stav:
-        <span  id="s-one-rejected">✖ zamítnuto ✖</span>
+        <span  id="s-one-rejected">✖ zamítnuto ✖ {% if data['state'] %}- {{ data['state'] }}{% endif %}</span>
     </h2>
 </div>
 {% endif %}
-    
 <div class="d-vote-btn">
     {% if can_vote and not user_voted %}
     <form action="/proposal/{{ data['id'] }}/vote" method="get">
@@ -49,8 +48,9 @@
             {% endfor %}
         </ul>
     </div>
+    {% if not accepted %}
     <div class="d-one-decision-col d-one-undecided">
-        <p>Přemýšlí 🤔</p>
+        <p>Nehlasoval/a</p>
         
         <ul>
             {% for undecider in undeciders %}
@@ -62,6 +62,7 @@
             {% endfor %}
         </ul>
     </div>
+    {% endif %}
     <div class="d-one-decision-col">
         <p>✖ Proti ✖</p>
         

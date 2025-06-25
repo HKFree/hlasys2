@@ -20,14 +20,15 @@ except ImportError:
 
 class HkfreeRole(int, enum.Enum):
     """
-    Enum representing the different roles in the system (VV, SO, PD, KK).
+    Enum representing the different roles in the system (VV, SO, PD, CS, CD).
     Each role is associated with an integer value, and has methods to return its
     long name and corresponding API name.
     """
     VV = 0
     SO = 1
     PD = 2
-    KK = 3
+    CS = 3
+    CD = 4
 
     @property
     def long_name(self) -> str:
@@ -41,7 +42,8 @@ class HkfreeRole(int, enum.Enum):
             "Výkoný Výbor Spolku",  # VV
             "Správci Oblastí",       # SO
             "Představenstvo družstva",  # PD
-            "Kontrolní komise",      # KK
+            "Členové spolku", # CS
+            "Členové družstva" # CD
         ][self]
 
     @property
@@ -52,8 +54,11 @@ class HkfreeRole(int, enum.Enum):
         Returns:
             str: The API name associated with the role (e.g., "VV").
         """
-        print("WARNING: Kontrolni komise not yet implemented, simulating")
-        return ["VV", "SO", "PŘEDSTAVENSTVO", "KK"][self]
+        try:
+            return ["VV", "SO", "PŘEDSTAVENSTVO"][self]
+        except KeyError:
+            print("WARNING: This is not implemented in UserDB API! Returning None")
+            return None
 
 
 class UserDBData:
@@ -67,7 +72,6 @@ class UserDBData:
     _vv: int = None
     _so: int = None
     _pd: int = None
-    _kk: int = None
 
     def __new__(cls, *args, **kwargs):
         """
@@ -117,8 +121,6 @@ class UserDBData:
                 self._so = data["spravci"]
             case HkfreeRole.PD:
                 self._pd = data["spravci"]
-            case HkfreeRole.KK:
-                self._kk = data["spravci"]
 
     def _refresh(self) -> None:
         """
@@ -134,8 +136,6 @@ class UserDBData:
             self._fetch_number_of(HkfreeRole.VV)
             self._fetch_number_of(HkfreeRole.SO)
             self._fetch_number_of(HkfreeRole.PD)
-            print("WARNING: Kontrolni komise not yet implemented, simulating")
-            self._kk = {}  # Simulating KK data
             self._last_fetch = datetime.now()
 
     def number_of(self, role: HkfreeRole) -> int:
@@ -150,12 +150,13 @@ class UserDBData:
             int: The number of users associated with the given role.
         """
         self._refresh()
-        return len([self._vv, self._so, self._pd, self._kk][role])
+        if role in (HkfreeRole.CD, HkfreeRole.CS):
+            return 0
+        return len([self._vv, self._so, self._pd][role])
 
     def is_member_of(self, user_id: int, role: HkfreeRole) -> bool:
         """
         Check if a user is a member of a specified role.
-        Returns False for KK as it's not yet implemented.
 
         Args:
             user_id (int): The ID of the user.
@@ -164,12 +165,10 @@ class UserDBData:
         Returns:
             bool: True if the user is a member of the given role, False otherwise.
         """
-        if role == HkfreeRole.KK:
-            print("WARNING: KK not implemented yet in is_member_of")
-            return False
-
         self._refresh()
-        members = [self._vv, self._so, self._pd, self._kk][role]
+        if role in (HkfreeRole.CD, HkfreeRole.CS):
+            return False
+        members = [self._vv, self._so, self._pd][role]
         return str(user_id) in members.keys()
 
     def not_sure_yet(self, voted_for: dict, voted_against: dict, role: HkfreeRole) -> dict:
@@ -186,7 +185,10 @@ class UserDBData:
             dict: Users who have not voted yet, with user IDs as keys.
         """
         self._refresh()
-        deciders = deepcopy([self._vv, self._so, self._pd, self._kk][role])
+        if role in (HkfreeRole.CD, HkfreeRole.CS):
+            return []
+        
+        deciders = deepcopy([self._vv, self._so, self._pd][role])
         all_votes = voted_for + voted_against
         for voter in all_votes:
             try:
@@ -224,16 +226,6 @@ class UserDBData:
             int: The number of PD members.
         """
         return self.number_of(HkfreeRole.PD)
-
-    @property
-    def num_of_kk(self) -> int:
-        """
-        Property to get the number of Kontrolní Komise members.
-
-        Returns:
-            int: The number of KK members.
-        """
-        return self.number_of(HkfreeRole.KK)
 
 
 # Initialize the userdb_api instance as a singleton
@@ -292,28 +284,28 @@ def next_filter(current_filter: str, add: str) -> str:
     Returns:
         str: The updated filter string.
     """
-    next_str = current_filter
-    if add in current_filter:
-        next_str = next_str.replace(add, "")
-    else:
-        next_str += add
+    # next_str = current_filter
+    # if add in current_filter:
+    #     next_str = next_str.replace(add, "")
+    # else:
+    #     next_str += add
 
-    return next_str
+    # return next_str
+    return add
 
 
 def overview_filter(current_filter: str) -> str:
     """
     Generate an SQL WHERE clause to filter proposals based on the current role filter.
-    Hardcoded roles are represented by 0 (VV), 1 (SO), 2 (PD), and 3 (KK).
+    Hardcoded roles are represented by 0 (VV), 1 (SO), 2 (PD)..
 
     Args:
-        current_filter (str): The current filter string, containing role names (e.g.,
-                               'vv', 'so', 'pd', 'kk').
+        current_filter (str): The current filter string, containing role names (e.g. 'vv', 'so', 'pd')
 
     Returns:
         str: The generated SQL WHERE clause based on the current filter.
     """
-    sql_str = "WHERE type IN (0, 1, 2, 3) "
+    sql_str = "WHERE type IN (0, 1, 2, 3, 4) "
 
     if 'vv' not in current_filter:
         sql_str = sql_str.replace('0, ', '')
@@ -321,11 +313,16 @@ def overview_filter(current_filter: str) -> str:
         sql_str = sql_str.replace('1, ', '')
     if 'pd' not in current_filter:
         sql_str = sql_str.replace('2, ', '')
-    if 'kk' not in current_filter:
-        sql_str = sql_str.replace('3', '')
+    if 'cs' not in current_filter:
+        sql_str = sql_str.replace('3, ', '')
+    if 'cd' not in current_filter:
+        sql_str = sql_str.replace('4', '')
 
     sql_str = sql_str.replace(', )', ')')
 
+    print(sql_str)
+    if current_filter == "":
+        sql_str = "WHERE 1 = 0"
     return sql_str
 
 
@@ -336,12 +333,11 @@ def is_proposal_accepted(voted_for: int, voted_against: int, type: HkfreeRole) -
       - VV requires a majority
       - SO requires a two-thirds majority
       - PD requires a majority
-      - KK is not yet implemented.
 
     Args:
         voted_for (int): The number of votes in favor of the proposal.
         voted_against (int): The number of votes against the proposal.
-        type (HkfreeRole): The type of role (VV, SO, PD, KK).
+        type (HkfreeRole): The type of role (VV, SO, PD).
 
     Returns:
         bool | None: True if the proposal is accepted, False if rejected, or None if undecided.
@@ -376,11 +372,5 @@ def is_proposal_accepted(voted_for: int, voted_against: int, type: HkfreeRole) -
                 return True
             elif voted_against > (n_of_deciders / 2):
                 return False
-
-        # Kontrolní Komise, zatím není implemetováno
-        case HkfreeRole.KK:
-            print(
-                "WARNING: Vote turnout for KK not yet implemented. Resulting in state UNDECIDED")
-            return None
 
     return None
