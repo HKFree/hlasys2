@@ -11,5 +11,6 @@ RUN poetry config virtualenvs.create false
 RUN poetry install
 
 ENV FLASK_APP hlasys2_app
+ENV HLASYS2_VERSION 0.0.1
 
 CMD ["./entry.sh"]

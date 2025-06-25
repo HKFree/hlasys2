@@ -2,7 +2,7 @@
 name = "hlasys2"
 version = "0.0.1"
 description = "Web based voting system for hkfree.org"
-authors = ["Your Name <you@example.com>"]
+authors = ["Ondřej Pithart <ondra@pithart.com>"]
 license = "GNU GPLv3"
 readme = "README.md"
 package-mode = false
@@ -13,7 +13,7 @@ Flask = "^3.0.3"
 Flask-WTF = "^1.2.1"
 flask-oidc = "^2.3.1"
 oidc-register = "^0.2.1"
-
+waitress = "^3.0.2"
 
 [build-system]
 requires = ["poetry-core"]
