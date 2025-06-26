@@ -30,6 +30,8 @@ docker-compose up -d
 curl http://localhost:5000 && echo "It works."
 ```
 
+! Note: The app requires you to have a valid OpenID server config and also a DNS hostname to be used.
+
 ## License 
 
 This project uses the [GNU GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html) license.
