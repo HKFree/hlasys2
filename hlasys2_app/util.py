@@ -137,6 +137,9 @@ class UserDBData:
             self._fetch_number_of(HkfreeRole.SO)
             self._fetch_number_of(HkfreeRole.PD)
             self._last_fetch = datetime.now()
+            if config.DEBUG:
+                print("DEBUG: ", self.__class__, "called _refresh and needs refresh")
+                print(f"DEBUG: of VV {self.num_of_vv} of SO {self.num_of_so} of PD {self.num_of_pd}")
 
     def number_of(self, role: HkfreeRole) -> int:
         """
@@ -346,7 +349,7 @@ def is_proposal_accepted(voted_for: int, voted_against: int, type: HkfreeRole) -
     total_votes = voted_for + voted_against
 
     if config.DEBUG:
-        print("DEBUG: n_of_deciders", n_of_deciders, end="; ")
+        print("DEBUG: n_of_deciders", n_of_deciders, " of type ", type, end="; ")
         print("total_votes", total_votes, end="; ")
         print("voted_for", voted_for, end="; ")
         print("voted_against", voted_against)

@@ -200,10 +200,10 @@ def one_proposal(proposal_id):
         )
 
     # Separate users based on their latest vote
-    voted_for = [vote for vote in latest_votes if vote["decision"] == 1]
-    voted_against = [vote for vote in latest_votes if vote["decision"] == 0]
+    proposal['voted_for'] = [vote for vote in latest_votes if vote["decision"] == 1]
+    proposal['voted_against'] = [vote for vote in latest_votes if vote["decision"] == 0]
 
-    undeciders = userdb_api.not_sure_yet(voted_for, voted_against, proposal["type"])
+    undeciders = userdb_api.not_sure_yet(proposal['voted_for'], proposal['voted_against'], proposal["type"])
 
     events = db.execute(
         """
@@ -213,8 +213,8 @@ def one_proposal(proposal_id):
         {"proposal_id": proposal_id},
     ).fetchall()
 
-    accepted = is_proposal_accepted(
-        len(voted_for), len(voted_against), proposal["type"]
+    proposal['accepted'] = is_proposal_accepted(
+        len(proposal['voted_for']), len(proposal['voted_against']), proposal["type"]
     )
     user_id = int(session["oidc_auth_profile"]["given_name"])
 
@@ -222,12 +222,12 @@ def one_proposal(proposal_id):
         "proposals/one.html",
         data=proposal,
         events=events,
-        voted_for=voted_for,
-        voted_against=voted_against,
+        voted_for=proposal['voted_for'],
+        voted_against=proposal['voted_against'],
         user_voted=user_voted(user_id, proposal["id"]),
         can_vote=can_vote(user_id, proposal),
         len=len,
-        accepted=accepted,
+        accepted=proposal['accepted'],
         user_id=user_id,
         role_str=HkfreeRole(proposal["type"]).name.lower(),
         long_role_str=HkfreeRole(proposal["type"]).long_name,
