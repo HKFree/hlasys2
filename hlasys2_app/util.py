@@ -369,11 +369,11 @@ def is_proposal_accepted(voted_for: int, voted_against: int, type: HkfreeRole) -
             elif voted_against > (n_of_deciders * (2 / 3)):
                 return False
 
-        # Představenstvo, stejně jako VV
+        # Představenstvo, logika dle aktualniho stavu hlasovani.hkfree.org 06.07.25
         case HkfreeRole.PD:
-            if voted_for > (n_of_deciders / 2):
+            if voted_for > ((n_of_deciders / 2) + 1):
                 return True
-            elif voted_against > (n_of_deciders / 2):
+            elif voted_against > ((n_of_deciders / 2) + 1):
                 return False
 
     return None
