@@ -1,10 +1,11 @@
 from flask import Blueprint, render_template, redirect, session, request, flash, url_for
 from hlasys2_app.db import get_db
-from hlasys2_app.util import can_vote
+from hlasys2_app.util import check_proposal_status
 from hlasys2_app.forms import VoteDecisionForm
 from hlasys2_app import oidc
 
 bp = Blueprint("votes", __name__)
+
 
 def get_last_vote_details(user_id: int, proposal_id: int) -> dict:
     """
@@ -20,9 +21,10 @@ def get_last_vote_details(user_id: int, proposal_id: int) -> dict:
              AND decision IS NOT NULL  -- Only actual votes
            ORDER BY created DESC
            LIMIT 1""",
-        {"author_id": user_id, "proposal_id": proposal_id}
+        {"author_id": user_id, "proposal_id": proposal_id},
     ).fetchone()
     return last_vote
+
 
 @bp.route("/proposal/<int:proposal_id>/vote", methods=["GET", "POST"])
 @oidc.require_login
@@ -38,22 +40,25 @@ def vote_on_proposal(proposal_id: int):
         "SELECT * FROM proposal WHERE id = :proposal_id",
         {"proposal_id": proposal_id},
     ).fetchone()
-    
+
     if not proposal:
         flash("Takový návrh neexistuje.", "warning")
-        return redirect(url_for('proposals.overview'))
+        return redirect(url_for("proposals.overview"))
 
+    if proposal['decided']:
+        flash("Návrh je odhlasovaný a zamknutý, nelze hlasovat!", "danger")
+        return redirect(url_for("proposals.view_proposal", proposal_id=proposal_id))
+    
     # Check permission once upfront
-    if not can_vote(user_id, proposal):
+    if not str(user_id) in proposal['deciders']:
         flash("Tady hlasovat nemůžeš!", "danger")
-        # Redirect to the proposal detail page instead of overview if they can view it
-        return redirect(url_for('proposals.one_proposal', proposal_id=proposal_id))
+        return redirect(url_for("proposals.view_proposal", proposal_id=proposal_id))
 
     form = VoteDecisionForm()
 
     # Handle POST
     # Use request.method check for clarity along with validation
-    if request.method == 'POST' and form.validate_on_submit():
+    if request.method == "POST" and form.validate_on_submit():
         # Determine new decision (1 for 'for', 0 for 'against')
         new_decision = 1 if form.decision.data == "for" else 0
         provided_comment = form.comment.data.strip() if form.comment.data else None
@@ -61,23 +66,30 @@ def vote_on_proposal(proposal_id: int):
         # Check for existing vote using the helper function (one query)
         last_vote = get_last_vote_details(user_id, proposal_id)
 
-        final_comment = provided_comment # Default comment is the one provided
-        vote_symbols = ['✖', '✔'] # Index 0: Against, Index 1: For
+        final_comment = provided_comment  # Default comment is the one provided
+        vote_symbols = ["✖", "✔"]  # Index 0: Against, Index 1: For
 
         if last_vote:
-            # This is a vote change
             # Prevent recording vote if decision hasn't actually changed
-            if last_vote['decision'] == new_decision:
-                 flash("Stejné rozhodnutí, nezapíšu změnu.", "warning")
-                 return redirect(url_for('proposals.one_proposal', proposal_id=proposal_id))
+            if last_vote["decision"] == new_decision:
+                flash("Stejné rozhodnutí, nezapíšu změnu.", "warning")
+                return redirect(
+                    url_for("proposals.view_proposal", proposal_id=proposal_id)
+                )
 
             # Construct the automatic change comment *before* user comment
-            change_desc = (f"{user_name} změnil(a) hlas z "
-                           f"{vote_symbols[last_vote['decision']]} na "
-                           f"{vote_symbols[new_decision]}")
+            change_desc = (
+                f"{user_name} změnil(a) hlas z "
+                f"{vote_symbols[last_vote['decision']]} na "
+                f"{vote_symbols[new_decision]}"
+            )
 
             # Combine automatic comment and user comment if provided
-            final_comment = f"{change_desc} s komentářem:\n{provided_comment}" if provided_comment else f"{change_desc}."
+            final_comment = (
+                f"{change_desc} s komentářem:\n{provided_comment}"
+                if provided_comment
+                else f"{change_desc}."
+            )
 
         # Insert the single event record
         db.execute(
@@ -88,26 +100,30 @@ def vote_on_proposal(proposal_id: int):
                 "author_id": user_id,
                 "author_name": user_name,
                 "decision": new_decision,
-                "comment": final_comment, # Use the potentially combined comment
+                "comment": final_comment,  # Use the potentially combined comment
             },
         )
         db.commit()
 
+        if check_proposal_status(proposal):
+            flash("Tvůj hlas rozhodnul, návrh byl zamknut   ", "success")
+
         flash("Hlas změněn 🎉", "success")
-        return redirect(url_for('proposals.one_proposal', proposal_id=proposal_id))
+        return redirect(url_for("proposals.view_proposal", proposal_id=proposal_id))
 
     # Handle GET request (or failed POST validation)
     # Permission already checked, just render the form
     # Optionally, pre-fill form based on last vote for GET request
-    last_vote_for_get = get_last_vote_details(user_id, proposal_id) if request.method == 'GET' else None
+    last_vote_for_get = (
+        get_last_vote_details(user_id, proposal_id) if request.method == "GET" else None
+    )
     if last_vote_for_get:
         # Pre-fill form fields if desired (requires WTForms setup)
-        form.decision.data = 'for' if last_vote_for_get['decision'] == 1 else 'against'
-        pass # Add pre-filling logic if needed in the form definition or here
+        form.decision.data = "for" if last_vote_for_get["decision"] == 1 else "against"
 
     return render_template(
         "voting/vote.html",
-        proposal=proposal, # Pass the whole proposal object
+        proposal=proposal,  # Pass the whole proposal object
         form=form,
-        last_vote=last_vote_for_get # Pass last vote details to template if needed
+        last_vote=last_vote_for_get,  # Pass last vote details to template if needed
     )

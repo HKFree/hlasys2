@@ -23,6 +23,13 @@ class CreateProposalForm(FlaskForm):
         choices=[(0, "Výkonný Výbor spolku"), (2, "Představenstvo družstva"), (3, "Členové spolku"), (4, "Členové družstva")],
         validators=[DataRequired()]
     )
+    acceptance = RadioField(
+        "schválení",
+        name="acceptance",
+        choices=[(0, "více než ½ hlasů"), (1, "více než ⅔ hlasů")],
+        validators=[DataRequired()],
+        default=1
+    )
 
 class CreateCommentForm(FlaskForm):
     comment = TextAreaField("komentář", name="comment", validators=[DataRequired()])

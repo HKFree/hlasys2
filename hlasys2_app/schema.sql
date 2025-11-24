@@ -9,11 +9,18 @@ CREATE TABLE proposal (
     type INTEGER NOT NULL DEFAULT 0,
     subject TEXT NOT NULL,
     description TEXT NOT NULL,
+    -- Estimated cost CZK
     cost INTEGER,
+    -- Order state - None, Ordered, Ready, etc
     state TEXT,
     created TIMESTAMP NOT NULL DEFAULT (datetime('now','localtime')),
-    edited TIMESTAMP DEFAULT NULL,
-    deleted TIMESTAMP DEFAULT NULL
+    deleted TIMESTAMP DEFAULT NULL,
+    -- List of IDs that can vote on this proposal, set at creation of the proposal and must not change
+    deciders TEXT NOT NULL,
+    -- How many votes in favour of proposal are required for it to be accepted. Calculated at proposal creation from selected requirement
+    acceptance_treshold INT NOT NULL,
+    -- When the proposal was decided (Locked)
+    decided TIMESTAMP DEFAULT NULL
 );
 
 CREATE TABLE event (

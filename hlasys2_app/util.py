@@ -3,11 +3,10 @@ from urllib import request
 from urllib.parse import quote
 import json
 import enum
+import math
 import base64
 from .config import *
 from datetime import datetime, timedelta
-from flask import session
-from enum import Enum
 from copy import deepcopy
 
 # Try importing the configuration file, and exit if not found
@@ -24,6 +23,7 @@ class HkfreeRole(int, enum.Enum):
     Each role is associated with an integer value, and has methods to return its
     long name and corresponding API name.
     """
+
     VV = 0
     SO = 1
     PD = 2
@@ -40,10 +40,10 @@ class HkfreeRole(int, enum.Enum):
         """
         return [
             "Výkoný Výbor Spolku",  # VV
-            "Správci Oblastí",       # SO
+            "Správci Oblastí",  # SO
             "Představenstvo družstva",  # PD
-            "Členové spolku", # CS
-            "Členové družstva" # CD
+            "Členové spolku",  # CS
+            "Členové družstva",  # CD
         ][self]
 
     @property
@@ -64,14 +64,15 @@ class HkfreeRole(int, enum.Enum):
 class UserDBData:
     """
     A singleton class that manages cached user role data.
-    It fetches data from UserDB API when needed and caches it for a set duration 
+    It fetches data from UserDB API when needed and caches it for a set duration
     to improve performance by avoiding repeated requests.
     """
+
     _instance = None
     _last_fetch: datetime = None
-    _vv: int = None
-    _so: int = None
-    _pd: int = None
+    _vv: dict = None
+    _so: dict = None
+    _pd: dict = None
 
     def __new__(cls, *args, **kwargs):
         """
@@ -81,11 +82,10 @@ class UserDBData:
             UserDBData: The singleton instance of UserDBData.
         """
         if not cls._instance:
-            cls._instance = super(UserDBData, cls).__new__(
-                cls, *args, **kwargs)
+            cls._instance = super(UserDBData, cls).__new__(cls, *args, **kwargs)
         return cls._instance
 
-    def _fetch_number_of(self, type: HkfreeRole) -> None:
+    def _fetch_number_of(self, role_type: HkfreeRole) -> None:
         """
         Fetch the number of users for a specific role from the UserDB API and
         update the internal cached data.
@@ -96,8 +96,8 @@ class UserDBData:
         Returns:
             None
         """
-        print(f"> Fetching {type.name} from UserDB")
-        req = request.Request(config.USERDB_API_URL + quote(type.udb_api_name))
+        print(f"> Fetching {role_type.name} from UserDB")
+        req = request.Request(config.USERDB_API_URL + quote(role_type.udb_api_name))
 
         # Base64 encode the authentication string
         base64_auth_str = base64.b64encode(
@@ -114,7 +114,7 @@ class UserDBData:
             return  # Error in fetching data
 
         # Update the cached data based on the role type
-        match type:
+        match role_type:
             case HkfreeRole.VV:
                 self._vv = data["spravci"]
             case HkfreeRole.SO:
@@ -139,7 +139,9 @@ class UserDBData:
             self._last_fetch = datetime.now()
             if config.DEBUG:
                 print("DEBUG: ", self.__class__, "called _refresh and needs refresh")
-                print(f"DEBUG: of VV {self.num_of_vv} of SO {self.num_of_so} of PD {self.num_of_pd}")
+                print(
+                    f"DEBUG: of VV {self.num_of_vv} of SO {self.num_of_so} of PD {self.num_of_pd}"
+                )
 
     def number_of(self, role: HkfreeRole) -> int:
         """
@@ -157,50 +159,27 @@ class UserDBData:
             return 0
         return len([self._vv, self._so, self._pd][role])
 
-    def is_member_of(self, user_id: int, role: HkfreeRole) -> bool:
+    def get_deciders(self, role: HkfreeRole) -> list:
         """
-        Check if a user is a member of a specified role.
+        Get IDs of users that are currently of specified role
 
         Args:
-            user_id (int): The ID of the user.
-            role (HkfreeRole): The role to check membership for.
+            role (HkfreeRole): The role to get IDs for
 
         Returns:
-            bool: True if the user is a member of the given role, False otherwise.
+            list of integers
         """
         self._refresh()
-        if role in (HkfreeRole.CD, HkfreeRole.CS):
-            return False
-        members = [self._vv, self._so, self._pd][role]
-        return str(user_id) in members.keys()
-
-    def not_sure_yet(self, voted_for: dict, voted_against: dict, role: HkfreeRole) -> dict:
-        """
-        Returns a dictionary of users from the given role who have not voted on a proposal.
-        Excludes users who have voted for or against the proposal.
-
-        Args:
-            voted_for (dict): Users who voted for the proposal.
-            voted_against (dict): Users who voted against the proposal.
-            role (HkfreeRole): The role of users to check for undecided votes.
-
-        Returns:
-            dict: Users who have not voted yet, with user IDs as keys.
-        """
-        self._refresh()
-        if role in (HkfreeRole.CD, HkfreeRole.CS):
-            return []
-        
-        deciders = deepcopy([self._vv, self._so, self._pd][role])
-        all_votes = voted_for + voted_against
-        for voter in all_votes:
-            try:
-                del deciders[str(voter['author_id'])]
-            except:
-                # It is okay
-                pass
-
-        return deciders
+        match role:
+            case HkfreeRole.PD:
+                return self._pd
+            case HkfreeRole.VV:
+                return self._vv
+            case _:
+                print(
+                    "WARNING: No other than HkfreeRole.PD or .VV voting lock implemented! returning empty list"
+                )
+                return []
 
     @property
     def num_of_vv(self) -> int:
@@ -248,7 +227,7 @@ def can_vote(user_id: int, proposal: dict) -> bool:
     Returns:
         bool: True if the user can vote, False otherwise.
     """
-    return userdb_api.is_member_of(user_id, proposal['type'])
+    return user_id in proposal["deciders"]
 
 
 def user_voted(user_id: int, proposal_id: int) -> bool:
@@ -310,70 +289,114 @@ def overview_filter(current_filter: str) -> str:
     """
     sql_str = "WHERE type IN (0, 1, 2, 3, 4) "
 
-    if 'vv' not in current_filter:
-        sql_str = sql_str.replace('0, ', '')
-    if 'so' not in current_filter:
-        sql_str = sql_str.replace('1, ', '')
-    if 'pd' not in current_filter:
-        sql_str = sql_str.replace('2, ', '')
-    if 'cs' not in current_filter:
-        sql_str = sql_str.replace('3, ', '')
-    if 'cd' not in current_filter:
-        sql_str = sql_str.replace('4', '')
+    if "vv" not in current_filter:
+        sql_str = sql_str.replace("0, ", "")
+    if "so" not in current_filter:
+        sql_str = sql_str.replace("1, ", "")
+    if "pd" not in current_filter:
+        sql_str = sql_str.replace("2, ", "")
+    if "cs" not in current_filter:
+        sql_str = sql_str.replace("3, ", "")
+    if "cd" not in current_filter:
+        sql_str = sql_str.replace("4", "")
 
-    sql_str = sql_str.replace(', )', ')')
+    sql_str = sql_str.replace(", )", ")")
 
-    print(sql_str)
     if current_filter == "":
         sql_str = "WHERE 1 = 0"
     return sql_str
 
 
-def is_proposal_accepted(voted_for: int, voted_against: int, type: HkfreeRole) -> bool | None:
-    """
-    Determine if a proposal is accepted based on the votes and the role type.
-    The acceptance criteria depend on the role type:
-      - VV requires a majority
-      - SO requires a two-thirds majority
-      - PD requires a majority
+def is_proposal_accepted(proposal: dict) -> bool | None:
+    if config.DEBUG and False: #make this only for higher log level 
+        print("DEBUG: is_proposal_accepted data proposal ", proposal)
+    treshold = proposal["acceptance_treshold"]
 
-    Args:
-        voted_for (int): The number of votes in favor of the proposal.
-        voted_against (int): The number of votes against the proposal.
-        type (HkfreeRole): The type of role (VV, SO, PD).
+    n_deciders = len(json.loads(proposal["deciders"]))
 
-    Returns:
-        bool | None: True if the proposal is accepted, False if rejected, or None if undecided.
-    """
-    n_of_deciders = userdb_api.number_of(type)
-    total_votes = voted_for + voted_against
+    if "votes_for" in proposal.keys() and "votes_against" in proposal.keys():
+        n_voted_for = proposal["votes_for"]
+        n_voted_against = proposal["votes_against"]
+    else:
+        n_voted_for = len(proposal["voted_for"])
+        n_voted_against = len(proposal["voted_against"])
 
     if config.DEBUG:
-        print("DEBUG: n_of_deciders", n_of_deciders, " of type ", type, end="; ")
-        print("total_votes", total_votes, end="; ")
-        print("voted_for", voted_for, end="; ")
-        print("voted_against", voted_against)
+        print(
+            f"DEBUG: is_proposal_accepted treshold: {treshold}, n_deciders: {n_deciders}, n_voted_for: {n_voted_for}, n_voted_against: {n_voted_against}"
+        )
 
-    match type:
-        # VV, potřeba nadpoloviční většina
-        case HkfreeRole.VV:
-            if voted_for > (n_of_deciders / 2):
-                return True
-            elif voted_against > (n_of_deciders / 2):
-                return False
+    if n_voted_against >= treshold:
+        return False
 
-        # SO, potřeba nad dvě třetiny
-        case HkfreeRole.SO:
-            if voted_for > (n_of_deciders * (2 / 3)):
-                return True
-            elif voted_against > (n_of_deciders * (2 / 3)):
-                return False
-
-        # Představenstvo, logika dle aktualniho stavu hlasovani.hkfree.org 06.07.25
-        case HkfreeRole.PD:
-            if voted_for > ((n_of_deciders / 2) + 1):
-                return True
-            elif voted_against > ((n_of_deciders / 2) + 1):
-                return False
+    if n_voted_for >= treshold:
+        return True
 
     return None
+
+
+def get_undecided(proposal: int) -> list:
+    deciders: list = deepcopy(proposal["deciders"])
+
+    for vote in proposal["voted_for"]:
+        del deciders[str(vote["author_id"])]
+
+    for vote in proposal["voted_against"]:
+        del deciders[str(vote["author_id"])]
+
+    return deciders
+
+
+def calculate_acceptance_treshold(form_selection: str, deciders: list):
+    n_deciders = len(deciders)
+    match form_selection:
+        # see forms.py for form_selection source values
+        case "0":
+            # More than half
+            return math.ceil(n_deciders * 0.5)
+
+        case "1":
+            # More than two thirds
+            return math.ceil(n_deciders * (2 / 3))
+
+        case _:
+            print(
+                "ERROR: calculate_acceptance_treshold failed with unknown argument form_selection"
+            )
+            exit
+
+
+def check_proposal_status(proposal: dict) -> bool:
+    # This is only ever called after a vote submission
+
+    db = get_db()
+    # This should be elsewhere, sorry
+    updated_proposal = db.execute(
+        """
+        SELECT
+                p.id, p.acceptance_treshold, p.deciders,
+                COALESCE(SUM(CASE WHEN e.decision = 1 THEN 1 END), 0) AS votes_for,
+                COALESCE(SUM(CASE WHEN e.decision = 0 THEN 1 END), 0) AS votes_against
+            FROM proposal p LEFT JOIN event e ON p.id = e.proposal_id
+            WHERE p.id = :proposal_id
+        """,
+        {"proposal_id": proposal["id"]},
+    ).fetchone()
+
+    acceptance = is_proposal_accepted(updated_proposal)
+    if acceptance is None:
+        return False
+
+    if acceptance:
+
+        db.execute(
+            "UPDATE proposal SET decided = (datetime('now','localtime')) WHERE id = :id",
+            {"id": updated_proposal["id"]},
+        ).fetchone()
+        db.commit()
+        # Change occured
+        if config.DEBUG:
+            print(f"DEBUG: Locking proposal {updated_proposal['id']}")
+
+        return True
+    return False

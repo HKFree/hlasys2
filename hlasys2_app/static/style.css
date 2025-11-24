@@ -27,6 +27,12 @@ nav {
     z-index: 1000;
 }
 
+nav h1 small {
+    unicode-bidi: embed;
+    font-family: monospace;
+    white-space: pre;
+}
+
 nav .container {
     max-width: 900px; /* Match the content width */
     margin: 0 auto;

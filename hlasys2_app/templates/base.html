@@ -13,7 +13,7 @@
     <body>
         <nav>
             <div class="nav-content">
-                <h1>HlaSys v2</h1>
+                <h1>HKFree HlaSys <small>v{{version}}</small></h1>
                 <ul>
                     <li><a href="{{ url_for('proposals.overview', filter='pd') }}">Přehled</a>
                     <li><a href="{{ url_for('users.user_overview', user_id=session["oidc_auth_profile"]["given_name"]) }}">Moje timeline</a>
@@ -40,7 +40,7 @@
             </header>
             
             {% block content %}{% endblock %}
-            <footer>HlaSys v2 | pro <a href="https://hkfree.org">hkfree.org</a> vyrobil OndraLhota</footer>
+            <footer>HlaSys v{{ version }} | pro <a href="https://hkfree.org">hkfree.org</a> vyrobil OndraLhota</footer>
         </section>
         
     </body>

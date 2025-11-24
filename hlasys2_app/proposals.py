@@ -2,12 +2,12 @@ from flask import (
     Blueprint, flash, redirect, render_template, 
     session, request, url_for
 )
-import math
+import math, json, copy
 
 from hlasys2_app.db import get_db
 from hlasys2_app.util import (
     HkfreeRole, next_filter, overview_filter, can_vote, 
-    is_proposal_accepted, userdb_api, user_voted
+    is_proposal_accepted, userdb_api, get_undecided, calculate_acceptance_treshold
 )
 from hlasys2_app.forms import CreateProposalForm, CreateCommentForm
 from hlasys2_app import oidc, config
@@ -72,8 +72,8 @@ def overview(filter):
         
         data_sql = f"""
             SELECT
-                p.id, p.author_name, p.author_id, p.subject, p.description, 
-                p.cost, p.type, p.created, p.state,
+                p.id, p.author_name, p.author_id, p.subject, p.description, p.acceptance_treshold,
+                p.cost, p.type, p.created, p.state, p.deciders,
                 COALESCE(SUM(CASE WHEN e.decision = 1 THEN 1 END), 0) AS votes_for,
                 COALESCE(SUM(CASE WHEN e.decision = 0 THEN 1 END), 0) AS votes_against
             FROM proposal p LEFT JOIN event e ON p.id = e.proposal_id
@@ -83,9 +83,7 @@ def overview(filter):
         """
         for row in db.execute(data_sql, data_params).fetchall():
             proposal = dict(row)
-            proposal["accepted"] = is_proposal_accepted(
-                proposal["votes_for"], proposal["votes_against"], proposal["type"]
-            )
+            proposal["accepted"] = is_proposal_accepted(proposal)
             proposals.append(proposal)
 
     return render_template(
@@ -134,23 +132,24 @@ def view_proposal(proposal_id):
 
     proposal['voted_for'] = [v for v in latest_votes if v["decision"] == 1]
     proposal['voted_against'] = [v for v in latest_votes if v["decision"] == 0]
-    proposal['accepted'] = is_proposal_accepted(
-        len(proposal['voted_for']), len(proposal['voted_against']), proposal["type"]
-    )
+    proposal['accepted'] = is_proposal_accepted(proposal)
     
     events = db.execute(
         "SELECT * FROM event WHERE proposal_id = :id ORDER BY created DESC",
         {"id": proposal_id}
     ).fetchall()
 
+    proposal['deciders'] = json.loads(proposal['deciders'])
+
     return render_template(
         "proposals/one.html",
         proposal=proposal,
         events=events,
-        undecided_voters=userdb_api.not_sure_yet(
-            proposal['voted_for'], proposal['voted_against'], proposal["type"]
-        ),
-        can_vote=can_vote(user_id, proposal),
+        # undecided_voters=userdb_api.not_sure_yet(
+        #     proposal['voted_for'], proposal['voted_against'], proposal["type"]
+        # ),
+        undecided_voters=get_undecided(proposal),
+        can_vote=(str(user_id) in proposal['deciders']),
         user_id=user_id,
         HkfreeRole=HkfreeRole,
         users_change_state=config.USERS_CHANGE_STATE,
@@ -162,14 +161,15 @@ def view_proposal(proposal_id):
 def create_proposal():
     """Handles the creation of a new proposal."""
     form = CreateProposalForm()
-    print(form.cost)
-    print(form.validate_on_submit())
+    
     if form.validate_on_submit():
         db = get_db()
+        deciders = userdb_api.get_deciders(int(form.type.data))
+
         cursor = db.execute(
             """
-            INSERT INTO proposal (author_id, author_name, type, subject, description, cost)
-            VALUES (:author_id, :author_name, :type, :subject, :description, :cost)
+            INSERT INTO proposal (author_id, author_name, type, subject, description, cost, deciders, acceptance_treshold)
+            VALUES (:author_id, :author_name, :type, :subject, :description, :cost, :deciders, :acceptance_treshold)
             """,
             {
                 "author_id": session["oidc_auth_profile"]["given_name"],
@@ -178,6 +178,8 @@ def create_proposal():
                 "subject": form.subject.data,
                 "description": form.description.data,
                 "cost": form.cost.data,
+                "deciders": json.dumps(deciders, ensure_ascii=False),
+                "acceptance_treshold": calculate_acceptance_treshold(form.acceptance.data, deciders)
             },
         )
         db.commit()

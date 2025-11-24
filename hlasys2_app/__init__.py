@@ -6,7 +6,7 @@ from flask_oidc import OpenIDConnect
 import locale
 
 from .util import HkfreeRole
-from .config import config_app, FLASK_SECRET_KEY
+from .config import HlasysConfig, FLASK_SECRET_KEY
 
 locale.setlocale(locale.LC_TIME, "cs_CZ.UTF-8")
 oidc = OpenIDConnect()
@@ -17,10 +17,10 @@ def create_app():
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY=FLASK_SECRET_KEY,
-        DATABASE=os.path.join(app.instance_path, 'hlasys2.sqlite'),
+        DATABASE=os.path.join(app.instance_path, 'hlasys2-lock.sqlite'),
     )
+    app.config.from_object(HlasysConfig)
 
-    config_app(app)
     oidc.init_app(app)
     app.wsgi_app = ProxyFix(
         app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
@@ -67,5 +67,9 @@ def create_app():
     def session_tmp():
         print(session)
         return redirect("/overview/vv")
+
+    @app.context_processor
+    def inject_version():
+        return dict(version=app.config['APP_VERSION'])
 
     return app
