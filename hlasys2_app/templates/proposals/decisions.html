@@ -1,40 +1,35 @@
-{% if accepted == None %}
-<div class="d-one-decision-row d-one-unknown">
+{# This dictionary simplifies the logic for displaying the proposal's status #} 
+{% set status_map = {
+    True:  {'class': 'd-one-accepted', 'id': 's-one-accepted', 'text': '✔ schváleno ✔'},
+    False: {'class': 'd-one-rejected', 'id': 's-one-rejected', 'text': '✖ zamítnuto ✖'},
+    None:  {'class': 'd-one-unknown',  'id': 's-one-undecided','text': '? nerozhodnuto ?'}
+} %}
+{% set status = status_map[proposal.accepted] %}
+
+<div class="d-one-decision-row {{ status.class }}">
     <h2>
         Stav:
-        <span id="s-one-undecided">? nerozhodnuto ? {% if data['state'] %}- {{ data['state'] }}{% endif %}</span>
+        <span id="{{ status.id }}">{{ status.text }} {% if proposal.state %}- {{ proposal.state }}{% endif %}</span>
     </h2>
 </div>
-{% elif accepted == True %}
-<div class="d-one-decision-row d-one-accepted">
-    <h2>
-        Stav:
-        <span  id="s-one-accepted">✔ schváleno ✔ {% if data['state'] %}- {{ data['state'] }}{% endif %}</span>
-    </h2>
-</div>
-{% elif accepted == False %}
-<div class="d-one-decision-row d-one-rejected">
-    <h2>
-        Stav:
-        <span  id="s-one-rejected">✖ zamítnuto ✖ {% if data['state'] %}- {{ data['state'] }}{% endif %}</span>
-    </h2>
-</div>
-{% endif %}
 
 <div class="d-vote-btn">
-    {% if not data['accepted'] %}
-        {% if can_vote and not user_voted %}
-        <form action="/proposal/{{ data['id'] }}/vote" method="get">
-            <button type="submit">chci hlasovat</button>
-        </form>
-        {% elif can_vote and user_voted %}
-        <form action="/proposal/{{ data['id'] }}/vote" method="get">
-            <button type="submit">chci změnit hlas</button>
-        </form>
+    {% if not proposal.accepted %}
+        {% if can_vote %}
+            {# Assumes a 'proposals.vote' route exists for casting votes #}
+            <form action="{{ url_for('proposals.vote', proposal_id=proposal.id) }}" method="get">
+                <button type="submit">
+                    {% if user_voted %}
+                        Chci změnit hlas
+                    {% else %}
+                        Chci hlasovat
+                    {% endif %}
+                </button>
+            </form>
         {% endif %}
     {% endif %}
-    <form action="/proposal/{{ data['id'] }}/comment" method="get">
-        <button type="submit">chci komentovat</button>
+    <form action="{{ url_for('proposals.add_comment', proposal_id=proposal.id) }}" method="get">
+        <button type="submit">Chci komentovat</button>
     </form>
 </div>
 
@@ -42,38 +37,41 @@
     <div class="d-one-decision-col">
         <p>✔ Pro ✔</p>
         <ul>
-            {% for f in voted_for %}
+            {% for voter in proposal.voted_for %}
             <li>
-                <a href="/user/{{ f['author_id']}}">
-                    {{ f['author_name'] }}
+                {# Assumes a 'users.view' route exists for user profiles #}
+                <a href="{{ url_for('users.user_overview', user_id=voter.author_id) }}">
+                    {{ voter.author_name }}
                 </a>
             </li>
             {% endfor %}
         </ul>
     </div>
-    {% if not accepted %}
+
+    {% if not proposal.accepted %}
     <div class="d-one-decision-col d-one-undecided">
         <p>Nehlasoval/a</p>
-        
         <ul>
-            {% for undecider in undeciders %}
+            {% for user_id, user_name in undecided_voters.items() %}
             <li>
-                <a href="/user/{{ undecider }}">
-                    {{ undeciders[undecider] }}
+                <a href="{{ url_for('users.user_overview', user_id=user_id) }}">
+                    {{ user_name }}
                 </a>
             </li>
+            {% else %}
+            <li>Všichni již hlasovali.</li>
             {% endfor %}
         </ul>
     </div>
     {% endif %}
+
     <div class="d-one-decision-col">
         <p>✖ Proti ✖</p>
-        
         <ul>
-            {% for a in voted_against %}
+            {% for voter in proposal.voted_against %}
             <li>
-                <a href="/user/{{ a['author_id']}}">
-                    {{ a['author_name'] }}
+                <a href="{{ url_for('users.user_overview', user_id=voter.author_id) }}">
+                    {{ voter.author_name }}
                 </a>
             </li>
             {% endfor %}

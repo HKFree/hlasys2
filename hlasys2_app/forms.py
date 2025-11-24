@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, RadioField, TextAreaField, IntegerField
-from wtforms.validators import DataRequired, Length, NumberRange
+from wtforms.validators import DataRequired, Length, NumberRange, InputRequired
 
 
 class VoteDecisionForm(FlaskForm):
@@ -15,7 +15,7 @@ class VoteDecisionForm(FlaskForm):
 
 class CreateProposalForm(FlaskForm):
     subject = StringField("předmět", name="subject", validators=[DataRequired()])
-    cost = IntegerField("cena", validators=[DataRequired(), NumberRange(min=0)])
+    cost = IntegerField("cena", validators=[InputRequired(), NumberRange(min=0)])
     description = TextAreaField("popis", name="description", validators=[DataRequired()], render_kw={"rows": 10, "cols": 50})
     type = RadioField(
         "schvaluje",
