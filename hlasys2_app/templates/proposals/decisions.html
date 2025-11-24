@@ -15,7 +15,9 @@
 
 <div class="d-vote-btn">
     {% if proposal['decided'] %}
-        Již nelze hlasovat, návrh byl rozhodnut {{proposal['decided'] }}
+        <div class="d-one-decision-row d-one-proposal-locked">
+            Již nelze hlasovat, návrh byl rozhodnut {{proposal['decided'] }}
+        </div>
     {% elif not proposal.accepted %}
         {% if can_vote %}
             <form action="{{ url_for('votes.vote_on_proposal', proposal_id=proposal.id) }}" method="get">

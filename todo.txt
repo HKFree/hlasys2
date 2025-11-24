@@ -5,14 +5,20 @@ DONE: vyber procent ke schvaleni - při výběru kvora zobrazit „hint” 2/3 p
     DONE: pri creation nastaveni tohodle
     DONE: spravny vypocet tresholdu
     
-navrh locking
-    check pri hlasovani ze uz neni odhlasovano
-    pri kazdem novem hlasu check jestli tento hlas nemeni vysledek, pokud ano, lock navrhu
+DONE: navrh locking
+    DONE: check pri hlasovani ze uz neni odhlasovano
+    DONE: pri kazdem novem hlasu check jestli tento hlas nemeni vysledek, pokud ano, lock navrhu
 
 Optimalizace grafiky - minimalistic
     slovosled v logu navrhu
 
 podpora spolek / druzstevnik / vv / predstavenstvo
+    DONE: 0 = Executive committee (VV)
+    DONE: 1 = General committee (SO) - musi kvuli historii
+    DONE: 2 = Cooperative board (Představenstvo Druzstva)
+    3 = Členové spolku - chybi v UserDB
+    4 = Členové družstva - chybi v UserDB
+
 Migrovat veškerá hlasování ze starého do nového
 
 Provozování v kontejneru

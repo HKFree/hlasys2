@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block header %}
-    <h1>{% block title %}{{ '🔒' if proposal.decided else '' }}{{ proposal.subject }}{% endblock %}</h1>   
+    <h1>{% block title %}{{ proposal.subject }}{% endblock %}</h1>   
     <p>
         pro <strong>{{ HkfreeRole(proposal.type).long_name }}</strong>
     </p>

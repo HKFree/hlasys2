@@ -283,6 +283,20 @@ thead th {
     padding-top: 4px;
     padding-bottom: 4px;
 }
+
+.d-one-proposal-locked {
+    vertical-align: middle;
+    display: inline-block;
+    width: 100%;
+    height: 26px;
+    margin-top: 20px;
+    align-content: center;
+}
+
+.d-one-proposal-locked:before {
+    content: "🔒 ";
+}
+
 /* Description and Detail Section */
 #txt-desc {
     font-size: 16px;
