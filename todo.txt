@@ -1,0 +1,18 @@
+DONE: zapamatovani stavu vytvoreni taksu kdo schvaluje a přístupů  -
+DONE: Zobrazit kdo nehlasoval
+
+DONE: vyber procent ke schvaleni - při výběru kvora zobrazit „hint” 2/3 pro vyloučení e.g.
+    DONE: pri creation nastaveni tohodle
+    DONE: spravny vypocet tresholdu
+    
+navrh locking
+    check pri hlasovani ze uz neni odhlasovano
+    pri kazdem novem hlasu check jestli tento hlas nemeni vysledek, pokud ano, lock navrhu
+
+Optimalizace grafiky - minimalistic
+    slovosled v logu navrhu
+
+podpora spolek / druzstevnik / vv / predstavenstvo
+Migrovat veškerá hlasování ze starého do nového
+
+Provozování v kontejneru
