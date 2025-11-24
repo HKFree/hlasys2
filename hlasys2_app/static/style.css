@@ -1,687 +1,676 @@
-/* General Reset */
+/* =========================================
+   1. Variables & Reset
+   ========================================= */
+:root {
+    --primary: #0073e6;
+    --primary-hover: #005bb5;
+    --bg-body: #f4f6f8;
+    --bg-card: #ffffff;
+    --text-main: #2c3e50;
+    --text-muted: #6c757d;
+    --border-color: #e1e4e8;
+    
+    /* Status Colors */
+    --success-bg: #e6fffa;
+    --success-text: #047857;
+    --success-border: #34d399;
+    
+    --danger-bg: #fff5f5;
+    --danger-text: #c53030;
+    --danger-border: #fc8181;
+    
+    --warning-bg: #fffaf0;
+    --warning-text: #c05621;
+    --warning-border: #fbd38d;
+
+    --radius: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
 * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
 }
 
-/* Body Styles */
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f4f4f9;
-    color: #333;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-body);
+    color: var(--text-main);
     line-height: 1.6;
-    margin: unset;
+    font-size: 16px;
+    padding-bottom: 40px;
 }
 
-/* Navigation Styles */
+/* =========================================
+   2. Layout & Navigation
+   ========================================= */
 nav {
-    /* background-color: #0073e6; Blue background */
-    color: white;
-    padding: 15px 0;
-    width: 100%; /* Full width for background color */
-    box-sizing: border-box;
-    /* position: fixed; */
+    background-color: var(--primary);
+    padding: 1rem;
+    position: sticky;
     top: 0;
-    left: 0;
     z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
-nav h1 small {
-    unicode-bidi: embed;
-    font-family: monospace;
-    white-space: pre;
-}
-
-nav .container {
-    max-width: 900px; /* Match the content width */
+.nav-content {
+    max-width: 900px;
     margin: 0 auto;
-    padding: 0 20px; /* Add padding inside the container */
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    background: transparent;
+    padding: 0;
 }
 
 nav h1 {
-    font-size: 24px;
+    font-size: 1.25rem;
+    color: white;
+    margin: 0;
+    font-weight: 600;
+}
+
+nav h1 small {
+    opacity: 0.8;
+    font-size: 0.8em;
+    font-weight: 400;
 }
 
 nav ul {
-    list-style-type: none;
+    list-style: none; /* Removes dots from nav */
     display: flex;
-}
-
-nav ul li {
-    margin-left: 20px;
+    gap: 1.5rem;
+    margin: 0;
 }
 
 nav a {
+    color: rgba(255, 255, 255, 0.9);
     text-decoration: none;
-    color: white;
-    font-weight: bold;
-    font-size: 16px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: opacity 0.2s;
 }
 
 nav a:hover {
-    text-decoration: underline;
-}
-
-
-/* === Control Bar Styling (Toggles, Search, Pagination) === */
-
-.d-row-toggle, .d-row {
-    margin-bottom: 20px;
-}
-
-/* Filter Toggles and Pagination Row */
-.d-row-toggle {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 10px; /* Increased gap for better separation */
-    padding: 10px;
-    background-color: #f8f9fa; /* Lighter, neutral background */
-    border-radius: 6px;
-    border: 1px solid #dee2e6;
-}
-
-/* Hide the pipe separators, relying on gap and item styling */
-.d-row-toggle > span:not([class]) {
-    display: none;
-}
-
-.d-row-toggle > span[id^="toggle_"], /* The check/cross icon */
-.d-row-toggle > label {
-    cursor: pointer;
-}
-
-/* Filter Toggle Links */
-.d-row-toggle a {
+    color: #fff;
+    opacity: 1;
     text-decoration: none;
-    color: #007bff; /* Standard link blue */
-    padding: 8px 12px;
-    border-radius: 4px;
-    background-color: #ffffff;
-    border: 1px solid #ced4da;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: background-color 0.2s, box-shadow 0.2s, border-color 0.2s;
-    font-size: 0.9em;
 }
 
-.d-row-toggle a:hover {
-    background-color: #e9ecef;
-    border-color: #adb5bd;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+/* The Main Container */
+.content {
+    max-width: 900px;
+    margin: 20px auto;
+    background-color: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 30px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
 }
 
-.d-row-toggle a span[id^="toggle_"] {
-    font-weight: bold;
-    font-size: 1.1em; /* Slightly larger icon */
-    min-width: 1em; /* Ensure space for icon */
-    text-align: center;
-}
-.d-row-toggle a span[id^="toggle_"] + label {
-    color: #495057; /* Darker label text for contrast */
-}
-.d-row-toggle a:hover span[id^="toggle_"] + label {
-    color: #0056b3;
-}
-
-
-/* Pagination Controls */
-.pagination-controls {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.pagination-controls a,
-.pagination-controls .disabled {
-    text-decoration: none;
-    padding: 8px 12px;
-    border-radius: 4px;
-    background-color: #ffffff;
-    border: 1px solid #ced4da;
-    font-size: 0.9em;
-    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-    color: #007bff;
-}
-
-.pagination-controls a:hover {
-    background-color: #e9ecef;
-    border-color: #adb5bd;
-}
-
-.pagination-controls .disabled {
-    color: #6c757d; /* More standard disabled color */
-    background-color: #f8f9fa;
-    cursor: default;
-}
-
-.pagination-controls .page-info {
-    padding: 8px 12px;
-    font-size: 0.9em;
-    color: #495057;
-    background-color: transparent;
+/* Headers */
+/* FIX: Proposal Subject is just text, no box */
+header h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    color: var(--text-main);
+    line-height: 1.2;
+    background: none;
     border: none;
+    padding: 0;
 }
 
-/* Search Bar Styling */
-.d-row { /* Container for the search form */
-    display: flex;
-    justify-content: flex-start; /* Align search to the left by default */
-    margin-top: 10px; /* Space above search if it's after toggles */
+header strong {
+    color: var(--primary);
 }
 
-.d-row search { /* The HTML5 <search> element wrapper */
-    width: 100%;
-    max-width: 450px; /* Adjust max-width as needed */
+hr {
+    border: 0;
+    border-top: 1px solid var(--border-color);
+    margin: 1.5rem 0;
+}
+
+/* =========================================
+   3. Search Bar (Fixed)
+   ========================================= */
+.d-row {
+    margin-bottom: 1rem;
 }
 
 .d-row search form {
     display: flex;
     width: 100%;
-    border-radius: 6px;
-    overflow: hidden; /* Ensures border-radius clips children */
-    border: 1px solid #ced4da; /* Consistent border */
-    background-color: #fff; /* Background for the form itself */
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    background-color: #fff;
+    overflow: hidden; /* Keeps button inside rounded corners */
 }
 
+/* The Input Field */
 .d-row search input[type="search"] {
-    flex-grow: 1;
+    flex-grow: 1; /* Takes all available space */
     border: none;
-    padding: 10px 15px; /* Increased padding */
-    font-size: 1em;
+    padding: 12px 16px;
+    font-size: 1rem;
     outline: none;
-    background-color: transparent; /* Inherit from form */
-    color: #495057;
-}
-.d-row search input[type="search"]::placeholder {
-    color: #6c757d;
-    opacity: 1;
+    box-shadow: none; /* Remove default input shadow */
 }
 
+/* The Search Button */
 .d-row search button[type="submit"] {
-    background-color: #007bff;
+    width: 50px; /* Fixed width */
+    background-color: var(--primary); /* Blue background */
     color: white;
     border: none;
-    padding: 0; /* Remove padding, rely on width/height */
     cursor: pointer;
-    flex-shrink: 0;
-    position: relative;
-    width: 44px; /* Fixed width for icon button */
-    height: 42px; /* Match input height, adjust as needed */
-    transition: background-color 0.2s;
-    display: flex; /* For centering icon */
+    display: flex;
     align-items: center;
     justify-content: center;
+    padding: 0;
+    border-radius: 0; /* Square edges to fit in form */
+    margin: 0;
 }
 
 .d-row search button[type="submit"]:hover {
-    background-color: #2769af;
+    background-color: var(--primary-hover);
 }
 
-/* Magnifier icon using Unicode character */
+/* The Icon */
 .d-row search button[type="submit"]::before {
-    content: "\1F50D"; /* Unicode magnifier U+1F50D */
-    font-size: 22px; /* Adjust icon size */
-    line-height: 1; /* Ensure it's centered */
+    content: "\1F50D"; /* Unicode Magnifier */
+    font-size: 1.2rem;
     font-weight: bold;
+    line-height: 1;
 }
 
-/* Content Section */
-.content {
-    max-width: 900px;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 20px;
-    padding: 20px;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+/* =========================================
+   4. Tables (Overview)
+   ========================================= */
+.t-proposals {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 1rem;
 }
 
-header h1 {
-    font-size: 32px;
-    margin-bottom: 10px;
-}
-
-header strong {
-    color: #0073e6;
-}
-
-#s-one-unknown {
-    color: #ff5722;
-}
-
-thead th {
+.t-proposals th {
     text-align: left;
-    padding: 2px;
+    padding: 12px;
+    border-bottom: 2px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-/* Accepted Status Style */
-.d-one-accepted {
-    background-color: #99c80095; /* Light green background (same as table accepted row) */
-    border-radius: 4px;
-    font-weight: bold;
-    box-shadow: 0 0 10px rgba(40, 167, 69, 0.2); /* Soft green shadow */
-}
-
-/* Rejected Status Style */
-.d-one-rejected {
-    background-color: #ff000070; /* Light red background (same as table rejected row) */
-    border-radius: 4px;
-    font-weight: bold;
-    box-shadow: 0 0 10px rgba(220, 53, 69, 0.2); /* Soft red shadow */
-}
-
-.d-one-decision-row {
-    border-radius: 4px;
-    padding-left: 8px;
-    padding-top: 4px;
-    padding-bottom: 4px;
-}
-
-.d-one-proposal-locked {
+.t-proposals td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
     vertical-align: middle;
-    display: inline-block;
-    width: 100%;
-    height: 26px;
-    margin-top: 20px;
-    align-content: center;
 }
 
-.d-one-proposal-locked:before {
-    content: "🔒 ";
-}
+/* Row Status Styling */
+.tr-proposal-accepted { border-left: 4px solid var(--success-border); background-color: rgba(52, 211, 153, 0.05); }
+.tr-proposal-accepted td:first-child { color: var(--success-text); font-weight: 600; }
 
-/* Description and Detail Section */
-#txt-desc {
-    font-size: 16px;
-    margin-bottom: 20px;
-    width: 100%;
-    white-space: pre-wrap;
-}
+.tr-proposal-rejected { border-left: 4px solid var(--danger-border); background-color: rgba(252, 129, 129, 0.05); }
+.tr-proposal-rejected td:first-child { color: var(--danger-text); font-weight: 600; }
 
-.d-one-detail-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-}
+.tr-proposal-undecided { border-left: 4px solid var(--warning-border); }
 
-.p-one-detail {
-    font-size: 16px;
-}
-
-.d-one-detail-row p a {
+.t-proposals a {
+    color: inherit;
     text-decoration: none;
-    color: #0073e6;
+}
+.t-proposals a:hover { text-decoration: underline; }
+
+/* =========================================
+   5. Controls & Toggles
+   ========================================= */
+.d-row-toggle {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin-bottom: 1rem;
 }
 
-.d-one-detail-row p a:hover {
+.d-row-toggle a {
+    background-color: #fff;
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+}
+
+.d-row-toggle a:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* Pagination */
+.pagination-controls {
+    margin-left: auto;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+.pagination-controls a {
+    padding: 6px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    text-decoration: none;
+    color: var(--primary);
+}
+
+/* =========================================
+   6. Proposal Details & Decisions
+   ========================================= */
+/* Status Banners */
+.d-one-decision-row {
+    padding: 0.75rem;
+    border-radius: var(--radius);
+    text-align: center;
+    border: 1px solid transparent;
+}
+
+.d-one-accepted { background-color: var(--success-bg); color: var(--success-text); border-color: var(--success-border); }
+.d-one-rejected { background-color: var(--danger-bg); color: var(--danger-text); border-color: var(--danger-border); }
+.d-one-unknown { background-color: var(--warning-bg); color: var(--warning-text); border-color: var(--warning-border); }
+
+#txt-desc {
+    font-size: 1.05rem;
+    color: #4a5568;
+    background: #f9fafb;
+    padding: 1rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+        white-space: pre-wrap;      /* Preserves newlines entered by user */
+    word-wrap: break-word;      /* legacy support */
+    overflow-wrap: break-word;  /* Prevents long URLs from breaking layout */
+}
+
+/* Style the links generated by Jinja's urlize */
+#txt-desc a {
+    color: var(--primary);
+    font-weight: 500;
     text-decoration: underline;
+    text-underline-offset: 3px; /* Moves underline slightly down for clarity */
 }
 
-hr {
-    margin: 20px 0;
-    border: 0;
-    border-top: 1px solid #ddd;
+#txt-desc a:hover {
+    background-color: rgba(0, 115, 230, 0.1); /* Subtle highlight behind link on hover */
+    color: var(--primary-hover);
+    border-radius: 2px;
 }
 
-/* Vote & Decision Section */
+/* Voting Grid */
 #d-one-decision-box {
-    display: flex; /* Use Flexbox to align items side by side */
-    justify-content: space-between; /* Space out the columns */
-    gap: 30px; /* Space between the columns */
-    margin-bottom: 20px;
-    padding: 10px;
-    background-color: #f9f9f9;
-    border-radius: 6px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    background: transparent;
+    padding: 0;
 }
 
 .d-one-decision-col {
-    width: 48%; /* Ensure they don't take up the whole space */
-    padding: 15px;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 6px;
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 1rem;
 }
 
 .d-one-decision-col p {
-    font-size: 18px;
-    margin-bottom: 10px;
-    font-weight: bold;
-}
-
-.d-one-decision-col ul {
-    list-style-type: none;
-    padding-left: 0;
-}
-
-.d-one-decision-col ul li {
-    margin-bottom: 10px;
-}
-
-.d-one-decision-col ul li a {
-    color: #0073e6;
-    text-decoration: none;
-}
-
-.d-one-decision-col ul li a:hover {
-    text-decoration: underline;
-}
-
-.d-one-decision-col:last-child {
-    margin-right: 0;
-}
-
-.d-vote-btn form {
     text-align: center;
-    margin-top: 20px;
+    font-weight: bold;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
 }
 
-.d-vote-btn button {
-    background-color: #0073e6;
-    color: white;
-    padding: 10px 20px;
-    font-size: 16px;
-    border: none;
-    border-radius: 4px;
+/* Remove dots from decision lists */
+.d-one-decision-col ul {
+    list-style: none;
+    padding: 0;
+}
+.d-one-decision-col ul li {
+    margin-bottom: 4px;
+}
+
+/* =========================================
+   7. Buttons & Voting Controls
+   ========================================= */
+/* Container for voting buttons */
+/* Container for buttons and status messages */
+.d-vote-btn {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* Aligns items to the left */
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    
+    /* Box Styling */
+    background-color: #fff;
+    
+    /* SPACING FIXES: */
+    padding: 1rem;       /* More space inside (so buttons don't touch border) */
+}
+
+/* The Locked Message Styling */
+.d-one-proposal-locked {
+    display: inline-flex;
+    align-items: center;
+    font-weight: 600;
+    color: var(--text-muted);
+    background-color: #f1f5f9; /* Light Gray background */
+    padding: 8px 16px;
+    border-radius: 20px; /* Pill shape */
+    border: 1px solid #cbd5e0;
+}
+
+/* The Lock Icon */
+.d-one-proposal-locked::before {
+    content: "🔒";
+    margin-right: 8px;
+    font-size: 1.1em;
+}
+
+/* Ensure the form inside d-vote-btn doesn't mess up layout */
+.d-vote-btn form {
+    margin: 0;
+}
+
+/* General Button Styles */
+button, .state-btn, input[type="submit"] {
     cursor: pointer;
+    border: none;
+    border-radius: var(--radius);
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    margin: 0; /* Reset margins, rely on gap */
 }
 
-.d-vote-btn button:hover {
-    background-color: #005bb5;
+/* Primary Actions */
+form button[type="submit"], 
+input[type="submit"] {
+    background-color: var(--primary);
+    color: white;
+}
+form button[type="submit"]:hover,
+input[type="submit"]:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
 }
 
-/* Comment Section */
-h3 {
-    font-size: 20px;
-    margin-bottom: 10px;
-}
-
-.p-comment {
-    background-color: #f9f9f9;
-    padding: 10px;
-    border-left: 4px solid #0073e6;
-    margin-bottom: 10px;
-    white-space: pre-wrap;
-}
-
-.p-comment a {
-    color: #0073e6;
+/* Secondary Buttons */
+.state-btn {
+    background-color: white;
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    display: inline-block;
+    margin-right: 0.5rem; /* Margin for when not in flex container */
+    margin-bottom: 0.5rem;
     text-decoration: none;
 }
-
-.p-comment a:hover {
-    text-decoration: underline;
+.state-btn:hover {
+    background-color: #f8f9fa;
+    border-color: #b1b7c1;
 }
 
-.p-comment + .p-comment {
-    margin-top: 15px;
-}
-
-/* Form Page Styles */
-form {
-    display: grid;
-    grid-gap: 20px;
-}
-
+/* =========================================
+   8. Forms & Inputs
+   ========================================= */
 form div {
-    display: flex;
-    flex-direction: column;
+    margin-bottom: 1.5rem;
 }
 
 form label {
-    font-size: 18px;
-    margin-bottom: 8px;
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-main);
 }
 
 form input[type="text"],
 form input[type="number"],
 form textarea,
-form input[type="radio"] {
-    font-size: 16px;
-    padding: 10px;
-    border-radius: 4px;
-    border: 1px solid #ddd;
+form select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    font-size: 1rem;
+    font-family: inherit;
+    background-color: #fff;
 }
 
-form input[type="text"]:focus,
-form input[type="number"]:focus,
-form textarea:focus {
-    border-color: #0073e6;
+form input:focus, form textarea:focus {
+    border-color: var(--primary);
     outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 115, 230, 0.1);
 }
 
-form textarea {
-    resize: vertical;
+/* FIX: Ugly dots and spacing in Radio Lists (Flask-WTF) */
+form ul {
+    list-style: none; /* Kills the dots */
+    padding: 0;
+    margin: 0;
 }
 
-form input[type="submit"] {
-    background-color: #0073e6;
-    color: white;
-    font-size: 18px;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+form ul li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
 }
 
-form input[type="submit"]:hover {
-    background-color: #005bb5;
-}
-
-/* Radio Buttons */
-ul#type {
-    list-style-type: none;
-    padding-left: 0;
-}
-
-ul#type li {
-    margin-bottom: 10px;
-}
-
-ul#type input[type="radio"] {
-    margin-right: 10px;
-}
-
-.nav-content {
-	max-width: 900px;
-	margin: 0 auto;
-	background-color: #0073e6;
-	border-radius: 8px;
-    padding: 8px;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    body {
-        padding-left: 8px;
-        padding-right: 8px;
-    }
-
-    .d-one-detail-row {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .d-one-decision-col {
-        width: 100%;
-        margin-right: 0;
-        margin-bottom: 20px;
-    }
-
-    #d-one-decision-box {
-        flex-direction: column;
-    }
-
-    nav h1 {
-        font-size: 20px;
-    }
-
-    nav ul {
-        float: none;
-        text-align: center;
-        margin-top: 10px;
-    }
-
-    nav ul li {
-        display: block;
-        margin: 10px;
-    }
-
-    .content {
-        padding: 10px;
-    }
-
-    form label {
-        font-size: 16px;
-    }
-
-    form input[type="submit"] {
-        font-size: 16px;
-    }
-}
-
-/* Container for the tooltip */
-.tooltip-container {
-    position: relative;
-    display: inline-block;
+form input[type="radio"],
+form input[type="checkbox"] {
+    width: auto; /* Don't stretch to 100% like text inputs */
+    margin-right: 10px; /* Space between dot and text */
+    transform: scale(1.2); /* Make click target slightly larger */
     cursor: pointer;
 }
 
-/* The actual tooltip text */
-.tooltip-text {
-    visibility: hidden;
-    background-color: black;
-    color: #fff;
-    text-align: center;
-    border-radius: 5px;
-    padding: 5px;
-    position: absolute;
-    z-index: 1;
-    bottom: 100%; /* Position above the container */
-    left: 50%;
-    transform: translateX(-50%); /* Centers the tooltip horizontally */
-    white-space: nowrap; /* Prevents the text from wrapping */
-    opacity: 0;
-    transition: opacity 0.3s;
-    width: max-content; /* Tooltip width is determined by content */
+/* =========================================
+   9. Timeline (Profile) & Comments
+   ========================================= */
+.event-time {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-top: 1rem;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.tooltip-visible-text {
-    border-bottom:1px dashed #000;
+.p-comment {
+    background: white;
+    border-left: 3px solid var(--primary);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
-/* Show the tooltip on hover */
-.tooltip-container:hover .tooltip-text {
-    visibility: visible;
-    opacity: 1;
-}
-
-/* Ensure borders are collapsed and visible on the rows */
-.t-proposals {
-    width: 100%;
-    border-collapse: collapse; /* Make sure borders are collapsed */
-}
-
-.t-proposals tr {
-    /* border-left: 5px solid transparent; */
-    border-top: 3px solid transparent;
-    border-bottom: 3px solid transparent;
-
-}
-
-.t-proposals td {
-    padding: 2px 0;
-    padding-left: 6px;
-}
-
-/* Accepted Proposal Style */
-.tr-proposal-accepted {
-    background-color: #e6f7e6; /* Light green background */
-    box-shadow: 0 0 10px rgba(40, 167, 69, 0.2); /* Soft green shadow */
-}
-
-.tr-proposal-accepted:hover {
-    background-color: #d4f4d4; /* Slightly darker on hover */
-}
-
-/* Rejected Proposal Style */
-.tr-proposal-rejected {
-    background-color: #ffc3c8; /* Light red background */
-    box-shadow: 0 0 10px rgba(220, 53, 69, 0.2); /* Soft red shadow */
-}
-
-.tr-proposal-rejected:hover {
-    background-color: #f5c6cb; /* Slightly darker on hover */
-}
-
-.tr-proposal-undecided {
-    background-color: #ffa04857; /* Slightly darker on hover */
-    box-shadow: 0 0 10px #ffa0485b; /* Soft red shadow */
-}
-
-.tr-proposal-undecided:hover {
-    background-color: #ffa04883; /* Slightly darker on hover */
-    box-shadow: 0 0 10px #ffa04883; /* Soft red shadow */
-}
-
-/* Footer Styles */
-footer {
-    color: black;
-    padding-top: 10px;
-    font-family: monospace;
-    text-align: center;
-    width: 100%;
-    position: relative; /* Ensures it is part of the document flow */
-    bottom: 0;
-    left: 0;
-}
-
+/* =========================================
+   Flask Flash Messages (Alerts)
+   ========================================= */
 .flashes {
-    font-weight: bold;
-    list-style: none;
+    list-style: none; /* Remove default bullets */
+    padding: 0;
+    margin-bottom: 1.5rem;
 }
 
-.flash-warning:before {
-    content: "⚠️ ";
+.flashes li {
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+    border-radius: var(--radius);
+    border: 1px solid transparent; /* Prepare for border color */
+    font-weight: 500;
+    display: flex;
+    align-items: center;
 }
 
-.flash-success:before {
-    content: "✅ ";
+/* Success (Green) */
+.flash-success {
+    background-color: var(--success-bg);
+    color: var(--success-text);
+    border-color: var(--success-border);
+}
+.flash-success::before {
+    content: "✅";
+    margin-right: 12px;
+    font-size: 1.2em;
 }
 
-.flash-danger:before {
+/* Warning (Orange/Yellow) */
+.flash-warning {
+    background-color: var(--warning-bg);
+    color: var(--warning-text);
+    border-color: var(--warning-border);
+}
+.flash-warning::before {
+    content: "⚠️";
+    margin-right: 12px;
+    font-size: 1.2em;
+}
+
+/* Danger / Error (Red) */
+/* Supporting both 'danger' and 'error' categories just in case */
+.flash-danger, .flash-error {
+    background-color: var(--danger-bg);
+    color: var(--danger-text);
+    border-color: var(--danger-border);
+}
+.flash-danger::before, .flash-error::before {
     content: "❗";
+    margin-right: 12px;
+    font-size: 1.2em;
 }
 
-
-
-.d-one-decision-col {
-    overflow: auto;
-    max-height: 25vh;
+/* Info / Default (Blue) - Fallback */
+.flash-message, .flash-info {
+    background-color: #ebf8ff;
+    color: #2b6cb0;
+    border-color: #bee3f8;
+}
+.flash-message::before, .flash-info::before {
+    content: "ℹ️";
+    margin-right: 12px;
+    font-size: 1.2em;
 }
 
+/* =========================================
+   10. Mobile Responsiveness
+   ========================================= */
+@media (max-width: 768px) {
+    body { padding-bottom: 20px; }
+    
+    .content {
+        margin: 0;
+        border-radius: 0;
+        border: none;
+        border-top: 1px solid var(--border-color);
+        padding: 15px;
+    }
 
-.state-btn {
-    border: 1px solid gray;
-    border-radius: 5px;
-    background-color: lightgrey;
-    padding: 1px 10px;
-    text-decoration: none;
-    color: black;
-    min-width: 75px;
-    display: inline-block;
+    /* Stack Nav */
+    .nav-content { flex-direction: column; gap: 10px; }
+    nav ul { width: 100%; justify-content: center; font-size: 0.9rem; }
+
+    /* Mobile Tables -> Cards Transformation */
+    .t-proposals thead { display: none; }
+    .t-proposals, .t-proposals tbody, .t-proposals tr, .t-proposals td {
+        display: block;
+        width: 100%;
+    }
+    
+    .t-proposals tr {
+        margin-bottom: 15px;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius);
+        background: #fff;
+        padding: 10px;
+        /* Re-apply border colors for mobile cards */
+        border-left-width: 5px; 
+    }
+
+    .t-proposals td {
+        border-bottom: none;
+        padding: 6px 0;
+        display: flex;
+        justify-content: space-between;
+        text-align: right;
+    }
+
+    /* Mobile Labels */
+    .t-proposals td:nth-of-type(1) { font-size: 1.1rem; text-align: left; display: block; margin-bottom: 5px; }
+    .t-proposals td:nth-of-type(2):before { content: "Navrhovatel:"; float: left; font-weight: bold; color: var(--text-muted); }
+    .t-proposals td:nth-of-type(3):before { content: "Cena:"; float: left; font-weight: bold; color: var(--text-muted); }
+    .t-proposals td:nth-of-type(4):before { content: "Stav:"; float: left; font-weight: bold; color: var(--text-muted); }
+
+    /* Stack Decision Columns */
+    #d-one-decision-box {
+        grid-template-columns: 1fr;
+    }
+    
+    .d-row search button[type="submit"] {
+        width: 44px; /* Slightly smaller on mobile */
+    }
+}
+
+/* Footer */
+footer {
     text-align: center;
-    margin: 0.25rem;
-    /* margin-top: 0.25rem */
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    padding: 20px;
+    margin-top: 20px;
 }
+footer a { color: var(--text-muted); text-decoration: underline; }
 
-.state-btn:hover {
-    background-color: darkgray;
+/* =========================================
+   Mobile Layout Fixes for Controls
+   ========================================= */
+@media (max-width: 600px) {
+    /* Stack the Locked Message and Button vertically */
+    .d-vote-btn {
+        flex-direction: column; 
+        align-items: stretch;
+        
+        /* Mobile Spacing */
+        gap: 1rem;             /* Space between Lock message and Comment button */
+        padding: 1.25rem;      /* Comfortable padding inside */
+    }
+
+    /* Make the locked message look good full width */
+    .d-one-proposal-locked {
+        width: 100%;
+        justify-content: center;
+        margin: 0;
+        box-sizing: border-box;
+    }
+
+    /* Make buttons full width */
+    .d-vote-btn form, 
+    .d-vote-btn button {
+        width: 100%;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+    }
 }

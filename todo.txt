@@ -11,6 +11,7 @@ DONE: navrh locking
 
 Optimalizace grafiky - minimalistic
     slovosled v logu navrhu
+    ceske datum
 
 podpora spolek / druzstevnik / vv / predstavenstvo
     DONE: 0 = Executive committee (VV)

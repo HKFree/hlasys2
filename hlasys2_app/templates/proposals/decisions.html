@@ -1,15 +1,14 @@
 {# This dictionary simplifies the logic for displaying the proposal's status #} 
 {% set status_map = {
-    True:  {'class': 'd-one-accepted', 'id': 's-one-accepted', 'text': '✔ schváleno ✔'},
-    False: {'class': 'd-one-rejected', 'id': 's-one-rejected', 'text': '✖ zamítnuto ✖'},
-    None:  {'class': 'd-one-unknown',  'id': 's-one-undecided','text': '? nerozhodnuto ?'}
+    True:  {'class': 'd-one-accepted', 'id': 's-one-accepted', 'text': 'Schváleno'},
+    False: {'class': 'd-one-rejected', 'id': 's-one-rejected', 'text': 'Zamítnuto'},
+    None:  {'class': 'd-one-unknown',  'id': 's-one-undecided','text': 'Nerozhodnuto'}
 } %}
 {% set status = status_map[proposal.accepted] %}
 
 <div class="d-one-decision-row {{ status.class }}">
     <h2>
-        Stav:
-        <span id="{{ status.id }}">{{ status.text }} {% if proposal.state %}- {{ proposal.state }}{% endif %}</span>
+        <span id="{{ status.id }}">{{ status.text }} {% if proposal.state %}- objednávka: {{ proposal.state }}{% endif %}</span>
     </h2>
 </div>
 
@@ -38,7 +37,7 @@
 
 <div id="d-one-decision-box">
     <div class="d-one-decision-col">
-        <p>✔ Pro ✔</p>
+        <p>Pro</p>
         <ul>
             {% for voter in proposal.voted_for %}
             <li>
@@ -69,7 +68,7 @@
     {% endif %}
 
     <div class="d-one-decision-col">
-        <p>✖ Proti ✖</p>
+        <p>Proti</p>
         <ul>
             {% for voter in proposal.voted_against %}
             <li>

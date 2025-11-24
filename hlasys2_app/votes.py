@@ -106,9 +106,9 @@ def vote_on_proposal(proposal_id: int):
         db.commit()
 
         if check_proposal_status(proposal):
-            flash("Tvůj hlas rozhodnul, návrh byl zamknut   ", "success")
+            flash("Tvůj hlas rozhodnul, návrh byl zamknut", "success")
 
-        flash("Hlas změněn 🎉", "success")
+        flash("Hlas zapsán", "success")
         return redirect(url_for("proposals.view_proposal", proposal_id=proposal_id))
 
     # Handle GET request (or failed POST validation)
