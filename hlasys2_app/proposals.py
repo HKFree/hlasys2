@@ -249,7 +249,7 @@ def change_state(proposal_id: int, new_state: str):
             {
                 "pid": proposal_id, "uid": user_id, 
                 "uname": session["oidc_auth_profile"]["family_name"],
-                "comment": f"Změna stavu z '{current_state or 'Žádný'}' na '{new_state}'",
+                "comment": f"Změna stavu z '{current_state or 'Nic'}' na '{new_state}'",
             },
         )
         db.commit()

@@ -12,7 +12,8 @@
         <div id="txt-desc">{{ proposal.description | trim | urlize(nofollow=False, target='_blank') }}</div>
         <hr>
         <div id="d-one-bot">
-            <p>Odhadovaná cena: {{ "{:,}".format(proposal.cost) }} Kč</p>
+            <p>Odhadovaná cena: <b>{{ "{:,}".format(proposal.cost) }} Kč</b></p>
+            <p>Počet hlasů pro schválení: {{ proposal['acceptance_treshold'] }}</p>
             <p>
                 Vložil  <a href="/user/{{ proposal.author_id }}">{{ proposal.author_name }}</a>
                 dne {{ proposal.created.strftime('%d.%m.%Y v %H:%M') }}
@@ -29,7 +30,7 @@
         <a class="state-btn" href="{{ url_for('proposals.change_state', proposal_id=proposal.id, new_state='Objednáno') }}">Objednáno</a>
         <a class="state-btn" href="{{ url_for('proposals.change_state', proposal_id=proposal.id, new_state='K Převzetí') }}">K Převzetí</a> 
         <a class="state-btn" href="{{ url_for('proposals.change_state', proposal_id=proposal.id, new_state='Předáno') }}">Předáno</a>
-        <a class="state-btn" href="{{ url_for('proposals.change_state', proposal_id=proposal.id, new_state='Nic') }}">Žádný</a>
+        <a class="state-btn" href="{{ url_for('proposals.change_state', proposal_id=proposal.id, new_state='Nic') }}">Nic</a>
     </div>
     <hr>
     {% endif %}
@@ -38,12 +39,14 @@
     <hr>
     {% for event in events %}
         <div>
-            <strong>{{ event.created.strftime('%d.%m.%Y v %H:%M') }}</strong> -
+            <span class="event-time-log">
+            {{ event['created'].strftime('%A %d.%m.%Y %H:%M')}}
+            </span> -
             {% if event.decision is none %}
-                Komentář od {{ event.author_name }}:
+                komentář od <a href="/user/{{event.author_id}}">{{ event.author_name }}</a>:
                 <p class="p-comment">{{ event.comment | urlize(nofollow=False, target='_blank') }}</p>
             {% else %}
-                Hlasoval(a) {{ '✔' if event.decision else '✖'}} {{ event.author_name }}
+                hlas <b>{{ '✅' if event.decision else '❌'}}</b> od <a href="/user/{{event.author_id}}">{{ event.author_name }}</a>
                 {% if event.comment %}
                     s komentářem:
                     <p class="p-comment">{{ event.comment | urlize(nofollow=False, target='_blank') }}</p>

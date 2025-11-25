@@ -6,14 +6,14 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
         <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
-        <title>{% block title %}{% endblock title %} - HlaSys v2</title>
-
         {% block head %}{% endblock head %}
     </head>
     <body>
         <nav>
             <div class="nav-content">
-                <h1>HKFree HlaSys <small>v{{version}}</small></h1>
+                <a href="{{ url_for('proposals.overview', filter='pd') }}">
+                    <h1>HKFree HlaSys <small>v{{version}}</small></h1>
+                </a>
                 <ul>
                     <li><a href="{{ url_for('proposals.overview', filter='pd') }}">Přehled</a>
                     <li><a href="{{ url_for('users.user_overview', user_id=session["oidc_auth_profile"]["given_name"]) }}">Moje timeline</a>

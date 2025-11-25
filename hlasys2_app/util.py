@@ -73,6 +73,9 @@ class UserDBData:
     _vv: dict = None
     _so: dict = None
     _pd: dict = None
+    _cs: dict = None
+    # Not yet implemented
+    _cd: dict = None
 
     def __new__(cls, *args, **kwargs):
         """
@@ -136,12 +139,34 @@ class UserDBData:
             self._fetch_number_of(HkfreeRole.VV)
             self._fetch_number_of(HkfreeRole.SO)
             self._fetch_number_of(HkfreeRole.PD)
+            self._fetch_cs()
             self._last_fetch = datetime.now()
             if config.DEBUG:
                 print("DEBUG: ", self.__class__, "called _refresh and needs refresh")
-                print(
-                    f"DEBUG: of VV {self.num_of_vv} of SO {self.num_of_so} of PD {self.num_of_pd}"
-                )
+
+    def _fetch_cs(self) -> None:
+        print(f"> Fetching clenove spolku from UserDB")
+        req = request.Request(
+            "https://userdb.hkfree.org/userdb/api/hlasys/get-cleny-spolku"
+        )
+
+        # Base64 encode the authentication string
+        base64_auth_str = base64.b64encode(
+            f"{config.USERDB_API_USER}:{config.USERDB_API_KEY}".encode("utf-8")
+        )
+        req.add_header("Authorization", f"Basic {base64_auth_str.decode()}")
+
+        # Send the request and parse the response
+        with request.urlopen(req) as response:
+            body = response.read()
+            data = json.loads(body)
+
+        if not data["result"] or data["result"] != "OK":
+            print("ERROR: UserDBData._fetch_cs failed.")
+            return  # Error in fetching data
+
+        # Update the cached data based on the role type
+        self._cs = data["clenove"]
 
     def number_of(self, role: HkfreeRole) -> int:
         """
@@ -155,9 +180,9 @@ class UserDBData:
             int: The number of users associated with the given role.
         """
         self._refresh()
-        if role in (HkfreeRole.CD, HkfreeRole.CS):
+        if role in (HkfreeRole.CD):
             return 0
-        return len([self._vv, self._so, self._pd][role])
+        return len([self._vv, self._so, self._pd, self._cs][role])
 
     def get_deciders(self, role: HkfreeRole) -> list:
         """
@@ -175,9 +200,11 @@ class UserDBData:
                 return self._pd
             case HkfreeRole.VV:
                 return self._vv
+            case HkfreeRole.CS:
+                return self._cs
             case _:
                 print(
-                    "WARNING: No other than HkfreeRole.PD or .VV voting lock implemented! returning empty list"
+                    "WARNING: No other than HkfreeRole.PD, .VV or .CS voting lock implemented! returning empty list"
                 )
                 return []
 
@@ -308,7 +335,7 @@ def overview_filter(current_filter: str) -> str:
 
 
 def is_proposal_accepted(proposal: dict) -> bool | None:
-    if config.DEBUG and False: #make this only for higher log level 
+    if config.DEBUG and False:  # make this only for higher log level
         print("DEBUG: is_proposal_accepted data proposal ", proposal)
     treshold = proposal["acceptance_treshold"]
 
@@ -338,11 +365,15 @@ def is_proposal_accepted(proposal: dict) -> bool | None:
 def get_undecided(proposal: int) -> list:
     deciders: list = deepcopy(proposal["deciders"])
 
-    for vote in proposal["voted_for"]:
-        del deciders[str(vote["author_id"])]
+    try:
+        for vote in proposal["voted_for"]:
+            del deciders[str(vote["author_id"])]
 
-    for vote in proposal["voted_against"]:
-        del deciders[str(vote["author_id"])]
+        for vote in proposal["voted_against"]:
+            del deciders[str(vote["author_id"])]
+    except KeyError:
+        # The key does not exist, its fine
+        pass
 
     return deciders
 

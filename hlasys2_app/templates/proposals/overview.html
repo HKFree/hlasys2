@@ -10,20 +10,20 @@
 
 {% block content %}
 <div class="d-row-toggle">
-    <a href="/overview/{{ next_filter(filter, 'vv') }}">
-        <span>{% if 'vv' in filter %}✔{% else %}✖{% endif %}</span> Výkonný Výbor
-    </a>
-    <a href="/overview/{{ next_filter(filter, 'so') }}">
-        <span>{% if 'so' in filter %}✔{% else %}✖{% endif %}</span> Správce Oblastí
-    </a>
     <a href="/overview/{{ next_filter(filter, 'pd') }}">
         <span>{% if 'pd' in filter %}✔{% else %}✖{% endif %}</span> Představenstvo Družstva
+    </a>
+    <a href="/overview/{{ next_filter(filter, 'vv') }}">
+        <span>{% if 'vv' in filter %}✔{% else %}✖{% endif %}</span> Výkonný Výbor
     </a>
     <a href="/overview/{{ next_filter(filter, 'cs') }}">
         <span>{% if 'cs' in filter %}✔{% else %}✖{% endif %}</span> Členové spolku
     </a>
     <a href="/overview/{{ next_filter(filter, 'cd') }}">
         <span>{% if 'cd' in filter %}✔{% else %}✖{% endif %}</span> Členové družstva
+    </a>
+    <a href="/overview/{{ next_filter(filter, 'so') }}">
+        <span>{% if 'so' in filter %}✔{% else %}✖{% endif %}</span> Správce Oblastí (archiv)
     </a>
 
     {% if total_pages > 1 %}

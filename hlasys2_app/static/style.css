@@ -329,6 +329,8 @@ hr {
     border: 1px solid var(--border-color);
     border-radius: var(--radius);
     padding: 1rem;
+    overflow: scroll;
+    max-height: 20vh;
 }
 
 .d-one-decision-col p {
@@ -495,6 +497,16 @@ form input[type="checkbox"] {
     margin-top: 1rem;
     margin-bottom: 0.25rem;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.event-time-log {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    /* margin-top: 1rem; */
+    /* margin-bottom: 0.25rem; */
+    /* text-transform: uppercase; */
     letter-spacing: 0.5px;
 }
 
