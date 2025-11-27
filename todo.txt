@@ -20,6 +20,10 @@ Optimalizace grafiky - minimalistic
         lepsi popisky inputu
         popisky potreba schvaleni
         text "Novy navrh"    
+    dark mode
+        dark mode css
+        dark mode toggle
+        dark mode detectable doplnkama
 
 podpora spolek / druzstevnik / vv / predstavenstvo
     DONE: 0 = Executive committee (VV)
@@ -39,6 +43,8 @@ Provozování v kontejneru
 
 
 Emaily
+    mozna jen slack integrace postaci
     projit jak to funguje ted
     replikovat
         urcite extra unblocking tasks - vyresit co pouzit v pythonu
+    
