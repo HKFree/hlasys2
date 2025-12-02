@@ -10,21 +10,22 @@ class VoteDecisionForm(FlaskForm):
         choices=[("for", "✔ jsem PRO"), ("against", "✖ jsem PROTI")],
         validators=[DataRequired()],
     )
-    comment = TextAreaField("komentář", name="comment")
+    comment = TextAreaField("komentář (nepovinný)", name="comment")
 
 
 class CreateProposalForm(FlaskForm):
-    subject = StringField("předmět", name="subject", validators=[DataRequired()])
-    cost = IntegerField("cena", validators=[InputRequired(), NumberRange(min=0)])
-    description = TextAreaField("popis", name="description", validators=[DataRequired()], render_kw={"rows": 10, "cols": 50})
+    subject = StringField("Předmět", name="subject", validators=[DataRequired()])
+    cost = IntegerField("Odhad ceny", validators=[InputRequired(), NumberRange(min=0)])
+    description = TextAreaField("Popis a odůvodnění", name="description", validators=[DataRequired()], render_kw={"rows": 10, "cols": 50, "placeholder": "Co, proč, kam, co to přinese..."})
     type = RadioField(
-        "schvaluje",
+        "Kdo schvaluje?",
         name="type",
-        choices=[(0, "Výkonný Výbor spolku"), (2, "Představenstvo družstva"), (3, "Členové spolku"), (4, "Členové družstva")],
+        choices=[(0, "Výkonný Výbor spolku"), (2, "Představenstvo družstva"), (3, "Členové spolku")],
+        #choices=[(0, "Výkonný Výbor spolku"), (2, "Představenstvo družstva"), (3, "Členové spolku"), (4, "Družstevníci (členové družstva)")],
         validators=[DataRequired()]
     )
     acceptance = RadioField(
-        "schválení",
+        "Kvorum pro schválení",
         name="acceptance",
         choices=[(0, "více než ½ hlasů"), (1, "více než ⅔ hlasů")],
         validators=[DataRequired()],

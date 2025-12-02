@@ -7,6 +7,19 @@
         <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
         {% block head %}{% endblock head %}
+
+        <script>
+            // Okamžitá aplikace tématu před renderováním, aby neprobliklo bílé pozadí
+            (function() {
+                const savedTheme = localStorage.getItem('theme');
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                }
+            })();
+        </script>
     </head>
     <body>
         <nav>
@@ -18,6 +31,11 @@
                     <li><a href="{{ url_for('proposals.overview', filter='pd') }}">Přehled</a>
                     <li><a href="{{ url_for('users.user_overview', user_id=session["oidc_auth_profile"]["given_name"]) }}">Moje timeline</a>
                     <li><a href="{{ url_for('proposals.create_proposal') }}">Nový návrh</a>
+                    <li>
+                        <button id="theme-toggle" title="Přepnout tmavý režim">
+                            <span id="theme-icon">🌙</span>
+                        </button>
+                    </li>
                 </ul>
             </div>
         </nav>
@@ -43,5 +61,27 @@
             <footer>HlaSys v{{ version }} | pro <a href="https://hkfree.org">hkfree.org</a> vyrobil OndraLhota</footer>
         </section>
         
+
+        <script>
+            const toggleBtn = document.getElementById('theme-toggle');
+            const icon = document.getElementById('theme-icon');
+            const html = document.documentElement;
+
+            function updateIcon() {
+                const isDark = html.getAttribute('data-theme') === 'dark';
+                icon.textContent = isDark ? '☀️' : '🌙';
+            }
+
+            updateIcon();
+
+            toggleBtn.addEventListener('click', () => {
+                const currentTheme = html.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                html.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateIcon();
+            });
+        </script>
     </body>
 </html>

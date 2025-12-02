@@ -2,29 +2,97 @@
    1. Variables & Reset
    ========================================= */
 :root {
+    /* Main Colors */
     --primary: #0073e6;
     --primary-hover: #005bb5;
     --bg-body: #f4f6f8;
     --bg-card: #ffffff;
+    --bg-input: #ffffff;
+    --bg-desc: #f9fafb;     
+    --bg-locked: #f1f5f9;   
+    
+    /* Text Colors */
     --text-main: #2c3e50;
     --text-muted: #6c757d;
-    --border-color: #e1e4e8;
+    --text-desc: #4a5568;   
+    --text-nav: rgba(255, 255, 255, 0.9);
     
+    /* Borders */
+    --border-color: #e1e4e8;
+    --border-locked: #cbd5e0;
+
     /* Status Colors */
     --success-bg: #e6fffa;
     --success-text: #047857;
     --success-border: #34d399;
+    --success-row-bg: rgba(52, 211, 153, 0.05);
     
     --danger-bg: #fff5f5;
     --danger-text: #c53030;
     --danger-border: #fc8181;
+    --danger-row-bg: rgba(252, 129, 129, 0.05);
     
     --warning-bg: #fffaf0;
     --warning-text: #c05621;
     --warning-border: #fbd38d;
 
+    /* Unknown/Undecided State (Light Mode - same as warning/neutral yellow) */
+    --unknown-bg: #fffaf0;
+    --unknown-text: #c05621;
+    --unknown-border: #fbd38d;
+
+    /* Flash Message: Info */
+    --info-bg: #ebf8ff;
+    --info-text: #2b6cb0;
+    --info-border: #bee3f8;
+
+    /* Misc */
     --radius: 8px;
     --shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* Dark Mode Overrides */
+[data-theme="dark"] {
+    --primary: #3b82f6;      /* Lighter blue for dark mode */
+    --primary-hover: #60a5fa;
+    --bg-body: #1a202c;
+    --bg-card: #2d3748;
+    --bg-input: #1a202c;
+    --bg-desc: #2d3748;
+    --bg-locked: #4a5568;
+    
+    --text-main: #e2e8f0;
+    --text-muted: #a0aec0;
+    --text-desc: #cbd5e0;
+    --text-nav: rgba(255, 255, 255, 0.9);
+
+    --border-color: #4a5568;
+    --border-locked: #718096;
+
+    --success-bg: #064e3b;
+    --success-text: #6ee7b7;
+    --success-border: #059669;
+    --success-row-bg: rgba(6, 78, 59, 0.4);
+
+    --danger-bg: #7f1d1d;
+    --danger-text: #fca5a5;
+    --danger-border: #b91c1c;
+    --danger-row-bg: rgba(127, 29, 29, 0.4);
+
+    --warning-bg: #451a03;
+    --warning-text: #fbbf24;
+    --warning-border: #92400e;
+
+    /* FIX: Neutral Grey for Undecided in Dark Mode (Pure Info) */
+    --unknown-bg: #374151;   /* Gray-700 */
+    --unknown-text: #e5e7eb; /* Gray-200 */
+    --unknown-border: #4b5563; /* Gray-600 */
+
+    --info-bg: #1e3a8a;
+    --info-text: #bfdbfe;
+    --info-border: #3b82f6;
+
+    --shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
 
 * {
@@ -40,6 +108,16 @@ body {
     line-height: 1.6;
     font-size: 16px;
     padding-bottom: 40px;
+}
+
+/* Global link fix for dark mode */
+a {
+    color: var(--primary);
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+    color: var(--primary-hover);
 }
 
 /* =========================================
@@ -79,14 +157,14 @@ nav h1 small {
 }
 
 nav ul {
-    list-style: none; /* Removes dots from nav */
+    list-style: none;
     display: flex;
     gap: 1.5rem;
     margin: 0;
 }
 
 nav a {
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--text-nav);
     text-decoration: none;
     font-weight: 500;
     font-size: 0.95rem;
@@ -111,7 +189,6 @@ nav a:hover {
 }
 
 /* Headers */
-/* FIX: Proposal Subject is just text, no box */
 header h1 {
     font-size: 2.2rem;
     font-weight: 800;
@@ -133,8 +210,12 @@ hr {
     margin: 1.5rem 0;
 }
 
+#theme-toggle {
+    padding: 5px;
+}
+
 /* =========================================
-   3. Search Bar (Fixed)
+   3. Search Bar
    ========================================= */
 .d-row {
     margin-bottom: 1rem;
@@ -145,24 +226,24 @@ hr {
     width: 100%;
     border: 1px solid var(--border-color);
     border-radius: var(--radius);
-    background-color: #fff;
-    overflow: hidden; /* Keeps button inside rounded corners */
+    background-color: var(--bg-input);
+    overflow: hidden;
 }
 
-/* The Input Field */
 .d-row search input[type="search"] {
-    flex-grow: 1; /* Takes all available space */
+    flex-grow: 1;
     border: none;
     padding: 12px 16px;
     font-size: 1rem;
     outline: none;
-    box-shadow: none; /* Remove default input shadow */
+    box-shadow: none;
+    background-color: transparent;
+    color: var(--text-main);
 }
 
-/* The Search Button */
 .d-row search button[type="submit"] {
-    width: 50px; /* Fixed width */
-    background-color: var(--primary); /* Blue background */
+    width: 50px;
+    background-color: var(--primary);
     color: white;
     border: none;
     cursor: pointer;
@@ -170,7 +251,7 @@ hr {
     align-items: center;
     justify-content: center;
     padding: 0;
-    border-radius: 0; /* Square edges to fit in form */
+    border-radius: 0;
     margin: 0;
 }
 
@@ -178,14 +259,12 @@ hr {
     background-color: var(--primary-hover);
 }
 
-/* The Icon */
 .d-row search button[type="submit"]::before {
-    content: "\1F50D"; /* Unicode Magnifier */
+    content: "\1F50D";
     font-size: 1.2rem;
     font-weight: bold;
     line-height: 1;
 }
-
 
 /* =========================================
    4. Tables (Overview)
@@ -214,19 +293,13 @@ hr {
 }
 
 /* Row Status Styling */
-.tr-proposal-accepted { border-left: 4px solid var(--success-border); background-color: rgba(52, 211, 153, 0.05); }
+.tr-proposal-accepted { border-left: 4px solid var(--success-border); background-color: var(--success-row-bg); }
 .tr-proposal-accepted td:first-child { color: var(--success-text); font-weight: 600; }
 
-.tr-proposal-rejected { border-left: 4px solid var(--danger-border); background-color: rgba(252, 129, 129, 0.05); }
+.tr-proposal-rejected { border-left: 4px solid var(--danger-border); background-color: var(--danger-row-bg); }
 .tr-proposal-rejected td:first-child { color: var(--danger-text); font-weight: 600; }
 
-.tr-proposal-undecided { border-left: 4px solid var(--warning-border); }
-
-.t-proposals a {
-    color: inherit;
-    text-decoration: none;
-}
-.t-proposals a:hover { text-decoration: underline; }
+.tr-proposal-undecided { border-left: 4px solid var(--unknown-border); }
 
 /* =========================================
    5. Controls & Toggles
@@ -242,7 +315,7 @@ hr {
 }
 
 .d-row-toggle a {
-    background-color: #fff;
+    background-color: var(--bg-card);
     border: 1px solid var(--border-color);
     color: var(--text-main);
     padding: 6px 14px;
@@ -259,7 +332,6 @@ hr {
     color: var(--primary);
 }
 
-/* Pagination */
 .pagination-controls {
     margin-left: auto;
     display: flex;
@@ -277,7 +349,6 @@ hr {
 /* =========================================
    6. Proposal Details & Decisions
    ========================================= */
-/* Status Banners */
 .d-one-decision-row {
     padding: 0.75rem;
     border-radius: var(--radius);
@@ -287,35 +358,34 @@ hr {
 
 .d-one-accepted { background-color: var(--success-bg); color: var(--success-text); border-color: var(--success-border); }
 .d-one-rejected { background-color: var(--danger-bg); color: var(--danger-text); border-color: var(--danger-border); }
-.d-one-unknown { background-color: var(--warning-bg); color: var(--warning-text); border-color: var(--warning-border); }
+/* Fixed Unknown/Undecided State */
+.d-one-unknown { background-color: var(--unknown-bg); color: var(--unknown-text); border-color: var(--unknown-border); }
 
 #txt-desc {
     font-size: 1.05rem;
-    color: #4a5568;
-    background: #f9fafb;
+    color: var(--text-desc);
+    background: var(--bg-desc);
     padding: 1rem;
     border-radius: var(--radius);
     border: 1px solid var(--border-color);
-        white-space: pre-wrap;      /* Preserves newlines entered by user */
-    word-wrap: break-word;      /* legacy support */
-    overflow-wrap: break-word;  /* Prevents long URLs from breaking layout */
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
-/* Style the links generated by Jinja's urlize */
 #txt-desc a {
     color: var(--primary);
     font-weight: 500;
     text-decoration: underline;
-    text-underline-offset: 3px; /* Moves underline slightly down for clarity */
+    text-underline-offset: 3px;
 }
 
 #txt-desc a:hover {
-    background-color: rgba(0, 115, 230, 0.1); /* Subtle highlight behind link on hover */
+    background-color: rgba(0, 115, 230, 0.1);
     color: var(--primary-hover);
     border-radius: 2px;
 }
 
-/* Voting Grid */
 #d-one-decision-box {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -325,7 +395,7 @@ hr {
 }
 
 .d-one-decision-col {
-    background: #fff;
+    background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: var(--radius);
     padding: 1rem;
@@ -336,12 +406,11 @@ hr {
 .d-one-decision-col p {
     text-align: center;
     font-weight: bold;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-color);
     padding-bottom: 0.5rem;
     margin-bottom: 0.5rem;
 }
 
-/* Remove dots from decision lists */
 .d-one-decision-col ul {
     list-style: none;
     padding: 0;
@@ -350,50 +419,50 @@ hr {
     margin-bottom: 4px;
 }
 
+/* Fix links inside decision boxes to be readable in dark mode */
+.d-one-decision-col a {
+    color: var(--primary);
+    font-weight: 500;
+}
+.d-one-decision-col a:hover {
+    text-decoration: underline;
+    color: var(--primary-hover);
+}
+
 /* =========================================
    7. Buttons & Voting Controls
    ========================================= */
-/* Container for voting buttons */
-/* Container for buttons and status messages */
 .d-vote-btn {
     display: flex;
     align-items: center;
-    justify-content: flex-start; /* Aligns items to the left */
+    justify-content: flex-start;
     gap: 1.5rem;
     flex-wrap: wrap;
-    
-    /* Box Styling */
-    background-color: #fff;
-    
-    /* SPACING FIXES: */
-    padding: 1rem;       /* More space inside (so buttons don't touch border) */
+    background-color: var(--bg-card);
+    padding: 1rem;
 }
 
-/* The Locked Message Styling */
 .d-one-proposal-locked {
     display: inline-flex;
     align-items: center;
     font-weight: 600;
     color: var(--text-muted);
-    background-color: #f1f5f9; /* Light Gray background */
+    background-color: var(--bg-locked);
     padding: 8px 16px;
-    border-radius: 20px; /* Pill shape */
-    border: 1px solid #cbd5e0;
+    border-radius: 20px;
+    border: 1px solid var(--border-locked);
 }
 
-/* The Lock Icon */
 .d-one-proposal-locked::before {
     content: "🔒";
     margin-right: 8px;
     font-size: 1.1em;
 }
 
-/* Ensure the form inside d-vote-btn doesn't mess up layout */
 .d-vote-btn form {
     margin: 0;
 }
 
-/* General Button Styles */
 button, .state-btn, input[type="submit"] {
     cursor: pointer;
     border: none;
@@ -402,10 +471,9 @@ button, .state-btn, input[type="submit"] {
     font-size: 1rem;
     font-weight: 500;
     transition: all 0.2s;
-    margin: 0; /* Reset margins, rely on gap */
+    margin: 0;
 }
 
-/* Primary Actions */
 form button[type="submit"], 
 input[type="submit"] {
     background-color: var(--primary);
@@ -417,19 +485,19 @@ input[type="submit"]:hover {
     transform: translateY(-1px);
 }
 
-/* Secondary Buttons */
 .state-btn {
-    background-color: white;
+    background-color: var(--bg-card);
     border: 1px solid var(--border-color);
     color: var(--text-main);
     display: inline-block;
-    margin-right: 0.5rem; /* Margin for when not in flex container */
+    margin-right: 0.5rem;
     margin-bottom: 0.5rem;
     text-decoration: none;
 }
 .state-btn:hover {
-    background-color: #f8f9fa;
-    border-color: #b1b7c1;
+    background-color: var(--bg-body);
+    border-color: var(--border-color);
+    opacity: 0.8;
 }
 
 /* =========================================
@@ -456,7 +524,8 @@ form select {
     border-radius: var(--radius);
     font-size: 1rem;
     font-family: inherit;
-    background-color: #fff;
+    background-color: var(--bg-input);
+    color: var(--text-main);
 }
 
 form input:focus, form textarea:focus {
@@ -465,9 +534,8 @@ form input:focus, form textarea:focus {
     box-shadow: 0 0 0 3px rgba(0, 115, 230, 0.1);
 }
 
-/* FIX: Ugly dots and spacing in Radio Lists (Flask-WTF) */
 form ul {
-    list-style: none; /* Kills the dots */
+    list-style: none;
     padding: 0;
     margin: 0;
 }
@@ -480,9 +548,9 @@ form ul li {
 
 form input[type="radio"],
 form input[type="checkbox"] {
-    width: auto; /* Don't stretch to 100% like text inputs */
-    margin-right: 10px; /* Space between dot and text */
-    transform: scale(1.2); /* Make click target slightly larger */
+    width: auto;
+    margin-right: 10px;
+    transform: scale(1.2);
     cursor: pointer;
 }
 
@@ -504,14 +572,11 @@ form input[type="checkbox"] {
     font-size: 1.1rem;
     color: var(--text-muted);
     font-weight: 600;
-    /* margin-top: 1rem; */
-    /* margin-bottom: 0.25rem; */
-    /* text-transform: uppercase; */
     letter-spacing: 0.5px;
 }
 
 .p-comment {
-    background: white;
+    background: var(--bg-card);
     border-left: 3px solid var(--primary);
     padding: 1rem;
     margin-bottom: 1rem;
@@ -519,10 +584,10 @@ form input[type="checkbox"] {
 }
 
 /* =========================================
-   Flask Flash Messages (Alerts)
+   Flask Flash Messages
    ========================================= */
 .flashes {
-    list-style: none; /* Remove default bullets */
+    list-style: none;
     padding: 0;
     margin-bottom: 1.5rem;
 }
@@ -531,60 +596,23 @@ form input[type="checkbox"] {
     padding: 1rem 1.25rem;
     margin-bottom: 0.75rem;
     border-radius: var(--radius);
-    border: 1px solid transparent; /* Prepare for border color */
+    border: 1px solid transparent;
     font-weight: 500;
     display: flex;
     align-items: center;
 }
 
-/* Success (Green) */
-.flash-success {
-    background-color: var(--success-bg);
-    color: var(--success-text);
-    border-color: var(--success-border);
-}
-.flash-success::before {
-    content: "✅";
-    margin-right: 12px;
-    font-size: 1.2em;
-}
+.flash-success { background-color: var(--success-bg); color: var(--success-text); border-color: var(--success-border); }
+.flash-success::before { content: "✅"; margin-right: 12px; font-size: 1.2em; }
 
-/* Warning (Orange/Yellow) */
-.flash-warning {
-    background-color: var(--warning-bg);
-    color: var(--warning-text);
-    border-color: var(--warning-border);
-}
-.flash-warning::before {
-    content: "⚠️";
-    margin-right: 12px;
-    font-size: 1.2em;
-}
+.flash-warning { background-color: var(--warning-bg); color: var(--warning-text); border-color: var(--warning-border); }
+.flash-warning::before { content: "⚠️"; margin-right: 12px; font-size: 1.2em; }
 
-/* Danger / Error (Red) */
-/* Supporting both 'danger' and 'error' categories just in case */
-.flash-danger, .flash-error {
-    background-color: var(--danger-bg);
-    color: var(--danger-text);
-    border-color: var(--danger-border);
-}
-.flash-danger::before, .flash-error::before {
-    content: "❗";
-    margin-right: 12px;
-    font-size: 1.2em;
-}
+.flash-danger, .flash-error { background-color: var(--danger-bg); color: var(--danger-text); border-color: var(--danger-border); }
+.flash-danger::before, .flash-error::before { content: "❗"; margin-right: 12px; font-size: 1.2em; }
 
-/* Info / Default (Blue) - Fallback */
-.flash-message, .flash-info {
-    background-color: #ebf8ff;
-    color: #2b6cb0;
-    border-color: #bee3f8;
-}
-.flash-message::before, .flash-info::before {
-    content: "ℹ️";
-    margin-right: 12px;
-    font-size: 1.2em;
-}
+.flash-message, .flash-info { background-color: var(--info-bg); color: var(--info-text); border-color: var(--info-border); }
+.flash-message::before, .flash-info::before { content: "ℹ️"; margin-right: 12px; font-size: 1.2em; }
 
 /* =========================================
    10. Mobile Responsiveness
@@ -600,11 +628,9 @@ form input[type="checkbox"] {
         padding: 15px;
     }
 
-    /* Stack Nav */
     .nav-content { flex-direction: column; gap: 10px; }
     nav ul { width: 100%; justify-content: center; font-size: 0.9rem; }
 
-    /* Mobile Tables -> Cards Transformation */
     .t-proposals thead { display: none; }
     .t-proposals, .t-proposals tbody, .t-proposals tr, .t-proposals td {
         display: block;
@@ -615,10 +641,26 @@ form input[type="checkbox"] {
         margin-bottom: 15px;
         border: 1px solid var(--border-color);
         border-radius: var(--radius);
-        background: #fff;
+        background: var(--bg-card); /* Default background */
         padding: 10px;
-        /* Re-apply border colors for mobile cards */
-        border-left-width: 5px; 
+        border-left-width: 5px;     /* Thicker left border for status */
+        border-left-style: solid;
+    }
+
+    /* FIX: Restore status background and border colors on mobile */
+    .t-proposals tr.tr-proposal-accepted {
+        background-color: var(--success-row-bg);
+        border-left-color: var(--success-border);
+    }
+
+    .t-proposals tr.tr-proposal-rejected {
+        background-color: var(--danger-row-bg);
+        border-left-color: var(--danger-border);
+    }
+
+    .t-proposals tr.tr-proposal-undecided {
+        border-left-color: var(--unknown-border);
+        /* Undecided has no background tint by default */
     }
 
     .t-proposals td {
@@ -629,23 +671,15 @@ form input[type="checkbox"] {
         text-align: right;
     }
 
-    /* Mobile Labels */
     .t-proposals td:nth-of-type(1) { font-size: 1.1rem; text-align: left; display: block; margin-bottom: 5px; }
     .t-proposals td:nth-of-type(2):before { content: "Navrhovatel:"; float: left; font-weight: bold; color: var(--text-muted); }
     .t-proposals td:nth-of-type(3):before { content: "Cena:"; float: left; font-weight: bold; color: var(--text-muted); }
     .t-proposals td:nth-of-type(4):before { content: "Stav:"; float: left; font-weight: bold; color: var(--text-muted); }
 
-    /* Stack Decision Columns */
-    #d-one-decision-box {
-        grid-template-columns: 1fr;
-    }
-    
-    .d-row search button[type="submit"] {
-        width: 44px; /* Slightly smaller on mobile */
-    }
+    #d-one-decision-box { grid-template-columns: 1fr; }
+    .d-row search button[type="submit"] { width: 44px; }
 }
 
-/* Footer */
 footer {
     text-align: center;
     font-size: 0.8rem;
@@ -655,34 +689,70 @@ footer {
 }
 footer a { color: var(--text-muted); text-decoration: underline; }
 
-/* =========================================
-   Mobile Layout Fixes for Controls
-   ========================================= */
 @media (max-width: 600px) {
-    /* Stack the Locked Message and Button vertically */
     .d-vote-btn {
         flex-direction: column; 
         align-items: stretch;
-        
-        /* Mobile Spacing */
-        gap: 1rem;             /* Space between Lock message and Comment button */
-        padding: 1.25rem;      /* Comfortable padding inside */
+        gap: 1rem;
+        padding: 1.25rem;
     }
+    .d-one-proposal-locked { width: 100%; justify-content: center; margin: 0; box-sizing: border-box; }
+    .d-vote-btn form, .d-vote-btn button { width: 100%; margin: 0; display: flex; justify-content: center; }
+}
 
-    /* Make the locked message look good full width */
-    .d-one-proposal-locked {
-        width: 100%;
-        justify-content: center;
-        margin: 0;
-        box-sizing: border-box;
-    }
+/* =========================================
+   Info Note Class (for forms/voting)
+   ========================================= */
+.vote-info {
+    /* Layout */
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    margin-top: -1rem;
+    margin-bottom: 1.5rem;
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    border: 1px solid transparent; /* Base border */
+    border-left-width: 4px;
+}
 
-    /* Make buttons full width */
-    .d-vote-btn form, 
-    .d-vote-btn button {
-        width: 100%;
-        margin: 0;
-        display: flex;
-        justify-content: center;
-    }
+.vote-info::before {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 14px;
+    color: var(--bg-card); /* Symbol color matches card bg */
+}
+
+/* --- Variant 1: Info Blue (Default) --- */
+.vote-info, .vote-info.blue {
+    background-color: var(--info-bg);
+    border-color: var(--info-border);
+    border-left-color: var(--info-text);
+    color: var(--info-text);
+}
+
+.vote-info::before, .vote-info.blue::before {
+    content: "?";
+    background-color: var(--info-text);
+}
+
+/* --- Variant 2: Info Yellow --- */
+.vote-info.yellow {
+    background-color: var(--warning-bg);
+    border-color: var(--warning-border);
+    border-left-color: var(--warning-text);
+    color: var(--warning-text);
+}
+
+.vote-info.yellow::before {
+    content: "!";
+    background-color: var(--warning-text);
 }

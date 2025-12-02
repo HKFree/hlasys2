@@ -1,8 +1,9 @@
 from flask import (
     Blueprint, flash, redirect, render_template, 
-    session, request, url_for
+    session, request, url_for, current_app
 )
 import math, json, copy
+from threading import Thread
 
 from hlasys2_app.db import get_db
 from hlasys2_app.util import (
@@ -10,6 +11,7 @@ from hlasys2_app.util import (
     is_proposal_accepted, userdb_api, get_undecided, calculate_acceptance_treshold
 )
 from hlasys2_app.forms import CreateProposalForm, CreateCommentForm
+from hlasys2_app.notifications import notify_new_proposal
 from hlasys2_app import oidc, config
 
 bp = Blueprint("proposals", __name__)
@@ -183,8 +185,29 @@ def create_proposal():
             },
         )
         db.commit()
-        
         flash("Návrh byl úspěšně vytvořen.", "success")
+        
+        try:
+            author_fullname = session["oidc_auth_profile"]["family_name"]
+            full_url = f"{config.APP_BASE_URL}{url_for('proposals.view_proposal', proposal_id=cursor.lastrowid)}"
+            # full_url = url_for('proposals.view_proposal', proposal_id=new_proposal_id, _external=True)
+            
+            thr = Thread(
+                target=notify_new_proposal, 
+                args=(
+                    HkfreeRole(int(form.type.data)), 
+                    cursor.lastrowid, 
+                    form.subject.data, 
+                    author_fullname, 
+                    form.cost.data, 
+                    form.description.data,
+                    full_url
+                )
+            )
+            thr.start()
+        except Exception as e:
+            print(f"ERROR create_proposal: {e}")
+            
         return redirect(url_for("proposals.view_proposal", proposal_id=cursor.lastrowid))
         
     return render_template("proposals/create.html", form=form)

@@ -1,23 +1,53 @@
 {% extends 'base.html' %}
 
-{% block head %}
-{% endblock head %}
-
 {% block header %}
-    <h1 id="h-create-subj">
-        {% block title %}Vyrobit návrh{% endblock %}
-    </h1>
+    <h1 id="h-create-subj">Nový návrh</h1>
 {% endblock %}
 
 {% block content %}
-    <form action="/proposal/create", method="post", enctype="multipart/form-data">
-        {{ form.csrf_token }}
-        <div>{{ form.subject.label }}{{ form.subject }}</div>
-        <div>{{ form.description.label }}{{ form.description }}</div>
-        <div>{{ form.cost.label }}{{ form.cost }}</div>
-        <div>{{ form.type.label }}{{ form.type }}</div>
-        <i>Správci oblastí již neexistují, nelze pro ně tedy vytvořit návrh.</i>
-        <div>{{ form.acceptance.label }}{{ form.acceptance }}</div>
-        <input type="submit" value="Přidat návrh">
-    </form>
+    <div class="form-container">
+        <form action="/proposal/create" method="post" enctype="multipart/form-data">
+            {{ form.csrf_token }}
+            
+            <div>
+                {{ form.subject.label }}
+                {{ form.subject(class="form-control") }}
+            </div>
+
+            <div>
+                {{ form.type.label }}
+                <div class="radio-group">
+                    {{ form.type }}
+                </div>
+                <p class="text-muted vote-info yellow"><i>Členové družstva nejsou zatím implementováni.</i></p>
+                <p class="text-muted vote-info yellow"><i>Správci oblastí již neexistují, nelze pro ně tedy vytvořit návrh.</i></p>
+                
+            </div>
+
+            <div>
+                {{ form.description.label }}
+                {{ form.description(class="form-control") }}
+            </div>
+
+            <div>
+                {{ form.cost.label }}
+                {{ form.cost(class="form-control") }}
+            </div>
+
+            <div>
+                {{ form.acceptance.label }}
+                <div class="radio-group">
+                    {{ form.acceptance }}
+                </div>
+            </div>
+
+            {#<p class="vote-info blue">
+                <i>tady je info co vybrat</i>
+            </p>#}
+
+            <hr>
+            
+            <input type="submit" value="Vytvořit návrh">
+        </form>
+    </div>
 {% endblock %}

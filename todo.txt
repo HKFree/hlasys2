@@ -10,20 +10,20 @@ DONE: navrh locking
     DONE: pri kazdem novem hlasu check jestli tento hlas nemeni vysledek, pokud ano, lock navrhu
 
 Optimalizace grafiky - minimalistic
-    slovosled v logu navrhu
-    ceske datum
-    fix view komentar + hlas a jen komentar
-    lepsi popisky buttons
-    pagination i dole na strance
-    novy navrh stranka
-        lepsi rozlozeni textu
-        lepsi popisky inputu
-        popisky potreba schvaleni
-        text "Novy navrh"    
-    dark mode
-        dark mode css
-        dark mode toggle
-        dark mode detectable doplnkama
+    DONE: slovosled v logu navrhu
+    DONE: ceske datum
+    DONE: fix view komentar + hlas a jen komentar
+    DONE: lepsi popisky buttons
+    DONE: pagination i dole na strance
+    DONE: novy navrh stranka
+        DONE: lepsi rozlozeni textu
+        DONE: lepsi popisky inputu
+        DONE: popisky potreba schvaleni
+        DONE: text "Novy navrh"    
+    DONE: dark mode
+        DONE: dark mode css
+        DONE: dark mode toggle
+        DONE: dark mode detectable doplnkama
 
 podpora spolek / druzstevnik / vv / predstavenstvo
     DONE: 0 = Executive committee (VV)
@@ -32,19 +32,18 @@ podpora spolek / druzstevnik / vv / predstavenstvo
     3 = Členové spolku - chybi v UserDB
     4 = Členové družstva - chybi v UserDB
 
-Migrovat veškerá hlasování ze starého do nového
+DONE: Migrovat veškerá hlasování ze starého do nového
     DONE: main migrace
     DONE: regexp na "jen hlasovani"
-    locked v datujm posledniho eventu vote
+    DONE: locked v datujm posledniho eventu vote
+        note: manual edit poslednich navrhu po migraci
 
 Provozování v kontejneru
     version z posledniho commitu perhaps?
     nebo releases
 
-
-Emaily
-    mozna jen slack integrace postaci
-    projit jak to funguje ted
-    replikovat
-        urcite extra unblocking tasks - vyresit co pouzit v pythonu
+DONE: Notifikace
+    DONE: slack channel
+    DONE: replikovat
+        DONE: urcite extra unblocking tasks - vyresit co pouzit v pythonu
     

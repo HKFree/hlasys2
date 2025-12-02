@@ -86,4 +86,24 @@
         {% endfor %}
     </tbody>
 </table>
+
+{% if total_pages > 1 %}
+    <br>
+    <div class="pagination-controls">
+        {% if current_page > 1 %}
+            <a href="{{ url_for('proposals.overview', filter=filter, page=current_page-1) }}">&laquo; Předchozí</a>
+        {% else %}
+            <span class="disabled">&laquo; Předchozí</span>
+        {% endif %}
+
+        <span class="page-info">Str. {{ current_page }} z {{ total_pages }}</span>
+
+        {% if current_page < total_pages %}
+            <a href="{{ url_for('proposals.overview', filter=filter, page=current_page+1) }}">Následující &raquo;</a>
+        {% else %}
+            <span class="disabled">Následující &raquo;</span>
+        {% endif %}
+    </div>
+{% endif %}
+
 {% endblock %}

@@ -17,8 +17,8 @@ def create_app():
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY=FLASK_SECRET_KEY,
-        #DATABASE=os.path.join(app.instance_path, 'hlasys2-lock.sqlite'),
-        DATABASE=os.path.join(app.instance_path, 'hlas.sqlite'),
+        DATABASE=os.path.join(app.instance_path, 'hlasys2-lock.sqlite'),
+        #DATABASE=os.path.join(app.instance_path, 'hlas.sqlite'),
     )
     app.config.from_object(HlasysConfig)
 

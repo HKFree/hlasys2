@@ -79,7 +79,7 @@ def vote_on_proposal(proposal_id: int):
 
             # Construct the automatic change comment *before* user comment
             change_desc = (
-                f"{user_name} změnil(a) hlas z "
+                f"{user_name} změna hlasu z "
                 f"{vote_symbols[last_vote['decision']]} na "
                 f"{vote_symbols[new_decision]}"
             )
