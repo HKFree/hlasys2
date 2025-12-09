@@ -17,26 +17,28 @@ def create_app():
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY=FLASK_SECRET_KEY,
-        DATABASE=os.path.join(app.instance_path, 'hlasys2-lock.sqlite'),
-        #DATABASE=os.path.join(app.instance_path, 'hlas.sqlite'),
+        # DATABASE=os.path.join(app.instance_path, 'hlasys2-lock.sqlite'),
+        DATABASE=os.path.join(app.instance_path, "hlas.sqlite"),
     )
     app.config.from_object(HlasysConfig)
 
     oidc.init_app(app)
-    app.wsgi_app = ProxyFix(
-        app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
-    )
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 
     from . import db
+
     db.init_app(app=app)
 
     from . import proposals
+
     app.register_blueprint(proposals.bp)
 
     from . import users
+
     app.register_blueprint(users.bp)
 
     from . import votes
+
     app.register_blueprint(votes.bp)
 
     # ensure the instance folder exists
@@ -48,21 +50,21 @@ def create_app():
     @app.route("/")
     @oidc.require_login
     def hello():
-        print(session['oidc_auth_profile'])
-        return redirect('/overview/pd')
+        print(session["oidc_auth_profile"])
+        return redirect("/overview/pd")
 
     @app.route("/whoami")
     @oidc.require_login
     def what():
-        profile = session.get('oidc_auth_profile')
+        profile = session.get("oidc_auth_profile")
         return f"{profile} <br> {profile.get('groups')}"
-    
+
     @app.route("/flash")
     def flashes():
         flash("Hlas změněn 🎉", "success")
         flash("tak tohle ne!!!!", "danger")
         flash("bachaaaaaaa", "warning")
-        return render_template('base.html')
+        return render_template("base.html")
 
     @app.route("/s")
     def session_tmp():
@@ -71,6 +73,9 @@ def create_app():
 
     @app.context_processor
     def inject_version():
-        return dict(version=app.config['APP_VERSION'])
+        return dict(
+            hlasys2_version=f"{app.config['HLASYS2_VERSION']}",
+            hlasys2_build_str=f"v{app.config['HLASYS2_VERSION']} commit {app.config['HLASYS2_COMMIT_HASH']} from {app.config['HLASYS2_REF_NAME']}"
+        )
 
     return app

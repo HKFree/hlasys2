@@ -25,7 +25,7 @@
         <nav>
             <div class="nav-content">
                 <a href="{{ url_for('proposals.overview', filter='pd') }}">
-                    <h1>HKFree HlaSys <small>v{{version}}</small></h1>
+                    <h1>HKFree HlaSys <small>v{{hlasys2_version}}</small></h1>
                 </a>
                 <ul>
                     <li><a href="{{ url_for('proposals.overview', filter='pd') }}">Přehled</a>
@@ -58,7 +58,7 @@
             </header>
             
             {% block content %}{% endblock %}
-            <footer>HlaSys v{{ version }} | pro <a href="https://hkfree.org">hkfree.org</a> vyrobil OndraLhota</footer>
+            <footer>HlaSys {{ hlasys2_build_str }} | pro <a href="https://hkfree.org">hkfree.org</a> vyrobil OndraLhota</footer>
         </section>
         
 

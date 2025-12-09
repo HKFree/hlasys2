@@ -32,11 +32,12 @@ podpora spolek / druzstevnik / vv / predstavenstvo
     3 = Členové spolku - chybi v UserDB
     4 = Členové družstva - chybi v UserDB
 
-DONE: Migrovat veškerá hlasování ze starého do nového
+Migrovat veškerá hlasování ze starého do nového
     DONE: main migrace
     DONE: regexp na "jen hlasovani"
     DONE: locked v datujm posledniho eventu vote
         note: manual edit poslednich navrhu po migraci
+    pridat poznamku migrovani?
 
 Provozování v kontejneru
     version z posledniho commitu perhaps?
