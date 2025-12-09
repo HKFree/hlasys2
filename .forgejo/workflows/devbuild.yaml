@@ -10,11 +10,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build
-        run: |
-          buildah build \
-          --build-arg HLASYS2_REF_NAME=${{ forgejo.ref_name }} \
-          --build-arg HLASYS2_COMMIT_HASH=${{ forgejo.sha }} \
+      - name: debug context
+        run: echo "ref_name=${GITHUB_REF_NAME}\nsha=${GITHUB_SHA}"
+
+      - name: build
+        run: buildah build 
+          --build-arg HLASYS2_REF_NAME=${{ forgejo.ref_name }}
+          --build-arg HLASYS2_COMMIT_HASH=${{ forgejo.sha }}
           -t hlasys2 .
 
       - name: Push built image
