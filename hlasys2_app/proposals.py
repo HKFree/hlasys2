@@ -105,7 +105,7 @@ def overview(filter):
 def view_proposal(proposal_id):
     """Displays a single proposal and its associated events and votes."""
     db = get_db()
-    user_id = int(session["oidc_auth_profile"]["given_name"])
+    user_id = int(session["oidc_auth_profile"]["preferred_username"])
 
     proposal_row = db.execute("SELECT * FROM proposal WHERE id = :id", {"id": proposal_id}).fetchone()
 
@@ -175,7 +175,7 @@ def create_proposal():
             VALUES (:author_id, :author_name, :type, :subject, :description, :cost, :deciders, :acceptance_treshold)
             """,
             {
-                "author_id": session["oidc_auth_profile"]["given_name"],
+                "author_id": session["oidc_auth_profile"]["preferred_username"],
                 "author_name": session["oidc_auth_profile"]["family_name"],
                 "type": form.type.data,
                 "subject": form.subject.data,
@@ -228,7 +228,7 @@ def add_comment(proposal_id: int):
             """,
             {
                 "pid": proposal_id,
-                "uid": int(session["oidc_auth_profile"]["given_name"]),
+                "uid": int(session["oidc_auth_profile"]["preferred_username"]),
                 "uname": session["oidc_auth_profile"]["family_name"],
                 "comment": form.comment.data,
             },
@@ -244,7 +244,7 @@ def add_comment(proposal_id: int):
 @login_required
 def change_state(proposal_id: int, new_state: str):
     """Changes the state of a proposal (e.g., 'Ordered'). For authorized users only."""
-    user_id = int(session["oidc_auth_profile"]["given_name"])
+    user_id = int(session["oidc_auth_profile"]["preferred_username"])
     if user_id not in config.USERS_CHANGE_STATE:
         flash("Nemáte oprávnění měnit stav návrhu.", "danger")
         return redirect(url_for("proposals.view_proposal", proposal_id=proposal_id))
