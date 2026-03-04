@@ -1,5 +1,3 @@
-import os
-
 HLASYS_ENV = "production"
 
 FLASK_SECRET_KEY = "<your-secret-key>"
@@ -27,5 +25,4 @@ class HlasysConfig:
     OIDC_SERVER_METADATA_URL = "https://sso.hkfree.org/realms/hkfree/.well-known/openid-configuration"
     OIDC_OVERWRITE_REDIRECT_URI = "https://hlasovani.hkfree.org/oidc_callback"
 
-    HLASYS2_VERSION = "2.0.4"
-    HLASYS2_COMMIT_HASH = os.environ.get("HLASYS2_COMMIT_HASH", "unknown")
+    from .version import HLASYS2_VERSION, HLASYS2_COMMIT_HASH

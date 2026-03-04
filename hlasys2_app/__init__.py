@@ -8,6 +8,7 @@ import locale
 from .util import HkfreeRole
 from .config import HlasysConfig, FLASK_SECRET_KEY, HLASYS_ENV, DEV_USERS
 from .decorators import login_required
+from .version import HLASYS2_VERSION, HLASYS2_COMMIT_HASH
 
 locale.setlocale(locale.LC_TIME, "cs_CZ.UTF-8")
 oidc = OpenIDConnect()
@@ -87,10 +88,10 @@ def create_app():
 
     @app.context_processor
     def inject_version():
-        commit_hash = app.config['HLASYS2_COMMIT_HASH'][:7] if app.config['HLASYS2_COMMIT_HASH'] != "unknown" else "unknown"
+        commit_hash = HLASYS2_COMMIT_HASH[:7] if HLASYS2_COMMIT_HASH != "unknown" else "unknown"
         return dict(
-            hlasys2_version=f"{app.config['HLASYS2_VERSION']}",
-            hlasys2_build_str=f"v{app.config['HLASYS2_VERSION']}-{commit_hash} ({HLASYS_ENV})",
+            hlasys2_version=HLASYS2_VERSION,
+            hlasys2_build_str=f"v{HLASYS2_VERSION}-{commit_hash} ({HLASYS_ENV})",
             hlasys_env=HLASYS_ENV,
             dev_users=DEV_USERS,
         )

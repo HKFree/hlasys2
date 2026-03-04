@@ -9,6 +9,6 @@ services:
       - "5000:5000"
     volumes:
       - ./instance:/hlasys2/instance
-      - ./config.py:/hlasys2/hlasys2_app/config.py:ro
+      - ./hlasys2_app/config.py:/hlasys2/hlasys2_app/config.py:ro
       - ./client_secrets.json:/hlasys2/client_secrets.json:ro
     restart: unless-stopped
