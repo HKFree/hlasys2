@@ -4,20 +4,50 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-        <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-
-        <title>{% block title %}{% endblock title %} - HlaSys v2</title>
+        <link rel="shortcut icon" href="{{ url_for('static', filename='logo.svg') }}">
 
         {% block head %}{% endblock head %}
+
+        <script>
+            (function() {
+                const savedTheme = localStorage.getItem('theme');
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                }
+            })();
+        </script>
     </head>
     <body>
+        {% if hlasys_env == "development" %}
+        <div class="dev-banner">
+            <strong>DEV MODE</strong> | User: 
+            <select onchange="window.location.href='/dev-switch-user/' + this.value">
+                {% for user in dev_users %}
+                <option value="{{ user.id }}" {% if session["oidc_auth_profile"]["given_name"] == user.id|string %}selected{% endif %}>
+                    {{ user.family_name }} ({{ user.id }})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+
         <nav>
             <div class="nav-content">
-                <h1>HlaSys v2</h1>
+                <a href="{{ url_for('proposals.overview', filter='pd') }}">
+                    <h1>HKFree HlaSys <small>v{{hlasys2_version}}</small></h1>
+                </a>
                 <ul>
                     <li><a href="{{ url_for('proposals.overview', filter='pd') }}">Přehled</a>
-                    <li><a href="{{ url_for('users.user_ovreview', user_id=session["oidc_auth_profile"]["given_name"]) }}">Moje timeline</a>
+                    <li><a href="{{ url_for('users.user_overview', user_id=session["oidc_auth_profile"]["given_name"]) }}">Moje timeline</a>
                     <li><a href="{{ url_for('proposals.create_proposal') }}">Nový návrh</a>
+                    <li>
+                        <button id="theme-toggle" title="Přepnout tmavý režim">
+                            <span id="theme-icon">🌙</span>
+                        </button>
+                    </li>
                 </ul>
             </div>
         </nav>
@@ -40,8 +70,30 @@
             </header>
             
             {% block content %}{% endblock %}
-            <footer>HlaSys v2 | pro <a href="https://hkfree.org">hkfree.org</a> vyrobil OndraLhota</footer>
+            <footer>HlaSys {{ hlasys2_build_str }} | pro <a href="https://hkfree.org">hkfree.org</a> vyrobil OndraLhota</footer>
         </section>
         
+
+        <script>
+            const toggleBtn = document.getElementById('theme-toggle');
+            const icon = document.getElementById('theme-icon');
+            const html = document.documentElement;
+
+            function updateIcon() {
+                const isDark = html.getAttribute('data-theme') === 'dark';
+                icon.textContent = isDark ? '☀️' : '🌙';
+            }
+
+            updateIcon();
+
+            toggleBtn.addEventListener('click', () => {
+                const currentTheme = html.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                html.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateIcon();
+            });
+        </script>
     </body>
 </html>

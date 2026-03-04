@@ -1,0 +1,2 @@
+HLASYS2_VERSION = "2.0.7"
+HLASYS2_COMMIT_HASH = "unknown"

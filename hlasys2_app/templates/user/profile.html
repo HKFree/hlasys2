@@ -19,20 +19,20 @@
         {% if event['decision'] == None and event['comment'] == None %} 
             <br>
             + navrh
-            <a href="{{ url_for('proposals.one_proposal', proposal_id=event['proposals_id']) }}">
+            <a href="{{ url_for('proposals.view_proposal', proposal_id=event['proposals_id']) }}">
                 {{ event['subject'] }}
             </a> 
         {% elif event['decision'] == None and event['comment'] != None %}
             <br>
             + komentář {{ event['comment'] | truncate(40) }} k návrhu
-            <a title="{{ event['events_subject'] }}" href="{{ url_for('proposals.one_proposal', proposal_id=event['proposal_id']) }}">
+            <a title="{{ event['events_subject'] }}" href="{{ url_for('proposals.view_proposal', proposal_id=event['proposal_id']) }}">
                 {{ event['events_subject'] | truncate(40) }}
             </a>
         {% else %}
             <br>
             + hlas {{ '✔' if event['decision'] else '✖'}}
             k návrhu 
-            <a title="{{ event['events_subject'] }}" href="{{ url_for('proposals.one_proposal', proposal_id=event['proposal_id']) }}">
+            <a title="{{ event['events_subject'] }}" href="{{ url_for('proposals.view_proposal', proposal_id=event['proposal_id']) }}">
                 {{ event['events_subject'] | truncate(40) }}</a>
             
             {% if event['comment'] %}

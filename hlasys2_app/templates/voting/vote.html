@@ -1,22 +1,26 @@
 {% extends 'base.html' %}
 
-{#{% block header %}
-    <h1 id="h-one-subj">
-        
-    </h1>
-{% endblock %}#}
-
 {% block title %}Hlasování{% endblock %}
 
 {% block content %}
-    
-    <div class="d-votes">
+    <h2>Hlasování o návrhu: {{ proposal.subject }}</h2>
+    <hr>
+    <div class="d-votes form-container">
         <form action="/proposal/{{ proposal['id'] }}/vote" method="post" enctype="multipart/form-data">
             {{ form.csrf_token }}
-            <div>{{ form.decision.label}}{{ form.decision() }}</div>
-            <div>{{ form.comment.label}}{{ form.comment() }}</div>
+            <div>
+                {{ form.decision.label }}
+                <div class="radio-group">
+                    {{ form.decision() }}
+                </div>
+            </div>
+            
+            <div>
+                {{ form.comment.label }}
+                {{ form.comment(class="form-control", placeholder="Volitelný komentář...") }}
+            </div>
 
-            <input type="submit" value="Hlasovat">
+            <input type="submit" value="Odeslat závazný hlas">
         </form>
     </div>
 {% endblock %}

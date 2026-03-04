@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block head %}
+
+{% endblock head %}
+
+{% block header %}
+<h1>{% block title %}Přehled návrhů{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<div class="d-row-toggle">
+    <a href="/overview/{{ next_filter(filter, 'pd') }}">
+        <span>{% if 'pd' in filter %}✔{% else %}✖{% endif %}</span> Představenstvo Družstva
+    </a>
+    <a href="/overview/{{ next_filter(filter, 'vv') }}">
+        <span>{% if 'vv' in filter %}✔{% else %}✖{% endif %}</span> Výkonný Výbor
+    </a>
+    <a href="/overview/{{ next_filter(filter, 'cs') }}">
+        <span>{% if 'cs' in filter %}✔{% else %}✖{% endif %}</span> Členové spolku
+    </a>
+    <a href="/overview/{{ next_filter(filter, 'cd') }}">
+        <span>{% if 'cd' in filter %}✔{% else %}✖{% endif %}</span> Členové družstva
+    </a>
+    <a href="/overview/{{ next_filter(filter, 'so') }}">
+        <span>{% if 'so' in filter %}✔{% else %}✖{% endif %}</span> Správce Oblastí (archiv)
+    </a>
+
+    {% if total_pages > 1 %}
+    <div class="pagination-controls">
+        {% if current_page > 1 %}
+            <a href="{{ url_for('proposals.overview', filter=filter, page=current_page-1) }}">&laquo; Předchozí</a>
+        {% else %}
+            <span class="disabled">&laquo; Předchozí</span>
+        {% endif %}
+
+        <span class="page-info">Stránka {{ current_page }} / {{ total_pages }}</span>
+
+        {% if current_page < total_pages %}
+            <a href="{{ url_for('proposals.overview', filter=filter, page=current_page+1) }}">Následující &raquo;</a>
+        {% else %}
+            <span class="disabled">Následující &raquo;</span>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<div class="d-row">
+    <search>
+        <form action="{{ url_for('proposals.overview', filter=filter) }}">
+            <input minlength="3" type="search" id="search_query" name="search_query" value="{{ search_query }}" placeholder="Hledat...">
+            <button type="submit"></button>
+        </form>
+    </search>
+</div>
+
+<table class="t-proposals">
+    <thead>
+        <tr>
+            <th>Návrh</th>
+            <th>Navrhovatel</th>
+            <th>Odhad ceny</th>
+            <th>Stav</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in proposals %}
+            {% if p.accepted == True %}
+            <tr class="tr-proposal tr-proposal-accepted">
+            {% elif p.accepted == False %}
+            <tr class="tr-proposal tr-proposal-rejected">
+            {% else %}
+            <tr class="tr-proposal tr-proposal-undecided">
+            {% endif %}
+                <td>
+                    <a href="{{ url_for('proposals.view_proposal', proposal_id=p.id) }}">
+                        <b>{{ p.subject }}</b> 
+                    </a>
+                </td>
+                <td>{{ p.author_name | truncate(20) }}</td>
+                <td>{{ "{:,}".format(p.cost) }} Kč</td>
+                <td>{{ p.state or '' }}</td>
+            </tr>
+        {% else %}
+            <tr><td colspan="4">Nebyly nalezeny žádné návrhy.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if total_pages > 1 %}
+    <br>
+    <div class="pagination-controls">
+        {% if current_page > 1 %}
+            <a href="{{ url_for('proposals.overview', filter=filter, page=current_page-1) }}">&laquo; Předchozí</a>
+        {% else %}
+            <span class="disabled">&laquo; Předchozí</span>
+        {% endif %}
+
+        <span class="page-info">Str. {{ current_page }} z {{ total_pages }}</span>
+
+        {% if current_page < total_pages %}
+            <a href="{{ url_for('proposals.overview', filter=filter, page=current_page+1) }}">Následující &raquo;</a>
+        {% else %}
+            <span class="disabled">Následující &raquo;</span>
+        {% endif %}
+    </div>
+{% endif %}
+
+{% endblock %}

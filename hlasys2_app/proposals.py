@@ -1,18 +1,18 @@
-from flask import Blueprint, flash, redirect, render_template, session, request, url_for
-import math
+from flask import (
+    Blueprint, flash, redirect, render_template, 
+    session, request, url_for, current_app
+)
+import math, json, copy
+from threading import Thread
 
 from hlasys2_app.db import get_db
 from hlasys2_app.util import (
-    HkfreeRole,
-    next_filter,
-    overview_filter,
-    can_vote,
-    is_proposal_accepted,
-    userdb_api,
-    user_voted,
+    HkfreeRole, next_filter, overview_filter, can_vote, 
+    is_proposal_accepted, userdb_api, get_undecided, calculate_acceptance_treshold
 )
 from hlasys2_app.forms import CreateProposalForm, CreateCommentForm
-from hlasys2_app import oidc
+from hlasys2_app.notifications import notify_new_proposal
+from hlasys2_app.decorators import login_required
 from hlasys2_app import config
 
 bp = Blueprint("proposals", __name__)
@@ -21,230 +21,159 @@ bp = Blueprint("proposals", __name__)
 @bp.route("/overview", defaults={"filter": ""})
 @bp.route("/overview/", defaults={"filter": ""})
 @bp.route("/overview/<filter>")
-@oidc.require_login
+@login_required
 def overview(filter):
+    """Displays a paginated overview of proposals, with filtering and searching."""
     db = get_db()
-    offset = request.args.get("offset", default=0, type=int)
-    if offset < 0:
-        offset = 0
-    limit = 25  # Static limit
-
-    # Get search query from request arguments
     search_query = request.args.get("search_query", default="").strip()
-    sql_query_params = {} # To hold all :named parameters for SQL queries
+    page = request.args.get("page", default=1, type=int)
+    limit = 25
+    offset = (page - 1) * limit if page > 0 else 0
 
-    where_conditions = []
-    
-    # Filter conditions from overview_filter(filter)
-    filter_sql_snippet = overview_filter(filter) 
-    if filter_sql_snippet:
-        condition_from_filter = filter_sql_snippet.strip()
-        if condition_from_filter.upper().startswith("WHERE "):
-            condition_from_filter = condition_from_filter[len("WHERE "):].strip() # Remove "WHERE "
-        if condition_from_filter:
-            where_conditions.append(f"({condition_from_filter})")
+    params = {}
+    where_conditions = ["p.deleted IS NULL"]
 
-    # Standard condition: proposal not deleted
-    where_conditions.append("proposal.deleted IS NULL")
+    # Apply category filter and search term to the query
+    filter_sql = overview_filter(filter)
+    if filter_sql:
+        where_conditions.append(filter_sql.replace("WHERE", "").strip())
 
-    # Add search conditions if a search query is provided
     if search_query:
-        where_conditions.append(
-            "(proposal.subject LIKE :search_term OR proposal.description LIKE :search_term OR proposal.author_name LIKE :search_term)"
-        )
-        sql_query_params["search_term"] = f"%{search_query}%"
-        
-    final_where_clause = ""
-    if where_conditions:
-        final_where_clause = "WHERE " + " AND ".join(where_conditions)
+        search_clause = "(p.subject LIKE :search OR p.description LIKE :search OR p.author_name LIKE :search)"
+        where_conditions.append(search_clause)
+        params["search"] = f"%{search_query}%"
+
+    where_clause = f"WHERE {' AND '.join(where_conditions)}"
+
+    # First, get the total count for pagination
+    count_sql = f"SELECT COUNT(p.id) AS count FROM proposal p {where_clause}"
+    total_proposals = db.execute(count_sql, params).fetchone()['count']
+    total_pages = math.ceil(total_proposals / limit) if total_proposals > 0 else 0
     
-    ids_query_sql = f"""
-        SELECT proposal.id
-        FROM proposal
-        {final_where_clause}
-        ORDER BY proposal.created DESC
+    # When searching, show all results on a single page
+    if search_query:
+        limit = 10000 
+        offset = 0
+        total_pages = 1
+
+    # This two-step query is more efficient for pagination with joins.
+    # 1. Fetch only the IDs for the current page.
+    ids_sql = f"""
+        SELECT p.id FROM proposal p
+        {where_clause}
+        ORDER BY p.created DESC
         LIMIT :limit OFFSET :offset
     """
+    params.update({"limit": limit, "offset": offset})
+    proposal_ids = [row["id"] for row in db.execute(ids_sql, params).fetchall()]
     
-    # Prepare parameters for the ids_query
-    current_ids_params = {"limit": limit, "offset": offset}
-    if search_query:
-        current_ids_params['limit'] = 10000
+    proposals = []
+    if proposal_ids:
+        # 2. Fetch the full data only for the selected IDs.
+        id_placeholders = ", ".join([f":id_{i}" for i in range(len(proposal_ids))])
+        data_params = {f"id_{i}": pid for i, pid in enumerate(proposal_ids)}
         
-    current_ids_params.update(sql_query_params) # Add search_term if present
-
-    proposal_ids_rows = db.execute(ids_query_sql, current_ids_params).fetchall()
-
-    proposals_final_list = []
-
-    if proposal_ids_rows:
-        proposal_ids = [row["id"] for row in proposal_ids_rows]
-
-        # Prepare named placeholders for the IN clause
-        step2_in_clause_params = {}
-        named_id_placeholders_list = []
-        for i, pid in enumerate(proposal_ids):
-            placeholder_name = f"pid_{i}"
-            named_id_placeholders_list.append(f":{placeholder_name}")
-            step2_in_clause_params[placeholder_name] = pid
-        
-        named_id_placeholders_str = ', '.join(named_id_placeholders_list)
-
-        # --- Step 2: Fetch full details and vote counts for these specific IDs ---
-        data_query = f"""
+        data_sql = f"""
             SELECT
-                p.id, p.author_name, p.author_id, p.subject, p.description, p.cost, p.type, p.created, p.state,
-                COALESCE(SUM(CASE WHEN e.decision = 1 THEN 1 ELSE 0 END), 0) AS n_voted_for,
-                COALESCE(SUM(CASE WHEN e.decision = 0 THEN 1 ELSE 0 END), 0) AS n_voted_against
-            FROM
-                proposal p
-            LEFT JOIN
-                event e ON p.id = e.proposal_id
-            WHERE
-                p.id IN ({named_id_placeholders_str})
-            GROUP BY
-                p.id, p.author_name, p.author_id, p.subject, p.description, p.cost, p.type, p.created
-            ORDER BY
-                p.created DESC
+                p.id, p.author_name, p.author_id, p.subject, p.description, p.acceptance_treshold,
+                p.cost, p.type, p.created, p.state, p.deciders,
+                COALESCE(SUM(CASE WHEN e.decision = 1 THEN 1 END), 0) AS votes_for,
+                COALESCE(SUM(CASE WHEN e.decision = 0 THEN 1 END), 0) AS votes_against
+            FROM proposal p LEFT JOIN event e ON p.id = e.proposal_id
+            WHERE p.id IN ({id_placeholders})
+            GROUP BY p.id
+            ORDER BY p.created DESC
         """
-        proposals_data = db.execute(data_query, step2_in_clause_params).fetchall()
-        proposals_map = {row["id"]: dict(row) for row in proposals_data} # Ensure rows are dicts
+        for row in db.execute(data_sql, data_params).fetchall():
+            proposal = dict(row)
+            proposal["accepted"] = is_proposal_accepted(proposal)
+            proposals.append(proposal)
 
-        ordered_proposals_raw = []
-        for pid in proposal_ids:
-            if pid in proposals_map:
-                ordered_proposals_raw.append(proposals_map[pid])
-
-        for proposal_row_dict in ordered_proposals_raw:
-            proposal_row_dict["accepted"] = is_proposal_accepted(
-                proposal_row_dict["n_voted_for"],
-                proposal_row_dict["n_voted_against"],
-                proposal_row_dict["type"],
-            )
-            proposals_final_list.append(proposal_row_dict)
-
-    # get total number of proposals matching the filter and search
-    count_query_sql = f"SELECT COUNT(proposal.id) as count FROM proposal {final_where_clause}"
-    
-    # Parameters for count query are the same search params (overview_filter assumed to embed its values)
-    total_proposals_row = db.execute(count_query_sql, sql_query_params).fetchone()
-    n_proposals = total_proposals_row['count'] if total_proposals_row else 0
-        
-    # Calculate total_pages and current_page for pagination
-    total_pages = 0
-    if n_proposals > 0 and limit > 0:
-        total_pages = math.ceil(n_proposals / limit)
-    elif n_proposals == 0 : # If no proposals, still technically 0 or 1 page
-        total_pages = 0 # Or 1, depending on desired display for no results
-
-    current_page = 1
-    if limit > 0 :
-      current_page = math.floor(offset / limit) + 1
-    
-    if search_query:
-        total_pages = 1
-        
     return render_template(
-        "proposals/ovreview.html",
-        proposals=proposals_final_list,
+        "proposals/overview.html",
+        proposals=proposals,
         filter=filter,
         search_query=search_query,
-        limit=limit,
         total_pages=int(total_pages),
-        current_page=int(current_page),
-        next_filter=next_filter, 
-        HkfreeRole=HkfreeRole,
+        current_page=int(page),
+        next_filter=next_filter,
     )
 
 
 @bp.route("/proposal/<int:proposal_id>")
-@oidc.require_login
-def one_proposal(proposal_id):
+@login_required
+def view_proposal(proposal_id):
+    """Displays a single proposal and its associated events and votes."""
     db = get_db()
+    user_id = int(session["oidc_auth_profile"]["given_name"])
 
-    proposal = db.execute(
-        """
-        SELECT proposal.id, author_name, author_id, subject, description, cost, type, created, deleted, state
-        FROM proposal
-        WHERE id = :proposal_id
-        ORDER BY proposal.created DESC""",
-        {"proposal_id": proposal_id},
-    ).fetchone()
+    proposal_row = db.execute("SELECT * FROM proposal WHERE id = :id", {"id": proposal_id}).fetchone()
 
-    if not proposal:
-        flash("Takovej návrh neznám", "danger")
-        return redirect("/")
-    
-    if proposal['deleted'] is not None:
-        flash("Tento návrh byl smazán", "warning")
-        return redirect("/")
+    if not proposal_row:
+        flash("Takový návrh neexistuje.", "danger")
+        return redirect(url_for("proposals.overview"))
 
-    latest_votes_query = """
-        SELECT e.author_id, e.author_name, e.decision, e.comment, e.created
+    if proposal_row['deleted'] is not None:
+        flash("Tento návrh byl smazán.", "warning")
+        return redirect(url_for("proposals.overview"))
+
+    proposal = dict(proposal_row)
+
+    # This query efficiently finds the latest vote for each user on this proposal.
+    latest_votes_sql = """
+        SELECT e.author_id, e.author_name, e.decision, e.comment
         FROM event e
         JOIN (
-            SELECT author_id, MAX(created) as max_created
+            SELECT author_id, MAX(created) AS max_created
             FROM event
-            WHERE proposal_id = :proposal_id AND decision IS NOT NULL -- Only consider actual votes
+            WHERE proposal_id = :pid AND decision IS NOT NULL
             GROUP BY author_id
         ) latest ON e.author_id = latest.author_id AND e.created = latest.max_created
-        WHERE e.proposal_id = :proposal_id AND e.decision IS NOT NULL
+        WHERE e.proposal_id = :pid AND e.decision IS NOT NULL
     """
-    latest_votes = db.execute(
-        latest_votes_query, {"proposal_id": proposal_id}
-    ).fetchall()
+    latest_votes = db.execute(latest_votes_sql, {"pid": proposal_id}).fetchall()
 
-    if config.DEBUG:
-        print(
-            f"DEBUG: All latest_votes for proposal {proposal_id}\nDEBUG: ", latest_votes
-        )
-
-    # Separate users based on their latest vote
-    proposal['voted_for'] = [vote for vote in latest_votes if vote["decision"] == 1]
-    proposal['voted_against'] = [vote for vote in latest_votes if vote["decision"] == 0]
-
-    undeciders = userdb_api.not_sure_yet(proposal['voted_for'], proposal['voted_against'], proposal["type"])
-
+    proposal['voted_for'] = [v for v in latest_votes if v["decision"] == 1]
+    proposal['voted_against'] = [v for v in latest_votes if v["decision"] == 0]
+    proposal['accepted'] = is_proposal_accepted(proposal)
+    
     events = db.execute(
-        """
-        SELECT * FROM event 
-        WHERE proposal_id = :proposal_id
-        ORDER BY created DESC""",
-        {"proposal_id": proposal_id},
+        "SELECT * FROM event WHERE proposal_id = :id ORDER BY created DESC",
+        {"id": proposal_id}
     ).fetchall()
 
-    proposal['accepted'] = is_proposal_accepted(
-        len(proposal['voted_for']), len(proposal['voted_against']), proposal["type"]
-    )
-    user_id = int(session["oidc_auth_profile"]["given_name"])
+    proposal['deciders'] = json.loads(proposal['deciders'])
+
+    user_voted = user_id in [v["author_id"] for v in proposal['voted_for'] + proposal['voted_against']]
 
     return render_template(
         "proposals/one.html",
-        data=proposal,
+        proposal=proposal,
         events=events,
-        voted_for=proposal['voted_for'],
-        voted_against=proposal['voted_against'],
-        user_voted=user_voted(user_id, proposal["id"]),
-        can_vote=can_vote(user_id, proposal),
-        len=len,
-        accepted=proposal['accepted'],
+        undecided_voters=get_undecided(proposal),
+        can_vote=(str(user_id) in proposal['deciders']),
+        user_voted=user_voted,
         user_id=user_id,
-        role_str=HkfreeRole(proposal["type"]).name.lower(),
-        long_role_str=HkfreeRole(proposal["type"]).long_name,
-        undeciders=undeciders,
+        HkfreeRole=HkfreeRole,
         users_change_state=config.USERS_CHANGE_STATE,
     )
 
 
 @bp.route("/proposal/create", methods=["GET", "POST"])
-@oidc.require_login
+@login_required
 def create_proposal():
-    db = get_db()
-    form: CreateProposalForm = CreateProposalForm()
+    """Handles the creation of a new proposal."""
+    form = CreateProposalForm()
+    
     if form.validate_on_submit():
-        db.execute(
-            """ INSERT INTO proposal ('author_id', 'author_name', 'type', 'subject', 'description', 'cost')
-            VALUES (:author_id, :author_name, :type, :subject, :description, :cost)""",
+        db = get_db()
+        deciders = userdb_api.get_deciders(int(form.type.data))
+
+        cursor = db.execute(
+            """
+            INSERT INTO proposal (author_id, author_name, type, subject, description, cost, deciders, acceptance_treshold)
+            VALUES (:author_id, :author_name, :type, :subject, :description, :cost, :deciders, :acceptance_treshold)
+            """,
             {
                 "author_id": session["oidc_auth_profile"]["given_name"],
                 "author_name": session["oidc_auth_profile"]["family_name"],
@@ -252,70 +181,102 @@ def create_proposal():
                 "subject": form.subject.data,
                 "description": form.description.data,
                 "cost": form.cost.data,
+                "deciders": json.dumps(deciders, ensure_ascii=False),
+                "acceptance_treshold": calculate_acceptance_treshold(form.acceptance.data, deciders)
             },
         )
         db.commit()
-        last_id = db.execute(
-            "SELECT id FROM proposal ORDER BY created DESC LIMIT 1"
-        ).fetchone()
-        flash("Návrh zapsán", "success")
-        return redirect(f"/proposal/{last_id['id']}")
-    else:
-        return render_template("proposals/create.html", form=form)
+        flash("Návrh byl úspěšně vytvořen.", "success")
+        
+        try:
+            author_fullname = session["oidc_auth_profile"]["family_name"]
+            full_url = f"{config.APP_BASE_URL}{url_for('proposals.view_proposal', proposal_id=cursor.lastrowid)}"
+            # full_url = url_for('proposals.view_proposal', proposal_id=new_proposal_id, _external=True)
+            
+            thr = Thread(
+                target=notify_new_proposal, 
+                args=(
+                    HkfreeRole(int(form.type.data)), 
+                    cursor.lastrowid, 
+                    form.subject.data, 
+                    author_fullname, 
+                    form.cost.data, 
+                    form.description.data,
+                    full_url
+                )
+            )
+            thr.start()
+        except Exception as e:
+            print(f"ERROR create_proposal: {e}")
+            
+        return redirect(url_for("proposals.view_proposal", proposal_id=cursor.lastrowid))
+        
+    return render_template("proposals/create.html", form=form)
 
 
 @bp.route("/proposal/<int:proposal_id>/comment", methods=["GET", "POST"])
-@oidc.require_login
-def create_vote(proposal_id: int):
-    db = get_db()
-    form: CreateCommentForm = CreateCommentForm()
+@login_required
+def add_comment(proposal_id: int):
+    """Handles adding a comment to a proposal."""
+    form = CreateCommentForm()
     if form.validate_on_submit():
+        db = get_db()
         db.execute(
-            """ INSERT INTO event ('proposal_id', 'author_id', 'author_name', 'comment')
-            VALUES (:proposal_id, :author_id, :author_name, :comment)""",
+            """
+            INSERT INTO event (proposal_id, author_id, author_name, comment)
+            VALUES (:pid, :uid, :uname, :comment)
+            """,
             {
-                "proposal_id": proposal_id,
-                "author_id": int(session["oidc_auth_profile"]["given_name"]),
-                "author_name": session["oidc_auth_profile"]["family_name"],
+                "pid": proposal_id,
+                "uid": int(session["oidc_auth_profile"]["given_name"]),
+                "uname": session["oidc_auth_profile"]["family_name"],
                 "comment": form.comment.data,
             },
         )
         db.commit()
-        flash("Komentář zapsán", "success")
-        return redirect(f"/proposal/{proposal_id}")
-    else:
-        return render_template(
-            "voting/comment.html", form=form, proposal_id=proposal_id
-        )
+        flash("Komentář byl přidán.", "success")
+        return redirect(url_for("proposals.view_proposal", proposal_id=proposal_id))
 
-@bp.route("/proposal/<int:proposal_id>/state/<new_state>", methods=["GET"])
-@oidc.require_login
+    return render_template("voting/comment.html", form=form, proposal_id=proposal_id)
+
+
+@bp.route("/proposal/<int:proposal_id>/state/<new_state>")
+@login_required
 def change_state(proposal_id: int, new_state: str):
+    """Changes the state of a proposal (e.g., 'Ordered'). For authorized users only."""
+    user_id = int(session["oidc_auth_profile"]["given_name"])
+    if user_id not in config.USERS_CHANGE_STATE:
+        flash("Nemáte oprávnění měnit stav návrhu.", "danger")
+        return redirect(url_for("proposals.view_proposal", proposal_id=proposal_id))
+
     db = get_db()
+    current_state = db.execute(
+        "SELECT state FROM proposal WHERE id = :id", {"id": proposal_id}
+    ).fetchone()["state"]
     
-    if int(session["oidc_auth_profile"]["given_name"]) not in config.USERS_CHANGE_STATE:
-        flash("Ty nemůžeš měnit stav", "danger")
-        return redirect(f"/proposal/{proposal_id}")
-    
+    # 'Nic' from the URL means setting the state to NULL
+    new_state_value = None if new_state == 'Nic' else new_state
 
-    curr_state = db.execute("SELECT state FROM proposal WHERE id = :proposal_id", {"proposal_id": proposal_id}).fetchone()
-    if new_state == curr_state['state'] or (new_state == 'Nic' and not curr_state['state']):
-        flash("Stejný stav", "danger")
-        return redirect(f"/proposal/{proposal_id}")
-    
-    db.execute("UPDATE proposal SET state = :new_state WHERE id =  :proposal_id", {"new_state": None if new_state == 'Nic' else new_state, "proposal_id": proposal_id})
+    if new_state_value == current_state:
+        flash("Nový stav je stejný jako aktuální.", "info")
+    else:
+        db.execute(
+            "UPDATE proposal SET state = :new_state WHERE id = :id",
+            {"new_state": new_state_value, "id": proposal_id},
+        )
+        # Log the state change as a system event
+        db.execute(
+            """
+            INSERT INTO event (proposal_id, author_id, author_name, comment)
+            VALUES (:pid, :uid, :uname, :comment)
+            """,
+            {
+                "pid": proposal_id, "uid": user_id, 
+                "uname": session["oidc_auth_profile"]["family_name"],
+                "comment": f"Změna stavu z '{current_state or 'Nic'}' na '{new_state}'",
+            },
+        )
+        db.commit()
+        flash("Stav návrhu byl změněn.", "success")
 
-    db.execute(
-        """ INSERT INTO event ('proposal_id', 'author_id', 'author_name', 'comment')
-        VALUES (:proposal_id, :author_id, :author_name, :comment)""",
-        {
-            "proposal_id": proposal_id,
-            "author_id": int(session["oidc_auth_profile"]["given_name"]),
-            "author_name": session["oidc_auth_profile"]["family_name"],
-            "comment": f"Změna stavu z {curr_state['state']} na {new_state}",
-        },
-    )
-    db.commit()
-    flash("Změna zapsána", "success")
-    return redirect(f"/proposal/{proposal_id}")
-
+    return redirect(url_for("proposals.view_proposal", proposal_id=proposal_id))

@@ -11,14 +11,14 @@ from flask import (
 )
 
 from hlasys2_app.db import get_db
-from hlasys2_app import oidc
+from hlasys2_app.decorators import login_required
 
 bp = Blueprint("users", __name__)
 
 
 @bp.route("/user/<int:user_id>")
-@oidc.require_login
-def user_ovreview(user_id):
+@login_required
+def user_overview(user_id):
     db = get_db()
 
     user_event = db.execute(

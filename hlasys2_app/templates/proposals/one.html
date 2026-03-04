@@ -1,68 +1,60 @@
 {% extends 'base.html' %}
 
-
-{% block head %}
-    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='one.css') }}"> -->
-{% endblock head %}
-
 {% block header %}
-    <h1 id="h-one-subj">
-        {% block title %}{{ data['subject'] }}{% endblock %}
-    </h1>   
-    
-    pro
-    <strong>
-        <a href="/overview/{{ role_str }}">{{ long_role_str }}</a>    
-    </strong>
-
+    <h1>{% block title %}{{ proposal.subject }}{% endblock %}</h1>   
+    <p>
+        pro <strong>{{ HkfreeRole(proposal.type).long_name }}</strong>
+    </p>
 {% endblock %}
 
 {% block content %}
     <div>
-        <div id="txt-desc">{{ data['description'] | trim | urlize(nofollow=False, target='_blank') }}</div>
+        <div id="txt-desc">{{ proposal.description | trim | urlize(nofollow=False, target='_blank') }}</div>
         <hr>
-        <div class="d-one-detail-row" id="d-one-bot">
-            <p class="p-one-detail">
-                Odhad ceny: {{ "{:,}".format(data['cost']) }} Kč
-            </p>
-            <p class="p-one-detail">
-                Vložil  <a href="/user/{{ data['author_id'] }}">{{ data['author_name'] }}</a>
-                v {{ data['created'].strftime('%A %d.%m.%Y %H:%M') }}
+        <div id="d-one-bot">
+            <p>Odhadovaná cena: <b>{{ "{:,}".format(proposal.cost) }} Kč</b></p>
+            <p>Počet hlasů pro schválení: {{ proposal['acceptance_treshold'] }}</p>
+            <p>
+                Vložil  <a href="/user/{{ proposal.author_id }}">{{ proposal.author_name }}</a>
+                dne {{ proposal.created.strftime('%d.%m.%Y v %H:%M') }}
             </p>
         </div>
         <hr>
         {% include 'proposals/decisions.html' %}
     </div>
-
     <hr>
+    
     {% if user_id in users_change_state %}
-    <b>Změnit stav na:</b> 
-    <a class="state-btn" href="/proposal/{{ data['id'] }}/state/Objednáno">Objednáno</a>
-    <a class="state-btn" href="/proposal/{{ data['id'] }}/state/K Převzetí">K Převzetí</a> 
-    <a class="state-btn" href="/proposal/{{ data['id'] }}/state/Předáno">Předáno</a>
-    <a class="state-btn" href="/proposal/{{ data['id'] }}/state/Nic">Nic</a>
+    <div>
+        <b>Změnit stav na:</b> 
+        <a class="state-btn" href="{{ url_for('proposals.change_state', proposal_id=proposal.id, new_state='Objednáno') }}">Objednáno</a>
+        <a class="state-btn" href="{{ url_for('proposals.change_state', proposal_id=proposal.id, new_state='K Převzetí') }}">K Převzetí</a> 
+        <a class="state-btn" href="{{ url_for('proposals.change_state', proposal_id=proposal.id, new_state='Předáno') }}">Předáno</a>
+        <a class="state-btn" href="{{ url_for('proposals.change_state', proposal_id=proposal.id, new_state='Nic') }}">Nic</a>
+    </div>
     <hr>
     {% endif %}
 
-    <h3>Události návrhu: </h3>
+    <h3>Historie návrhu</h3>
     <hr>
-    {% for e in events %}
-        {{ e['created'].strftime('%A %d.%m.%Y %H:%M')}}
-        <br>
-        {% if e['decision'] == None %}
-            + komentář od <a href="/user/{{ e['author_id']}}">{{ e['author_name'] }}</a>:
-            <p class="p-comment">{{ e['comment'] | urlize(nofollow=False, target='_blank') }}</p>
-        {% else %}
-            + hlas {{ '✔' if e['decision'] else '✖'}}
-            od <a href="/user/{{ e['author_id']}}">{{ e['author_name'] }}</a>
-            {% if e['comment'] %}
-                s komentářem:
-                <p class="p-comment">{{ e['comment'] | urlize(nofollow=False, target='_blank') }}</p>
+    {% for event in events %}
+        <div>
+            <span class="event-time-log">
+            {{ event['created'].strftime('%A %d.%m.%Y %H:%M')}}
+            </span> -
+            {% if event.decision is none %}
+                komentář od <a href="/user/{{event.author_id}}">{{ event.author_name }}</a>:
+                <p class="p-comment">{{ event.comment | urlize(nofollow=False, target='_blank') }}</p>
+            {% else %}
+                hlas <b>{{ '✅' if event.decision else '❌'}}</b> od <a href="/user/{{event.author_id}}">{{ event.author_name }}</a>
+                {% if event.comment %}
+                    s komentářem:
+                    <p class="p-comment">{{ event.comment | urlize(nofollow=False, target='_blank') }}</p>
+                {% endif %}
             {% endif %}
-        {% endif %}
+        </div>
         <hr>
+    {% else %}
+        <p>Zatím se zde nic nestalo.</p>
     {% endfor %}
-    {% if len(events) == 0 %}
-        <p>Zatím se zde nic nestalo, je tu ticho jako po pěšině...</p>
-    {% endif %}
 {% endblock %}

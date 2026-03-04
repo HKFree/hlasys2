@@ -1,81 +1,86 @@
-{% if accepted == None %}
-<div class="d-one-decision-row d-one-unknown">
-    <h2>
-        Stav:
-        <span id="s-one-undecided">? nerozhodnuto ? {% if data['state'] %}- {{ data['state'] }}{% endif %}</span>
-    </h2>
-</div>
-{% elif accepted == True %}
-<div class="d-one-decision-row d-one-accepted">
-    <h2>
-        Stav:
-        <span  id="s-one-accepted">✔ schváleno ✔ {% if data['state'] %}- {{ data['state'] }}{% endif %}</span>
-    </h2>
-</div>
-{% elif accepted == False %}
-<div class="d-one-decision-row d-one-rejected">
-    <h2>
-        Stav:
-        <span  id="s-one-rejected">✖ zamítnuto ✖ {% if data['state'] %}- {{ data['state'] }}{% endif %}</span>
-    </h2>
-</div>
-{% endif %}
+{# This dictionary simplifies the logic for displaying the proposal's status #} 
+{% set status_map = {
+    True:  {'class': 'd-one-accepted', 'id': 's-one-accepted', 'text': 'Schváleno'},
+    False: {'class': 'd-one-rejected', 'id': 's-one-rejected', 'text': 'Zamítnuto'},
+    None:  {'class': 'd-one-unknown',  'id': 's-one-undecided','text': 'Nerozhodnuto'}
+} %}
+{% set status = status_map[proposal.accepted] %}
 
-<div class="d-vote-btn">
-    {% if not data['accepted'] %}
-        {% if can_vote and not user_voted %}
-        <form action="/proposal/{{ data['id'] }}/vote" method="get">
-            <button type="submit">chci hlasovat</button>
-        </form>
-        {% elif can_vote and user_voted %}
-        <form action="/proposal/{{ data['id'] }}/vote" method="get">
-            <button type="submit">chci změnit hlas</button>
-        </form>
-        {% endif %}
+<div class="d-one-decision-row {{ status.class }}">
+    <h2>
+        <span id="{{ status.id }}">{{ status.text }}{% if proposal['decided'] %} <small title="{{ proposal['decided'].strftime('%d.%m.%Y %H:%M') }}">{{ proposal['decided'].strftime('%d.%m.%Y') }}</small>{% endif %}</span>
+    </h2>
+    {% if proposal.state not in ['Nic', None] %}
+        <p style="margin-top: 5px;">Stav realizace: <b>{{ proposal.state }}</b></p>
     {% endif %}
-    <form action="/proposal/{{ data['id'] }}/comment" method="get">
-        <button type="submit">chci komentovat</button>
+</div>
+<div class="d-vote-btn">
+    {% if proposal['decided'] and user_voted %}
+        <div class="d-one-decision-row d-one-proposal-locked">
+            Odhlasováno, tvuj hlas už nelze změnit
+            <span class="tooltip-icon" onclick="this.classList.toggle('active')">?
+                <span class="tooltip-text">Změna tvého hlasu je možná jen dokud návrh není odhlasován. Změna po odhlasování by vedla ke změně výsledku hlasování a to nelze.</span>
+            </span>
+        </div>
+    {% endif %}
+    {% if can_vote and (not proposal['decided'] or not user_voted) %}
+        <form action="{{ url_for('votes.vote_on_proposal', proposal_id=proposal.id) }}" method="get">
+            <button type="submit">
+                {% if user_voted %}
+                    Změnit můj hlas
+                {% else %}
+                    Hlasovat o návrhu
+                {% endif %}
+            </button>
+        </form>
+    {% endif %}
+    <form action="{{ url_for('proposals.add_comment', proposal_id=proposal.id) }}" method="get">
+        <button type="submit" style="background-color: var(--text-muted);">Přidat komentář</button>
     </form>
 </div>
 
 <div id="d-one-decision-box">
     <div class="d-one-decision-col">
-        <p>✔ Pro ✔</p>
+        <p style="color: var(--success-text);">PRO ({{ proposal.voted_for|length }})</p>
         <ul>
-            {% for f in voted_for %}
+            {% for voter in proposal.voted_for %}
             <li>
-                <a href="/user/{{ f['author_id']}}">
-                    {{ f['author_name'] }}
+                <a href="{{ url_for('users.user_overview', user_id=voter.author_id) }}">
+                    {{ voter.author_name }}
                 </a>
             </li>
+            {% else %}
+            <li class="text-muted">zatím nikdo</li>
             {% endfor %}
         </ul>
     </div>
-    {% if not accepted %}
+
     <div class="d-one-decision-col d-one-undecided">
-        <p>Nehlasoval/a</p>
-        
+        <p style="color: var(--warning-text);">Nehlasovali ({{ undecided_voters|length }})</p>
         <ul>
-            {% for undecider in undeciders %}
+            {% for undec in undecided_voters %}
             <li>
-                <a href="/user/{{ undecider }}">
-                    {{ undeciders[undecider] }}
+                <a href="{{ url_for('users.user_overview', user_id=undec) }}" style="color: var(--text-muted);">
+                    {{ undecided_voters[undec]  }}
                 </a>
             </li>
+            {% else %}
+            <li class="text-muted">všichni hlasovali</li>
             {% endfor %}
         </ul>
     </div>
-    {% endif %}
+
     <div class="d-one-decision-col">
-        <p>✖ Proti ✖</p>
-        
+        <p style="color: var(--danger-text);">PROTI ({{ proposal.voted_against|length }})</p>
         <ul>
-            {% for a in voted_against %}
+            {% for voter in proposal.voted_against %}
             <li>
-                <a href="/user/{{ a['author_id']}}">
-                    {{ a['author_name'] }}
+                <a href="{{ url_for('users.user_overview', user_id=voter.author_id) }}">
+                    {{ voter.author_name }}
                 </a>
             </li>
+            {% else %}
+            <li class="text-muted">zatím nikdo</li>
             {% endfor %}
         </ul>
     </div>
