@@ -9,7 +9,6 @@
         {% block head %}{% endblock head %}
 
         <script>
-            // Okamžitá aplikace tématu před renderováním, aby neprobliklo bílé pozadí
             (function() {
                 const savedTheme = localStorage.getItem('theme');
                 const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -22,6 +21,19 @@
         </script>
     </head>
     <body>
+        {% if hlasys_env == "development" %}
+        <div class="dev-banner">
+            <strong>DEV MODE</strong> | User: 
+            <select onchange="window.location.href='/dev-switch-user/' + this.value">
+                {% for user in dev_users %}
+                <option value="{{ user.id }}" {% if session["oidc_auth_profile"]["given_name"] == user.id|string %}selected{% endif %}>
+                    {{ user.family_name }} ({{ user.id }})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+
         <nav>
             <div class="nav-content">
                 <a href="{{ url_for('proposals.overview', filter='pd') }}">

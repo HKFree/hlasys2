@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, session, request, flash,
 from hlasys2_app.db import get_db
 from hlasys2_app.util import check_proposal_status
 from hlasys2_app.forms import VoteDecisionForm
-from hlasys2_app import oidc
+from hlasys2_app.decorators import login_required
 
 bp = Blueprint("votes", __name__)
 
@@ -27,7 +27,7 @@ def get_last_vote_details(user_id: int, proposal_id: int) -> dict:
 
 
 @bp.route("/proposal/<int:proposal_id>/vote", methods=["GET", "POST"])
-@oidc.require_login
+@login_required
 def vote_on_proposal(proposal_id: int):
     db = get_db()
     # Get user info

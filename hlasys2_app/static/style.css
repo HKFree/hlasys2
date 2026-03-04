@@ -757,3 +757,35 @@ footer a { color: var(--text-muted); text-decoration: underline; }
     content: "!";
     background-color: var(--warning-text);
 }
+
+/* =========================================
+   Dev Mode Banner
+   ========================================= */
+.dev-banner {
+    background-color: #ff6b6b;
+    color: white;
+    padding: 8px 16px;
+    text-align: center;
+    font-weight: 500;
+    position: sticky;
+    top: 0;
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.dev-banner select {
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: none;
+    background-color: white;
+    color: #333;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+[data-theme="dark"] .dev-banner {
+    background-color: #c53030;
+}

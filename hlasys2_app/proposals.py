@@ -12,7 +12,8 @@ from hlasys2_app.util import (
 )
 from hlasys2_app.forms import CreateProposalForm, CreateCommentForm
 from hlasys2_app.notifications import notify_new_proposal
-from hlasys2_app import oidc, config
+from hlasys2_app.decorators import login_required
+from hlasys2_app import config
 
 bp = Blueprint("proposals", __name__)
 
@@ -20,7 +21,7 @@ bp = Blueprint("proposals", __name__)
 @bp.route("/overview", defaults={"filter": ""})
 @bp.route("/overview/", defaults={"filter": ""})
 @bp.route("/overview/<filter>")
-@oidc.require_login
+@login_required
 def overview(filter):
     """Displays a paginated overview of proposals, with filtering and searching."""
     db = get_db()
@@ -100,7 +101,7 @@ def overview(filter):
 
 
 @bp.route("/proposal/<int:proposal_id>")
-@oidc.require_login
+@login_required
 def view_proposal(proposal_id):
     """Displays a single proposal and its associated events and votes."""
     db = get_db()
@@ -159,7 +160,7 @@ def view_proposal(proposal_id):
 
 
 @bp.route("/proposal/create", methods=["GET", "POST"])
-@oidc.require_login
+@login_required
 def create_proposal():
     """Handles the creation of a new proposal."""
     form = CreateProposalForm()
@@ -214,7 +215,7 @@ def create_proposal():
 
 
 @bp.route("/proposal/<int:proposal_id>/comment", methods=["GET", "POST"])
-@oidc.require_login
+@login_required
 def add_comment(proposal_id: int):
     """Handles adding a comment to a proposal."""
     form = CreateCommentForm()
@@ -240,7 +241,7 @@ def add_comment(proposal_id: int):
 
 
 @bp.route("/proposal/<int:proposal_id>/state/<new_state>")
-@oidc.require_login
+@login_required
 def change_state(proposal_id: int, new_state: str):
     """Changes the state of a proposal (e.g., 'Ordered'). For authorized users only."""
     user_id = int(session["oidc_auth_profile"]["given_name"])

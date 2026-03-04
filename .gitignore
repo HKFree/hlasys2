@@ -7,7 +7,7 @@ __pycache__/
 
 instance/
 
-.pytest_cache/
+.pytest_cache
 .coverage
 htmlcov/
 
@@ -15,6 +15,6 @@ dist/
 build/
 *.egg-info/
 
-config.py
-
 client_secrets.json
+hlasys2_app/config.py
+.env

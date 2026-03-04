@@ -2,20 +2,22 @@ FROM python:3.11-alpine
 
 WORKDIR /hlasys2
 
-COPY . /hlasys2
+RUN pip3 install poetry && \
+    poetry config virtualenvs.create false
 
-RUN ls -la /hlasys2
+COPY pyproject.toml poetry.lock ./
+RUN poetry install --no-root
 
-RUN pip3 install poetry
-RUN poetry config virtualenvs.create false
-RUN poetry install
-
-ENV FLASK_APP hlasys2_app
+COPY hlasys2_app ./hlasys2_app
+COPY entry.sh ./
 
 ARG HLASYS2_REF_NAME
 ARG HLASYS2_COMMIT_HASH
 
 ENV HLASYS2_REF_NAME=${HLASYS2_REF_NAME}
 ENV HLASYS2_COMMIT_HASH=${HLASYS2_COMMIT_HASH}
+ENV FLASK_APP=hlasys2_app
+
+RUN mkdir -p /hlasys2/instance
 
 CMD ["./entry.sh"]

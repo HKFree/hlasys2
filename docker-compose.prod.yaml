@@ -1,0 +1,15 @@
+services:
+  hlasys2:
+    build:
+      context: .
+      args:
+        HLASYS2_REF_NAME: ${HLASYS2_REF_NAME:-production}
+        HLASYS2_COMMIT_HASH: ${HLASYS2_COMMIT_HASH:-unknown}
+    image: hlasys2:prod
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./instance:/hlasys2/instance
+      - ./config.py:/hlasys2/hlasys2_app/config.py:ro
+      - ./client_secrets.json:/hlasys2/client_secrets.json:ro
+    restart: unless-stopped
