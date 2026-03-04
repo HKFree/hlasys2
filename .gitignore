@@ -17,4 +17,5 @@ build/
 
 client_secrets.json
 hlasys2_app/config.py
+config.py
 .env
