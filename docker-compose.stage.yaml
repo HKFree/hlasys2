@@ -6,7 +6,7 @@ services:
         HLASYS2_COMMIT_HASH: ${HLASYS2_COMMIT_HASH:-unknown}
     image: hlasys2:stage
     ports:
-      - "5000:5000"
+      - "5001:5000"
     volumes:
       - ./instance:/hlasys2/instance
       - ./hlasys2_app/config.py:/hlasys2/hlasys2_app/config.py:ro
