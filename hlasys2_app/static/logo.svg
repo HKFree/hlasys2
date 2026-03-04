@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="95" fill="#1e293b"/>
+  
+  <!-- Outer ring accent -->
+  <circle cx="100" cy="100" r="85" fill="none" stroke="#f59e0b" stroke-width="6"/>
+  
+  <!-- Bold checkmark (vote for) -->
+  <path d="M35 105 L80 150 L165 50" 
+        stroke="#ffffff" 
+        stroke-width="32" 
+        stroke-linecap="round" 
+        stroke-linejoin="round" 
+        fill="none"/>
+  
+  <!-- Success dot -->
+  <circle cx="165" cy="50" r="14" fill="#22c55e"/>
+</svg>

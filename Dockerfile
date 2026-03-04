@@ -11,7 +11,7 @@ RUN poetry install --no-root
 COPY hlasys2_app ./hlasys2_app
 COPY entry.sh ./
 
-ARG HLASYS2_COMMIT_HASH=unknown
+ARG HLASYS2_COMMIT_HASH
 RUN sed -i "s/HLASYS2_COMMIT_HASH = \"unknown\"/HLASYS2_COMMIT_HASH = \"${HLASYS2_COMMIT_HASH}\"/" hlasys2_app/version.py
 
 ENV FLASK_APP=hlasys2_app
