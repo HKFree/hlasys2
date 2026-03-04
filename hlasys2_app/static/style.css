@@ -333,7 +333,7 @@ hr {
 }
 
 .pagination-controls {
-    margin-left: auto;
+    margin: auto;
     display: flex;
     gap: 0.5rem;
     align-items: center;
@@ -849,4 +849,10 @@ footer a { color: var(--text-muted); text-decoration: underline; }
     border-width: 6px;
     border-style: solid;
     border-color: var(--border-color) transparent transparent transparent;
+}
+
+a.disabled {
+    color: gray;
+    pointer-events: none;
+    cursor: default;
 }
