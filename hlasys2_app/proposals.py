@@ -144,15 +144,15 @@ def view_proposal(proposal_id):
 
     proposal['deciders'] = json.loads(proposal['deciders'])
 
+    user_voted = user_id in [v["author_id"] for v in proposal['voted_for'] + proposal['voted_against']]
+
     return render_template(
         "proposals/one.html",
         proposal=proposal,
         events=events,
-        # undecided_voters=userdb_api.not_sure_yet(
-        #     proposal['voted_for'], proposal['voted_against'], proposal["type"]
-        # ),
         undecided_voters=get_undecided(proposal),
         can_vote=(str(user_id) in proposal['deciders']),
+        user_voted=user_voted,
         user_id=user_id,
         HkfreeRole=HkfreeRole,
         users_change_state=config.USERS_CHANGE_STATE,

@@ -398,18 +398,26 @@ def calculate_acceptance_treshold(form_selection: str, deciders: list):
 
 
 def check_proposal_status(proposal: dict) -> bool:
-    # This is only ever called after a vote submission
-
     db = get_db()
-    # This should be elsewhere, sorry
     updated_proposal = db.execute(
         """
         SELECT
-                p.id, p.acceptance_treshold, p.deciders,
-                COALESCE(SUM(CASE WHEN e.decision = 1 THEN 1 END), 0) AS votes_for,
-                COALESCE(SUM(CASE WHEN e.decision = 0 THEN 1 END), 0) AS votes_against
-            FROM proposal p LEFT JOIN event e ON p.id = e.proposal_id
-            WHERE p.id = :proposal_id
+            p.id, p.acceptance_treshold, p.deciders,
+            COALESCE(SUM(CASE WHEN latest.decision = 1 THEN 1 END), 0) AS votes_for,
+            COALESCE(SUM(CASE WHEN latest.decision = 0 THEN 1 END), 0) AS votes_against
+        FROM proposal p
+        LEFT JOIN (
+            SELECT e.proposal_id, e.author_id, e.decision
+            FROM event e
+            JOIN (
+                SELECT author_id, MAX(created) AS max_created
+                FROM event
+                WHERE proposal_id = :proposal_id AND decision IS NOT NULL
+                GROUP BY author_id
+            ) latest_ids ON e.author_id = latest_ids.author_id AND e.created = latest_ids.max_created
+            WHERE e.proposal_id = :proposal_id AND e.decision IS NOT NULL
+        ) latest ON p.id = latest.proposal_id
+        WHERE p.id = :proposal_id
         """,
         {"proposal_id": proposal["id"]},
     ).fetchone()
@@ -419,15 +427,31 @@ def check_proposal_status(proposal: dict) -> bool:
         return False
 
     if acceptance:
-
         db.execute(
             "UPDATE proposal SET decided = (datetime('now','localtime')) WHERE id = :id",
             {"id": updated_proposal["id"]},
-        ).fetchone()
+        )
+        # db.execute(
+        #     """INSERT INTO event (proposal_id, author_id, author_name, decision, comment)
+        #        VALUES (:pid, 0, 'Systém', NULL, :comment)""",
+        #     {"pid": updated_proposal["id"], "comment": "Návrh byl schválen"},
+        # )
         db.commit()
-        # Change occured
         if config.DEBUG:
-            print(f"DEBUG: Locking proposal {updated_proposal['id']}")
-
+            print(f"DEBUG: Locking proposal {updated_proposal['id']} - accepted")
+        return True
+    else:
+        db.execute(
+            "UPDATE proposal SET decided = (datetime('now','localtime')) WHERE id = :id",
+            {"id": updated_proposal["id"]},
+        )
+        db.execute(
+            """INSERT INTO event (proposal_id, author_id, author_name, decision, comment)
+               VALUES (:pid, 0, 'Systém', NULL, :comment)""",
+            {"pid": updated_proposal["id"], "comment": "Návrh byl zamítnut"},
+        )
+        db.commit()
+        if config.DEBUG:
+            print(f"DEBUG: Locking proposal {updated_proposal['id']} - rejected")
         return True
     return False

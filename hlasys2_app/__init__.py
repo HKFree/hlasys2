@@ -87,9 +87,10 @@ def create_app():
 
     @app.context_processor
     def inject_version():
+        commit_hash = app.config['HLASYS2_COMMIT_HASH'][:7] if app.config['HLASYS2_COMMIT_HASH'] != "unknown" else "unknown"
         return dict(
             hlasys2_version=f"{app.config['HLASYS2_VERSION']}",
-            hlasys2_build_str=f"v{app.config['HLASYS2_VERSION']} commit {app.config['HLASYS2_COMMIT_HASH']} from {app.config['HLASYS2_REF_NAME']}",
+            hlasys2_build_str=f"v{app.config['HLASYS2_VERSION']}-{commit_hash} ({HLASYS_ENV})",
             hlasys_env=HLASYS_ENV,
             dev_users=DEV_USERS,
         )

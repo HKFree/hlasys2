@@ -44,12 +44,7 @@ def vote_on_proposal(proposal_id: int):
     if not proposal:
         flash("Takový návrh neexistuje.", "warning")
         return redirect(url_for("proposals.overview"))
-
-    if proposal['decided']:
-        flash("Návrh je odhlasovaný a zamknutý, nelze hlasovat!", "danger")
-        return redirect(url_for("proposals.view_proposal", proposal_id=proposal_id))
     
-    # Check permission once upfront
     if not str(user_id) in proposal['deciders']:
         flash("Tady hlasovat nemůžeš!", "danger")
         return redirect(url_for("proposals.view_proposal", proposal_id=proposal_id))
@@ -65,6 +60,11 @@ def vote_on_proposal(proposal_id: int):
 
         # Check for existing vote using the helper function (one query)
         last_vote = get_last_vote_details(user_id, proposal_id)
+
+        # Disallow changing vote if proposal was already decided and user already voted
+        if proposal['decided'] and last_vote:
+            flash("Návrh je již odhlasován, nelze změnit hlas.", "danger")
+            return redirect(url_for("proposals.view_proposal", proposal_id=proposal_id))
 
         final_comment = provided_comment  # Default comment is the one provided
         vote_symbols = ["✖", "✔"]  # Index 0: Against, Index 1: For
@@ -105,7 +105,7 @@ def vote_on_proposal(proposal_id: int):
         )
         db.commit()
 
-        if check_proposal_status(proposal):
+        if not proposal['decided'] and check_proposal_status(proposal):
             flash("Tvůj hlas rozhodnul, návrh byl zamknut", "success")
 
         flash("Hlas zapsán", "success")

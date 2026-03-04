@@ -3,7 +3,6 @@ services:
     build:
       context: .
       args:
-        HLASYS2_REF_NAME: ${HLASYS2_REF_NAME:-staging}
         HLASYS2_COMMIT_HASH: ${HLASYS2_COMMIT_HASH:-unknown}
     image: hlasys2:stage
     ports:

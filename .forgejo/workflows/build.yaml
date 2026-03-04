@@ -1,0 +1,20 @@
+on:
+  push:
+    branches:
+      - main
+      - staging
+
+jobs:
+  build:
+    runs-on: buildah
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        run: buildah build 
+          --build-arg HLASYS2_COMMIT_HASH=${{ forgejo.sha }}
+          -t hlasys2 .
+
+      - name: Push to registry
+        run: buildah push --creds mrreactive:${{ secrets.HLASYS_DEV_SECRET }} 
+          hlasys2 code.darkne.dev/nextgenerationnetwork/hlasys2:${{ forgejo.ref_name }}

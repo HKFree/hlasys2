@@ -1,53 +1,49 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} {% block header %}
+<h1 id="h-create-subj">Nový návrh</h1>
+{% endblock %} {% block content %}
+<div class="form-container">
+    <form action="/proposal/create" method="post" enctype="multipart/form-data">
+        {{ form.csrf_token }}
 
-{% block header %}
-    <h1 id="h-create-subj">Nový návrh</h1>
-{% endblock %}
+        <div>{{ form.subject.label }} {{ form.subject(class="form-control") }}</div>
 
-{% block content %}
-    <div class="form-container">
-        <form action="/proposal/create" method="post" enctype="multipart/form-data">
-            {{ form.csrf_token }}
-            
-            <div>
-                {{ form.subject.label }}
-                {{ form.subject(class="form-control") }}
-            </div>
+        <div>
+            {{ form.type.label }}
+            <div class="radio-group">{{ form.type }}</div>
+            <p class="text-muted vote-info yellow">
+                <i>Členové družstva nejsou zatím implementováni v hlasování ani
+                    UserDB.</i>
+            </p>
+            <p class="text-muted vote-info yellow">
+                <i>Skupina Správci Oblastí již neexistují, nelze pro ně tedy vytvořit
+                    návrh.
+                    <span class="tooltip-icon" onclick="this.classList.toggle('active')">?
+                        <span class="tooltip-text">SO zanikli s přechodem na družstvo. V novém hlasovátku zachováme staré návrhy a jejich hlasování ať máme historická data.</span>
+                    </span>
+                </i>
+            </p>
+        </div>
 
-            <div>
-                {{ form.type.label }}
-                <div class="radio-group">
-                    {{ form.type }}
-                </div>
-                <p class="text-muted vote-info yellow"><i>Členové družstva nejsou zatím implementováni.</i></p>
-                <p class="text-muted vote-info yellow"><i>Správci oblastí již neexistují, nelze pro ně tedy vytvořit návrh.</i></p>
-                
-            </div>
+        <div>
+            {{ form.description.label }} {{ form.description(class="form-control") }}
+        </div>
 
-            <div>
-                {{ form.description.label }}
-                {{ form.description(class="form-control") }}
-            </div>
+        <div>{{ form.cost.label }} {{ form.cost(class="form-control") }}</div>
 
-            <div>
-                {{ form.cost.label }}
-                {{ form.cost(class="form-control") }}
-            </div>
+        <div>
+            {{ form.acceptance.label }}
+            <div class="radio-group">{{ form.acceptance }}</div>
+        </div>
 
-            <div>
-                {{ form.acceptance.label }}
-                <div class="radio-group">
-                    {{ form.acceptance }}
-                </div>
-            </div>
+        {#
+        <p class="vote-info blue">
+            <i>tady je info co vybrat</i>
+        </p>
+        #}
 
-            {#<p class="vote-info blue">
-                <i>tady je info co vybrat</i>
-            </p>#}
+        <hr />
 
-            <hr>
-            
-            <input type="submit" value="Vytvořit návrh">
-        </form>
-    </div>
+        <input type="submit" value="Vytvořit návrh" />
+    </form>
+</div>
 {% endblock %}

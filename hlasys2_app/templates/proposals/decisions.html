@@ -8,30 +8,31 @@
 
 <div class="d-one-decision-row {{ status.class }}">
     <h2>
-        <span id="{{ status.id }}">{{ status.text }}</span>
+        <span id="{{ status.id }}">{{ status.text }}{% if proposal['decided'] %} <small title="{{ proposal['decided'].strftime('%d.%m.%Y %H:%M') }}">{{ proposal['decided'].strftime('%d.%m.%Y') }}</small>{% endif %}</span>
     </h2>
     {% if proposal.state not in ['Nic', None] %}
         <p style="margin-top: 5px;">Stav realizace: <b>{{ proposal.state }}</b></p>
     {% endif %}
 </div>
-
 <div class="d-vote-btn">
-    {% if proposal['decided'] %}
+    {% if proposal['decided'] and user_voted %}
         <div class="d-one-decision-row d-one-proposal-locked">
-            Uzavřeno {{ proposal['decided']  }}
+            Odhlasováno, tvuj hlas už nelze změnit
+            <span class="tooltip-icon" onclick="this.classList.toggle('active')">?
+                <span class="tooltip-text">Změna tvého hlasu je možná jen dokud návrh není odhlasován. Změna po odhlasování by vedla ke změně výsledku hlasování a to nelze.</span>
+            </span>
         </div>
-    {% elif not proposal.accepted %}
-        {% if can_vote %}
-            <form action="{{ url_for('votes.vote_on_proposal', proposal_id=proposal.id) }}" method="get">
-                <button type="submit">
-                    {% if user_voted %}
-                        Změnit můj hlas
-                    {% else %}
-                        Hlasovat o návrhu
-                    {% endif %}
-                </button>
-            </form>
-        {% endif %}
+    {% endif %}
+    {% if can_vote and (not proposal['decided'] or not user_voted) %}
+        <form action="{{ url_for('votes.vote_on_proposal', proposal_id=proposal.id) }}" method="get">
+            <button type="submit">
+                {% if user_voted %}
+                    Změnit můj hlas
+                {% else %}
+                    Hlasovat o návrhu
+                {% endif %}
+            </button>
+        </form>
     {% endif %}
     <form action="{{ url_for('proposals.add_comment', proposal_id=proposal.id) }}" method="get">
         <button type="submit" style="background-color: var(--text-muted);">Přidat komentář</button>
