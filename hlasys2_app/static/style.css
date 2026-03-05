@@ -850,3 +850,7 @@ footer a { color: var(--text-muted); text-decoration: underline; }
     border-style: solid;
     border-color: var(--border-color) transparent transparent transparent;
 }
+
+.t-proposals td:nth-child(3) {
+    text-align: right;
+}
