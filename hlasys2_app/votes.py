@@ -32,7 +32,7 @@ def vote_on_proposal(proposal_id: int):
     db = get_db()
     # Get user info
     current_user_profile = session["oidc_auth_profile"]
-    user_id = int(current_user_profile["given_name"])
+    user_id = int(current_user_profile["preferred_username"])
     user_name = current_user_profile["family_name"]
 
     # Fetch proposal

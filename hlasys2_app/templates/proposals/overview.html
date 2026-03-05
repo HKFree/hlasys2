@@ -26,21 +26,23 @@
         <span>{% if 'so' in filter %}✔{% else %}✖{% endif %}</span> Správce Oblastí (archiv)
     </a>
 
+    
+</div>
+
+<div class="d-row-toggle">
     {% if total_pages > 1 %}
     <div class="pagination-controls">
-        {% if current_page > 1 %}
-            <a href="{{ url_for('proposals.overview', filter=filter, page=current_page-1) }}">&laquo; Předchozí</a>
-        {% else %}
-            <span class="disabled">&laquo; Předchozí</span>
-        {% endif %}
+        
+        <a {{ "class=disabled" if current_page == 0 }} href="{{ url_for('proposals.overview', filter=filter, page=0) }}">&laquo;&laquo;</a>
+        
+        <a {{ "class=disabled" if current_page == 0 }} href="{{ url_for('proposals.overview', filter=filter, page=current_page-1) }}">&laquo;</a>
 
-        <span class="page-info">Stránka {{ current_page }} / {{ total_pages }}</span>
+        <span class="page-info">Strana {{ current_page }} z {{ total_pages }}</span>
 
-        {% if current_page < total_pages %}
-            <a href="{{ url_for('proposals.overview', filter=filter, page=current_page+1) }}">Následující &raquo;</a>
-        {% else %}
-            <span class="disabled">Následující &raquo;</span>
-        {% endif %}
+        <a {{ "class=disabled" if current_page == total_pages }} href="{{ url_for('proposals.overview', filter=filter, page=current_page+1) }}">&raquo;</a>
+        
+        <a {{ "class=disabled" if current_page == total_pages }} href="{{ url_for('proposals.overview', filter=filter, page=total_pages) }}">&raquo;&raquo;</a>
+
     </div>
     {% endif %}
 </div>
@@ -87,23 +89,25 @@
     </tbody>
 </table>
 
-{% if total_pages > 1 %}
-    <br>
-    <div class="pagination-controls">
-        {% if current_page > 1 %}
-            <a href="{{ url_for('proposals.overview', filter=filter, page=current_page-1) }}">&laquo; Předchozí</a>
-        {% else %}
-            <span class="disabled">&laquo; Předchozí</span>
-        {% endif %}
+<br>
 
-        <span class="page-info">Str. {{ current_page }} z {{ total_pages }}</span>
+<div class="d-row-toggle">
+    {% if total_pages > 1 %}
+        <div class="pagination-controls">
+            
+            <a {{ "class=disabled" if current_page == 0 }} href="{{ url_for('proposals.overview', filter=filter, page=0) }}">&laquo;&laquo;</a>
+            
+            <a {{ "class=disabled" if current_page == 0 }} href="{{ url_for('proposals.overview', filter=filter, page=current_page-1) }}">&laquo;</a>
+    
+            <span class="page-info">Strana {{ current_page }} z {{ total_pages }}</span>
+    
+            <a {{ "class=disabled" if current_page == total_pages }} href="{{ url_for('proposals.overview', filter=filter, page=current_page+1) }}">&raquo;</a>
+            
+            <a {{ "class=disabled" if current_page == total_pages }} href="{{ url_for('proposals.overview', filter=filter, page=total_pages) }}">&raquo;&raquo;</a>
+    
+        </div>
+    {% endif %}
 
-        {% if current_page < total_pages %}
-            <a href="{{ url_for('proposals.overview', filter=filter, page=current_page+1) }}">Následující &raquo;</a>
-        {% else %}
-            <span class="disabled">Následující &raquo;</span>
-        {% endif %}
-    </div>
-{% endif %}
+</div>
 
 {% endblock %}

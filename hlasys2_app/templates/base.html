@@ -26,7 +26,7 @@
             <strong>DEV MODE</strong> | User: 
             <select onchange="window.location.href='/dev-switch-user/' + this.value">
                 {% for user in dev_users %}
-                <option value="{{ user.id }}" {% if session["oidc_auth_profile"]["given_name"] == user.id|string %}selected{% endif %}>
+                <option value="{{ user.id }}" {% if session["oidc_auth_profile"]["preferred_username"] == user.id|string %}selected{% endif %}>
                     {{ user.family_name }} ({{ user.id }})
                 </option>
                 {% endfor %}
@@ -41,7 +41,7 @@
                 </a>
                 <ul>
                     <li><a href="{{ url_for('proposals.overview', filter='pd') }}">Přehled</a>
-                    <li><a href="{{ url_for('users.user_overview', user_id=session["oidc_auth_profile"]["given_name"]) }}">Moje timeline</a>
+                    <li><a href="{{ url_for('users.user_overview', user_id=session["oidc_auth_profile"]["preferred_username"]) }}">Moje timeline</a>
                     <li><a href="{{ url_for('proposals.create_proposal') }}">Nový návrh</a>
                     <li>
                         <button id="theme-toggle" title="Přepnout tmavý režim">

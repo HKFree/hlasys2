@@ -4,7 +4,7 @@ echo "=== HlaSys v2 for hkfree.org ==="
 echo "====== made by OndraLhota ======"
 echo "version ${HLASYS2_VERSION}"
 
-if [ ! -f /hlasys2/instance/hlasys2.sqlite ]
+if [ ! -f /hlasys2/instance/hlas.sqlite ]
 then
     echo "Database does not exist. Initializing it with empty schema."
     flask init-db

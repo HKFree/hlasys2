@@ -78,7 +78,7 @@ def create_app():
             user = next((u for u in DEV_USERS if u["id"] == user_id), None)
             if user:
                 session["oidc_auth_profile"] = {
-                    "given_name": str(user["id"]),
+                    "preferred_username": str(user["preferred_username"]),
                     "family_name": user["family_name"],
                 }
                 flash(f"Přepnuto na uživatele: {user['family_name']}", "success")

@@ -333,7 +333,7 @@ hr {
 }
 
 .pagination-controls {
-    margin-left: auto;
+    margin: auto;
     display: flex;
     gap: 0.5rem;
     align-items: center;
@@ -853,4 +853,10 @@ footer a { color: var(--text-muted); text-decoration: underline; }
 
 .t-proposals td:nth-child(3) {
     text-align: right;
+}
+
+a.disabled {
+    color: gray;
+    pointer-events: none;
+    cursor: default;
 }

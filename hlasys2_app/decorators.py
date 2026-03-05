@@ -10,7 +10,7 @@ def login_required(f):
             if "oidc_auth_profile" not in session:
                 default_user = DEV_USERS[0]
                 session["oidc_auth_profile"] = {
-                    "given_name": str(default_user["id"]),
+                    "preferred_username": str(default_user["id"]),
                     "family_name": default_user["family_name"],
                 }
             return f(*args, **kwargs)
