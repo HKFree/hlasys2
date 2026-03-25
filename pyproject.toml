@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "hlasys2"
-version = "2.0.4"
+version = "2.0.8"
 description = "Web based voting system for hkfree.org"
 authors = ["Ondřej Pithart <ondra@pithart.com>"]
 license = "GNU GPLv3"
 readme = "README.md"
-package-mode = false
+#package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.11"
