@@ -25,7 +25,8 @@
     --success-bg: #edf7f1;
     --success-text: #2d6d4b;
     --success-border: #67a77d;
-    --success-row-bg: rgba(103, 200, 125, 0.20);
+    /*--success-row-bg: rgba(103, 200, 125, 0.20);*/
+    --success-row-bg: rgba(52, 211, 153, 0.12);
     
     --danger-bg: #fff1ef;
     --danger-text: #a7382d;
@@ -123,12 +124,12 @@ a:hover {
    2. Layout & Navigation
    ========================================= */
 nav {
-    background: linear-gradient(90deg, var(--primary) 0%, #d93f34 100%);
+    background-color: var(--primary);
     padding: 1rem;
     position: sticky;
     top: 0;
     z-index: 1000;
-    box-shadow: 0 8px 22px rgba(44, 38, 35, 0.18);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
 .nav-content {
@@ -178,10 +179,10 @@ nav a:hover {
 
 /* The Main Container */
 .content {
-    max-width: 900px;
+    max-width: 960px;
     margin: 20px auto;
     background-color: var(--bg-card);
-    border-radius: calc(var(--radius) + 2px);
+    border-radius: var(--radius);
     padding: 30px;
     box-shadow: var(--shadow);
     border: 1px solid var(--border-color);
@@ -209,8 +210,38 @@ hr {
     margin: 1.5rem 0;
 }
 
-#theme-toggle {
-    padding: 5px;
+/* =========================================
+   Theme Selector (3-button group)
+   ========================================= */
+.theme-selector {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    padding: 2px;
+}
+
+.theme-selector button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    font-size: 1.1rem;
+    line-height: 1;
+    border-radius: 4px;
+    opacity: 0.5;
+    transition: opacity 0.2s, background-color 0.2s;
+}
+
+.theme-selector button:hover {
+    opacity: 0.8;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.theme-selector button.active {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.25);
 }
 
 /* =========================================
@@ -292,13 +323,13 @@ hr {
 }
 
 /* Row Status Styling */
-.tr-proposal-accepted { border-left: 4px solid var(--success-border); background-color: var(--success-row-bg); }
-.tr-proposal-accepted td:first-child { color: var(--success-text); font-weight: 600; }
+.tr-proposal-accepted { background-color: var(--success-row-bg); }
+.tr-proposal-accepted td:first-child { border-left: 3px solid var(--success-border); color: var(--success-text); font-weight: 600; }
 
-.tr-proposal-rejected { border-left: 4px solid var(--danger-border); background-color: var(--danger-row-bg); }
-.tr-proposal-rejected td:first-child { color: var(--danger-text); font-weight: 600; }
+.tr-proposal-rejected { background-color: var(--danger-row-bg); }
+.tr-proposal-rejected td:first-child { border-left: 3px solid var(--danger-border); color: var(--danger-text); font-weight: 600; }
 
-.tr-proposal-undecided { border-left: 4px solid var(--unknown-border); }
+.tr-proposal-undecided td:first-child { border-left: 3px solid var(--unknown-border); }
 
 /* =========================================
    5. Controls & Toggles
@@ -316,7 +347,6 @@ hr {
 .d-row-toggle a {
     background-color: var(--bg-card);
     border: 1px solid var(--border-color);
-    box-shadow: var(--shadow);
     color: var(--text-main);
     padding: 6px 14px;
     border-radius: 20px;
@@ -330,7 +360,6 @@ hr {
 .d-row-toggle a:hover {
     border-color: var(--primary);
     color: var(--primary);
-    background-color: rgba(226, 74, 59, 0.06);
 }
 
 .pagination-controls {
@@ -342,10 +371,9 @@ hr {
 .pagination-controls a {
     padding: 6px 12px;
     border: 1px solid var(--border-color);
-    border-radius: 999px;
+    border-radius: 4px;
     text-decoration: none;
     color: var(--primary);
-    background: var(--bg-card);
 }
 
 /* =========================================
@@ -383,7 +411,7 @@ hr {
 }
 
 #txt-desc a:hover {
-    background-color: rgba(226, 74, 59, 0.12);
+    background-color: rgba(0, 115, 230, 0.1);
     color: var(--primary-hover);
     border-radius: 2px;
 }
@@ -469,7 +497,7 @@ button, .state-btn, input[type="submit"] {
     cursor: pointer;
     border: none;
     border-radius: var(--radius);
-    padding: 5px 10px;
+    padding: 10px 20px;
     font-size: 1rem;
     font-weight: 500;
     transition: all 0.2s;
@@ -490,7 +518,6 @@ input[type="submit"]:hover {
 .state-btn {
     background-color: var(--bg-card);
     border: 1px solid var(--border-color);
-    box-shadow: var(--shadow);
     color: var(--text-main);
     display: inline-block;
     margin-right: 0.5rem;
@@ -498,10 +525,9 @@ input[type="submit"]:hover {
     text-decoration: none;
 }
 .state-btn:hover {
-    background-color: var(--bg-desc);
-    border-color: var(--primary);
-    color: var(--primary);
-    opacity: 1;
+    background-color: var(--bg-body);
+    border-color: var(--border-color);
+    opacity: 0.8;
 }
 
 /* =========================================
@@ -535,7 +561,7 @@ form select {
 form input:focus, form textarea:focus {
     border-color: var(--primary);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(226, 74, 59, 0.16);
+    box-shadow: 0 0 0 3px rgba(0, 115, 230, 0.1);
 }
 
 form ul {
@@ -584,7 +610,7 @@ form input[type="checkbox"] {
     border-left: 3px solid var(--primary);
     padding: 1rem;
     margin-bottom: 1rem;
-    box-shadow: 0 6px 18px rgba(44, 38, 35, 0.08);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     white-space: pre-line;
 }
 

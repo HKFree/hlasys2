@@ -26,6 +26,15 @@ def overview(filter):
     """Displays a paginated overview of proposals, with filtering and searching."""
     db = get_db()
     search_query = request.args.get("search_query", default="").strip()
+    
+    # If the search query is a plain integer, try direct proposal ID lookup
+    if search_query.isdigit():
+        proposal_row = db.execute(
+                "SELECT id FROM proposal WHERE id = :id", {"id": int(search_query)}
+                ).fetchone()
+        if proposal_row:
+            return redirect(url_for("proposals.view_proposal", proposal_id=proposal_row["id"]))
+
     page = request.args.get("page", default=1, type=int)
     limit = 25
     offset = (page - 1) * limit if page > 0 else 0
