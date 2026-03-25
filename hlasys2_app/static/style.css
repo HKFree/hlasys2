@@ -2,97 +2,96 @@
    1. Variables & Reset
    ========================================= */
 :root {
-    /* Main Colors */
-    --primary: #0073e6;
-    --primary-hover: #005bb5;
-    --bg-body: #f4f6f8;
+    /* Main Colors – sladěné s vizuálem hkfree.org */
+    --primary: #e24a3b;
+    --primary-hover: #c63d30;
+    --bg-body: #f5f3ef;
     --bg-card: #ffffff;
-    --bg-input: #ffffff;
-    --bg-desc: #f9fafb;     
-    --bg-locked: #f1f5f9;   
+    --bg-input: #fffdfa;
+    --bg-desc: #faf7f2;
+    --bg-locked: #efe8df;
     
     /* Text Colors */
-    --text-main: #2c3e50;
-    --text-muted: #6c757d;
-    --text-desc: #4a5568;   
-    --text-nav: rgba(255, 255, 255, 0.9);
+    --text-main: #2c2623;
+    --text-muted: #756b63;
+    --text-desc: #4c433e;
+    --text-nav: rgba(255, 255, 255, 0.92);
     
     /* Borders */
-    --border-color: #e1e4e8;
-    --border-locked: #cbd5e0;
+    --border-color: #ddd3c7;
+    --border-locked: #cabaa8;
 
     /* Status Colors */
-    --success-bg: #e6fffa;
-    --success-text: #047857;
-    --success-border: #34d399;
-    --success-row-bg: rgba(52, 211, 153, 0.05);
+    --success-bg: #edf7f1;
+    --success-text: #2d6d4b;
+    --success-border: #67a77d;
+    --success-row-bg: rgba(103, 200, 125, 0.20);
     
-    --danger-bg: #fff5f5;
-    --danger-text: #c53030;
-    --danger-border: #fc8181;
-    --danger-row-bg: rgba(252, 129, 129, 0.05);
+    --danger-bg: #fff1ef;
+    --danger-text: #a7382d;
+    --danger-border: #e48d84;
+    --danger-row-bg: rgba(226, 74, 59, 0.2);
     
-    --warning-bg: #fffaf0;
-    --warning-text: #c05621;
-    --warning-border: #fbd38d;
+    --warning-bg: #fff6e8;
+    --warning-text: #9a6223;
+    --warning-border: #e1b97c;
 
-    /* Unknown/Undecided State (Light Mode - same as warning/neutral yellow) */
-    --unknown-bg: #fffaf0;
-    --unknown-text: #c05621;
-    --unknown-border: #fbd38d;
+    /* Unknown/Undecided */
+    --unknown-bg: #fff6e8;
+    --unknown-text: #9a6223;
+    --unknown-border: #e1b97c;
 
     /* Flash Message: Info */
-    --info-bg: #ebf8ff;
-    --info-text: #2b6cb0;
-    --info-border: #bee3f8;
+    --info-bg: #f7ebe8;
+    --info-text: #8f3c31;
+    --info-border: #e3b5ad;
 
     /* Misc */
-    --radius: 8px;
-    --shadow: 0 1px 3px rgba(0,0,0,0.05);
+    --radius: 10px;
+    --shadow: 0 8px 24px rgba(44, 38, 35, 0.08);
 }
 
 /* Dark Mode Overrides */
 [data-theme="dark"] {
-    --primary: #3b82f6;      /* Lighter blue for dark mode */
-    --primary-hover: #60a5fa;
-    --bg-body: #1a202c;
-    --bg-card: #2d3748;
-    --bg-input: #1a202c;
-    --bg-desc: #2d3748;
-    --bg-locked: #4a5568;
+    --primary: #f06455;
+    --primary-hover: #ff8a7d;
+    --bg-body: #1f1a17;
+    --bg-card: #2b2420;
+    --bg-input: #201b18;
+    --bg-desc: #332b26;
+    --bg-locked: #433831;
     
-    --text-main: #e2e8f0;
-    --text-muted: #a0aec0;
-    --text-desc: #cbd5e0;
-    --text-nav: rgba(255, 255, 255, 0.9);
+    --text-main: #f3ece6;
+    --text-muted: #c8b9ae;
+    --text-desc: #dfd1c6;
+    --text-nav: rgba(255, 255, 255, 0.92);
 
-    --border-color: #4a5568;
-    --border-locked: #718096;
+    --border-color: #4c4038;
+    --border-locked: #66574d;
 
-    --success-bg: #064e3b;
-    --success-text: #6ee7b7;
-    --success-border: #059669;
-    --success-row-bg: rgba(6, 78, 59, 0.4);
+    --success-bg: #1f3428;
+    --success-text: #93d0a8;
+    --success-border: #4f8b65;
+    --success-row-bg: rgba(79, 139, 101, 0.22);
 
-    --danger-bg: #7f1d1d;
-    --danger-text: #fca5a5;
-    --danger-border: #b91c1c;
-    --danger-row-bg: rgba(127, 29, 29, 0.4);
+    --danger-bg: #4a241f;
+    --danger-text: #ffb2aa;
+    --danger-border: #b95d53;
+    --danger-row-bg: rgba(240, 100, 85, 0.16);
 
-    --warning-bg: #451a03;
-    --warning-text: #fbbf24;
-    --warning-border: #92400e;
+    --warning-bg: #4b3721;
+    --warning-text: #f2ca8f;
+    --warning-border: #9c7242;
 
-    /* FIX: Neutral Grey for Undecided in Dark Mode (Pure Info) */
-    --unknown-bg: #374151;   /* Gray-700 */
-    --unknown-text: #e5e7eb; /* Gray-200 */
-    --unknown-border: #4b5563; /* Gray-600 */
+    --unknown-bg: #4b3721;
+    --unknown-text: #f2ca8f;
+    --unknown-border: #9c7242;
 
-    --info-bg: #1e3a8a;
-    --info-text: #bfdbfe;
-    --info-border: #3b82f6;
+    --info-bg: #452824;
+    --info-text: #f0bbb3;
+    --info-border: #8d544c;
 
-    --shadow: 0 1px 3px rgba(0,0,0,0.3);
+    --shadow: 0 10px 30px rgba(0,0,0,0.28);
 }
 
 * {
@@ -124,12 +123,12 @@ a:hover {
    2. Layout & Navigation
    ========================================= */
 nav {
-    background-color: var(--primary);
+    background: linear-gradient(90deg, var(--primary) 0%, #d93f34 100%);
     padding: 1rem;
     position: sticky;
     top: 0;
     z-index: 1000;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 22px rgba(44, 38, 35, 0.18);
 }
 
 .nav-content {
@@ -182,7 +181,7 @@ nav a:hover {
     max-width: 900px;
     margin: 20px auto;
     background-color: var(--bg-card);
-    border-radius: var(--radius);
+    border-radius: calc(var(--radius) + 2px);
     padding: 30px;
     box-shadow: var(--shadow);
     border: 1px solid var(--border-color);
@@ -317,6 +316,7 @@ hr {
 .d-row-toggle a {
     background-color: var(--bg-card);
     border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
     color: var(--text-main);
     padding: 6px 14px;
     border-radius: 20px;
@@ -330,6 +330,7 @@ hr {
 .d-row-toggle a:hover {
     border-color: var(--primary);
     color: var(--primary);
+    background-color: rgba(226, 74, 59, 0.06);
 }
 
 .pagination-controls {
@@ -341,9 +342,10 @@ hr {
 .pagination-controls a {
     padding: 6px 12px;
     border: 1px solid var(--border-color);
-    border-radius: 4px;
+    border-radius: 999px;
     text-decoration: none;
     color: var(--primary);
+    background: var(--bg-card);
 }
 
 /* =========================================
@@ -381,7 +383,7 @@ hr {
 }
 
 #txt-desc a:hover {
-    background-color: rgba(0, 115, 230, 0.1);
+    background-color: rgba(226, 74, 59, 0.12);
     color: var(--primary-hover);
     border-radius: 2px;
 }
@@ -467,7 +469,7 @@ button, .state-btn, input[type="submit"] {
     cursor: pointer;
     border: none;
     border-radius: var(--radius);
-    padding: 10px 20px;
+    padding: 5px 10px;
     font-size: 1rem;
     font-weight: 500;
     transition: all 0.2s;
@@ -488,6 +490,7 @@ input[type="submit"]:hover {
 .state-btn {
     background-color: var(--bg-card);
     border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
     color: var(--text-main);
     display: inline-block;
     margin-right: 0.5rem;
@@ -495,9 +498,10 @@ input[type="submit"]:hover {
     text-decoration: none;
 }
 .state-btn:hover {
-    background-color: var(--bg-body);
-    border-color: var(--border-color);
-    opacity: 0.8;
+    background-color: var(--bg-desc);
+    border-color: var(--primary);
+    color: var(--primary);
+    opacity: 1;
 }
 
 /* =========================================
@@ -531,7 +535,7 @@ form select {
 form input:focus, form textarea:focus {
     border-color: var(--primary);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(0, 115, 230, 0.1);
+    box-shadow: 0 0 0 3px rgba(226, 74, 59, 0.16);
 }
 
 form ul {
@@ -580,7 +584,7 @@ form input[type="checkbox"] {
     border-left: 3px solid var(--primary);
     padding: 1rem;
     margin-bottom: 1rem;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    box-shadow: 0 6px 18px rgba(44, 38, 35, 0.08);
     white-space: pre-line;
 }
 

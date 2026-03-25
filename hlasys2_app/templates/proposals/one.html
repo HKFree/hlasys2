@@ -3,7 +3,7 @@
 {% block header %}
     <h1>{% block title %}{{ proposal.subject }}{% endblock %}</h1>   
     <p>
-        pro <strong>{{ HkfreeRole(proposal.type).long_name }}</strong>
+       <small>návrh <b>{{ proposal.id }}</b> pro <strong>{{ HkfreeRole(proposal.type).long_name }}</strong></small>
     </p>
 {% endblock %}
 

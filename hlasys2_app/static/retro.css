@@ -1,0 +1,653 @@
+/* -----------------------------------------
+   1. CSS Custom Property Overrides
+   ----------------------------------------- */
+[data-theme="retro"] {
+    /* Main Colors - old project used white bg, #e7e7e7 gray panels */
+    --primary: #2e4c34;          /* Old link color (A:link) */
+    --primary-hover: #1a2e1f;    /* Darker variant for hover */
+    --bg-body: white;            /* Old body background */
+    --bg-card: white;            /* Old content area bg */
+    --bg-input: white;           /* Old input bg */
+    --bg-desc: #e7e7e7;          /* Old universal gray (#e7e7e7) */
+    --bg-locked: #e7e7e7;        /* Old gray */
+
+    /* Text Colors */
+    --text-main: black;          /* Old body text */
+    --text-muted: #555;          /* Slightly softer than black */
+    --text-desc: black;          /* Old text color */
+    --text-nav: white;           /* Nav text stays white on dark green */
+
+    /* Borders - the hallmark 1px solid black */
+    --border-color: black;
+    --border-locked: black;
+
+    /* Status Colors - exact old project values */
+    --success-bg: #99fb97;       /* .prijat green */
+    --success-text: black;       /* Black text on green */
+    --success-border: black;     /* Black borders everywhere */
+    --success-row-bg: #99fb97;   /* Solid green, no transparency */
+
+    --danger-bg: #ff6c6c;        /* .neprijat red */
+    --danger-text: black;        /* Black text on red */
+    --danger-border: black;      /* Black borders */
+    --danger-row-bg: #ff6c6c;    /* Solid red */
+
+    --warning-bg: #e7e7e7;       /* Gray for warnings */
+    --warning-text: black;
+    --warning-border: black;
+
+    /* Unknown/Undecided - old .nehlasoval blue */
+    --unknown-bg: #78bbf3;       /* Old blue indicator */
+    --unknown-text: black;
+    --unknown-border: black;
+
+    /* Info - use the old blue */
+    --info-bg: #78bbf3;
+    --info-text: black;
+    --info-border: black;
+
+    /* Kill all modern styling */
+    --radius: 0px;               /* Sharp corners everywhere */
+    --shadow: none;              /* No shadows */
+}
+
+/* -----------------------------------------
+   2. Global Font & Body Overrides
+   ----------------------------------------- */
+[data-theme="retro"] body {
+    font-family: Arial, Serif;   /* The old quirky font stack */
+    font-size: 13px;             /* Old project base font size */
+    line-height: 1.4;
+}
+
+/* Kill all transitions globally in retro mode */
+[data-theme="retro"] *,
+[data-theme="retro"] *::before,
+[data-theme="retro"] *::after {
+    transition: none !important;
+    animation: none !important;
+}
+
+/* -----------------------------------------
+   3. Navigation - Old sidebar feel
+   ----------------------------------------- */
+[data-theme="retro"] nav {
+    background-color: #2e4c34;   /* Dark green - the old link color */
+    box-shadow: none;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid black;
+    position: sticky;
+}
+
+[data-theme="retro"] nav h1 {
+    font-family: Arial, Serif;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+[data-theme="retro"] nav h1 small {
+    font-size: 11px;
+    opacity: 0.8;
+}
+
+[data-theme="retro"] nav a {
+    font-family: Arial, Serif;
+    font-size: 12px;
+    font-weight: normal;
+    color: white;
+}
+
+[data-theme="retro"] nav a:hover {
+    color: white;
+    text-decoration: underline;
+}
+
+[data-theme="retro"] nav ul {
+    gap: 1rem;
+}
+
+/* Theme selector in retro mode */
+[data-theme="retro"] .theme-selector {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 0;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+[data-theme="retro"] .theme-selector button {
+    border-radius: 0;
+}
+
+[data-theme="retro"] .theme-selector button.active {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+/* -----------------------------------------
+   4. Main Content Container
+   ----------------------------------------- */
+[data-theme="retro"] .content {
+    max-width: 900px;
+    border: 1px solid black;     /* The signature black border */
+    border-radius: 0;
+    box-shadow: none;
+    padding: 10px;
+    margin: 0 auto;
+}
+
+/* -----------------------------------------
+   5. Headers
+   ----------------------------------------- */
+[data-theme="retro"] header h1 {
+    font-family: Arial, Serif;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    padding-left: 3px;           /* Old .nadpis padding */
+}
+
+[data-theme="retro"] header strong {
+    color: #2e4c34;              /* Dark green accent */
+}
+
+/* -----------------------------------------
+   6. Horizontal Rules - Old groove style
+   ----------------------------------------- */
+[data-theme="retro"] hr {
+    border: none;
+    border-top: 1px groove;
+    margin: 10px 0;
+}
+
+/* -----------------------------------------
+   7. Links
+   ----------------------------------------- */
+[data-theme="retro"] a {
+    color: #2e4c34;
+    text-decoration: none;
+}
+
+[data-theme="retro"] a:hover {
+    color: #2e4c34;
+    text-decoration: underline;
+}
+
+/* -----------------------------------------
+   8. Tables - Old .vypis_navrhu style
+   ----------------------------------------- */
+[data-theme="retro"] .t-proposals {
+    font-family: Arial, Serif;
+    font-size: 13px;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+[data-theme="retro"] .t-proposals th {
+    background: #e7e7e7;
+    border: 1px solid black;
+    padding: 3px 10px;
+    color: black;
+    font-size: 13px;
+    text-transform: none;        /* Remove uppercase */
+    letter-spacing: normal;      /* Remove letter-spacing */
+    font-weight: bold;
+    text-align: center;
+}
+
+[data-theme="retro"] .t-proposals td {
+    padding: 2px 5px;
+    border-bottom: 1px solid black;
+    font-size: 13px;
+}
+
+[data-theme="retro"] .t-proposals tr:hover {
+    background: #e7e7e7;
+}
+
+/* Row status - solid colors like old project */
+[data-theme="retro"] .tr-proposal-accepted {
+    border-left: none;
+    background-color: #99fb97;
+}
+[data-theme="retro"] .tr-proposal-accepted td:first-child {
+    color: black;
+}
+
+[data-theme="retro"] .tr-proposal-rejected {
+    border-left: none;
+    background-color: #ff6c6c;
+}
+[data-theme="retro"] .tr-proposal-rejected td:first-child {
+    color: black;
+}
+
+[data-theme="retro"] .tr-proposal-undecided {
+    border-left: none;
+    background-color: #78bbf3;
+}
+
+/* -----------------------------------------
+   9. Search Bar
+   ----------------------------------------- */
+[data-theme="retro"] .d-row search form {
+    border: 1px solid black;
+    border-radius: 0;
+    background-color: white;
+}
+
+[data-theme="retro"] .d-row search input[type="search"] {
+    font-family: Arial, Serif;
+    font-size: 13px;
+    padding: 5px 8px;
+}
+
+[data-theme="retro"] .d-row search button[type="submit"] {
+    background-color: #e7e7e7;
+    color: black;
+    border-left: 1px solid black;
+}
+
+[data-theme="retro"] .d-row search button[type="submit"]:hover {
+    background-color: #d0d0d0;
+}
+
+/* -----------------------------------------
+   10. Controls & Toggle Pills -> Rectangles
+   ----------------------------------------- */
+[data-theme="retro"] .d-row-toggle a {
+    border-radius: 0;            /* Kill pill shape */
+    border: 1px solid black;
+    background-color: #e7e7e7;
+    color: black;
+    padding: 3px 10px;
+    font-size: 12px;
+    font-family: Arial, Serif;
+}
+
+[data-theme="retro"] .d-row-toggle a:hover {
+    background-color: #d0d0d0;
+    border-color: black;
+    color: black;
+}
+
+[data-theme="retro"] .pagination-controls a {
+    border: 1px solid black;
+    border-radius: 0;
+    color: #2e4c34;
+    padding: 3px 8px;
+    font-size: 12px;
+}
+
+/* -----------------------------------------
+   11. Buttons - Windows 98 / Browser Default
+   ----------------------------------------- */
+[data-theme="retro"] button,
+[data-theme="retro"] .state-btn,
+[data-theme="retro"] input[type="submit"] {
+    font-family: Arial, Serif;
+    font-size: 13px;
+    border: 1px solid black;
+    border-radius: 0;
+    padding: 4px 12px;
+    font-weight: normal;
+    background-color: #e7e7e7;
+    color: black;
+    cursor: pointer;
+}
+
+[data-theme="retro"] form button[type="submit"],
+[data-theme="retro"] input[type="submit"] {
+    background-color: #e7e7e7;
+    color: black;
+    border: 2px outset #ccc;     /* Classic raised button look */
+}
+
+[data-theme="retro"] form button[type="submit"]:hover,
+[data-theme="retro"] input[type="submit"]:hover {
+    background-color: #d0d0d0;
+    transform: none;             /* Kill hover lift */
+}
+
+[data-theme="retro"] form button[type="submit"]:active,
+[data-theme="retro"] input[type="submit"]:active {
+    border-style: inset;         /* Pressed button effect */
+}
+
+[data-theme="retro"] .state-btn {
+    border: 1px solid black;
+    background-color: #e7e7e7;
+    color: black;
+}
+
+[data-theme="retro"] .state-btn:hover {
+    background-color: #d0d0d0;
+    border-color: black;
+    opacity: 1;
+}
+
+/* -----------------------------------------
+   12. Proposal Detail Elements
+   ----------------------------------------- */
+[data-theme="retro"] .d-one-decision-row {
+    border-radius: 0;
+    border: 1px solid black;
+    font-family: Arial, Serif;
+    font-size: 13px;
+}
+
+[data-theme="retro"] .d-one-accepted {
+    background-color: #99fb97;
+    color: black;
+    border-color: black;
+}
+
+[data-theme="retro"] .d-one-rejected {
+    background-color: #ff6c6c;
+    color: black;
+    border-color: black;
+}
+
+[data-theme="retro"] .d-one-unknown {
+    background-color: #78bbf3;
+    color: black;
+    border-color: black;
+}
+
+[data-theme="retro"] #txt-desc {
+    font-family: Arial, Serif;
+    font-size: 13px;
+    color: black;
+    background: white;
+    border: 1px solid black;
+    border-radius: 0;
+    padding: 10px;
+}
+
+[data-theme="retro"] #txt-desc a {
+    color: #2e4c34;
+}
+
+[data-theme="retro"] #txt-desc a:hover {
+    background-color: transparent;
+    color: #2e4c34;
+}
+
+[data-theme="retro"] .d-one-decision-col {
+    border: 1px solid black;
+    border-radius: 0;
+    background: white;
+}
+
+[data-theme="retro"] .d-one-decision-col p {
+    border-bottom: 1px solid black;
+    font-family: Arial, Serif;
+    font-size: 13px;
+}
+
+[data-theme="retro"] .d-one-decision-col a {
+    color: #2e4c34;
+}
+
+/* Locked proposal indicator */
+[data-theme="retro"] .d-one-proposal-locked {
+    border-radius: 0;
+    border: 1px solid black;
+    background-color: #e7e7e7;
+    color: black;
+    font-family: Arial, Serif;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+/* -----------------------------------------
+   13. Forms & Inputs - Plain black borders
+   ----------------------------------------- */
+[data-theme="retro"] form label {
+    font-family: Arial, Serif;
+    font-size: 13px;
+    font-weight: bold;
+    color: black;
+}
+
+[data-theme="retro"] form input[type="text"],
+[data-theme="retro"] form input[type="number"],
+[data-theme="retro"] form textarea,
+[data-theme="retro"] form select {
+    font-family: Arial, Serif;
+    font-size: 13px;
+    border: 1px solid black;
+    border-radius: 0;
+    padding: 5px;
+    background-color: white;
+    color: black;
+}
+
+[data-theme="retro"] form input:focus,
+[data-theme="retro"] form textarea:focus {
+    border-color: black;
+    box-shadow: none;            /* No focus glow */
+    outline: 1px dotted black;   /* Classic dotted focus */
+}
+
+/* -----------------------------------------
+   14. Timeline & Comments
+   ----------------------------------------- */
+[data-theme="retro"] .event-time {
+    font-family: Arial, Serif;
+    font-size: 12px;
+    color: #555;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+[data-theme="retro"] .event-time-log {
+    font-family: Arial, Serif;
+    font-size: 13px;
+    color: #555;
+}
+
+[data-theme="retro"] .p-comment {
+    border-left: 1px solid black;  /* Thin black instead of 3px colored */
+    background: #e7e7e7;
+    box-shadow: none;
+    font-family: Arial, Serif;
+    font-size: 13px;
+}
+
+/* -----------------------------------------
+   15. Flash Messages
+   ----------------------------------------- */
+[data-theme="retro"] .flashes li {
+    border-radius: 0;
+    border: 1px solid black;
+    font-family: Arial, Serif;
+    font-size: 13px;
+    font-weight: normal;
+}
+
+[data-theme="retro"] .flash-success {
+    background-color: #99fb97;
+    color: black;
+    border-color: black;
+}
+
+[data-theme="retro"] .flash-warning {
+    background-color: #e7e7e7;
+    color: black;
+    border-color: black;
+}
+
+[data-theme="retro"] .flash-danger,
+[data-theme="retro"] .flash-error {
+    background-color: #ff6c6c;
+    color: black;
+    border-color: black;
+}
+
+[data-theme="retro"] .flash-message,
+[data-theme="retro"] .flash-info {
+    background-color: #78bbf3;
+    color: black;
+    border-color: black;
+}
+
+/* -----------------------------------------
+   16. Vote Info Boxes
+   ----------------------------------------- */
+[data-theme="retro"] .vote-info {
+    border-radius: 0;
+    border: 1px solid black;
+    border-left-width: 1px;
+    font-family: Arial, Serif;
+    font-size: 13px;
+}
+
+[data-theme="retro"] .vote-info,
+[data-theme="retro"] .vote-info.blue {
+    background-color: #78bbf3;
+    border-color: black;
+    border-left-color: black;
+    color: black;
+}
+
+[data-theme="retro"] .vote-info::before,
+[data-theme="retro"] .vote-info.blue::before {
+    background-color: black;
+    color: white;
+    border-radius: 0;           /* Square info icon */
+}
+
+[data-theme="retro"] .vote-info.yellow {
+    background-color: #e7e7e7;
+    border-color: black;
+    border-left-color: black;
+    color: black;
+}
+
+[data-theme="retro"] .vote-info.yellow::before {
+    background-color: black;
+    color: white;
+    border-radius: 0;
+}
+
+/* -----------------------------------------
+   17. Dev Banner
+   ----------------------------------------- */
+[data-theme="retro"] .dev-banner {
+    background-color: #ff6c6c;   /* Old red */
+    border-bottom: 1px solid black;
+    font-family: Arial, Serif;
+    font-size: 12px;
+}
+
+[data-theme="retro"] .dev-banner select {
+    border: 1px solid black;
+    border-radius: 0;
+    font-family: Arial, Serif;
+    font-size: 12px;
+}
+
+/* -----------------------------------------
+   18. Tooltips
+   ----------------------------------------- */
+[data-theme="retro"] .tooltip-icon {
+    border-radius: 0;            /* Square tooltip dot */
+    background-color: black;
+    color: white;
+    font-family: Arial, Serif;
+    font-size: 11px;
+}
+
+[data-theme="retro"] .tooltip-text {
+    border-radius: 0;
+    border: 1px solid black;
+    box-shadow: 2px 2px 0px black;  /* Classic hard shadow */
+    background-color: #ffffcc;      /* Classic tooltip yellow */
+    color: black;
+    font-family: Arial, Serif;
+    font-size: 12px;
+}
+
+[data-theme="retro"] .tooltip-text::after {
+    border-color: black transparent transparent transparent;
+}
+
+/* -----------------------------------------
+   19. Footer
+   ----------------------------------------- */
+[data-theme="retro"] footer {
+    font-family: Arial, Serif;
+    font-size: 11px;
+    color: #555;
+}
+
+[data-theme="retro"] footer a {
+    color: #2e4c34;
+}
+
+/* -----------------------------------------
+   20. Mobile Overrides for Retro
+   ----------------------------------------- */
+@media (max-width: 768px) {
+    [data-theme="retro"] .content {
+        border: 1px solid black;
+        border-radius: 0;
+        border-top: 1px solid black;
+    }
+
+    [data-theme="retro"] .t-proposals tr {
+        border: 1px solid black;
+        border-radius: 0;
+        border-left-width: 1px;
+    }
+
+    [data-theme="retro"] .t-proposals tr.tr-proposal-accepted {
+        background-color: #99fb97;
+        border-left-color: black;
+    }
+
+    [data-theme="retro"] .t-proposals tr.tr-proposal-rejected {
+        background-color: #ff6c6c;
+        border-left-color: black;
+    }
+
+    [data-theme="retro"] .t-proposals tr.tr-proposal-undecided {
+        background-color: #78bbf3;
+        border-left-color: black;
+    }
+
+    [data-theme="retro"] .t-proposals td:nth-of-type(2):before,
+    [data-theme="retro"] .t-proposals td:nth-of-type(3):before,
+    [data-theme="retro"] .t-proposals td:nth-of-type(4):before {
+        color: black;
+        font-family: Arial, Serif;
+        font-size: 13px;
+    }
+}
+
+/* -----------------------------------------
+   21. Scrollbar Styling (Retro)
+   ----------------------------------------- */
+[data-theme="retro"] ::-webkit-scrollbar {
+    width: 16px;
+}
+
+[data-theme="retro"] ::-webkit-scrollbar-track {
+    background: #e7e7e7;
+    border: 1px solid black;
+}
+
+[data-theme="retro"] ::-webkit-scrollbar-thumb {
+    background: #c0c0c0;
+    border: 1px solid black;
+}
+
+[data-theme="retro"] ::-webkit-scrollbar-thumb:hover {
+    background: #a0a0a0;
+}
+
+/* -----------------------------------------
+   22. Selection / Highlight
+   ----------------------------------------- */
+[data-theme="retro"] ::selection {
+    background: #2e4c34;
+    color: white;
+}
