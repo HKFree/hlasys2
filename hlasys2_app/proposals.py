@@ -85,7 +85,7 @@ def overview(filter):
         data_sql = f"""
             SELECT
                 p.id, p.author_name, p.author_id, p.subject, p.description, p.acceptance_treshold,
-                p.cost, p.type, p.created, p.state, p.deciders,
+                p.cost, p.type, p.created, p.state, p.deciders, p.decided,
                 COALESCE(SUM(CASE WHEN e.decision = 1 THEN 1 END), 0) AS votes_for,
                 COALESCE(SUM(CASE WHEN e.decision = 0 THEN 1 END), 0) AS votes_against
             FROM proposal p LEFT JOIN event e ON p.id = e.proposal_id
@@ -93,9 +93,27 @@ def overview(filter):
             GROUP BY p.id
             ORDER BY p.created DESC
         """
+
+        # Identify proposals where the current user already voted, in one batched query
+        user_id = int(session["oidc_auth_profile"]["preferred_username"])
+        voted_params = {**data_params, "uid": user_id}
+        voted_sql = f"""
+            SELECT DISTINCT proposal_id FROM event
+            WHERE author_id = :uid AND decision IS NOT NULL
+              AND proposal_id IN ({id_placeholders})
+        """
+        voted_ids = {row["proposal_id"] for row in db.execute(voted_sql, voted_params).fetchall()}
+
         for row in db.execute(data_sql, data_params).fetchall():
             proposal = dict(row)
             proposal["accepted"] = is_proposal_accepted(proposal)
+            deciders = json.loads(proposal["deciders"])
+            user_can_vote = str(user_id) in deciders
+            proposal["user_pending"] = (
+                user_can_vote
+                and proposal["id"] not in voted_ids
+                and proposal["decided"] is None
+            )
             proposals.append(proposal)
 
     return render_template(

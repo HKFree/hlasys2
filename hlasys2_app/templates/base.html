@@ -5,7 +5,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='retro.css') }}">
-        <link rel="shortcut icon" href="{{ url_for('static', filename='logo.svg') }}">
+        <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+        <title>{% block title %}HlaSys{% endblock %} | hkfree hlasys</title>
 
         {% block head %}{% endblock head %}
 

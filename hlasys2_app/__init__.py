@@ -1,6 +1,7 @@
 import os
+from datetime import datetime
 
-from flask import Flask, redirect, session, render_template, flash, request
+from flask import Flask, redirect, session, flash, request
 from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_oidc import OpenIDConnect
 import locale
@@ -50,7 +51,6 @@ def create_app():
     @app.route("/")
     @login_required
     def hello():
-        print(session["oidc_auth_profile"])
         return redirect("/overview/pd")
 
     @app.route("/whoami")
@@ -58,19 +58,6 @@ def create_app():
     def what():
         profile = session.get("oidc_auth_profile")
         return f"{profile} <br> {profile.get('groups')}"
-
-    @app.route("/flash")
-    def flashes():
-        flash("Hlas změněn 🎉", "success")
-        flash("tak tohle ne!!!!", "danger")
-        flash("bachaaaaaaa", "warning")
-        return render_template("base.html")
-
-    @app.route("/s")
-    @login_required
-    def session_tmp():
-        print(session)
-        return redirect("/overview/vv")
 
     if HLASYS_ENV == "development":
         @app.route("/dev-switch-user/<int:user_id>")
@@ -94,6 +81,12 @@ def create_app():
             hlasys2_build_str=f"v{HLASYS2_VERSION}-{commit_hash} ({HLASYS_ENV})",
             hlasys_env=HLASYS_ENV,
             dev_users=DEV_USERS,
+            now_year=datetime.now().year,
         )
+
+    commit_short = HLASYS2_COMMIT_HASH[:7] if HLASYS2_COMMIT_HASH != "unknown" else "unknown"
+    print("=== HlaSys 2 for hkfree.org ===")
+    print("===   made by OndraLhota   ===")
+    print(f"v{HLASYS2_VERSION}-{commit_short} ({HLASYS_ENV})")
 
     return app

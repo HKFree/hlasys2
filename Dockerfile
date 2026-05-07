@@ -1,6 +1,16 @@
-FROM python:3.11-alpine
+FROM python:3.11-slim
 
 WORKDIR /hlasys2
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends locales tzdata \
+ && sed -i 's/# cs_CZ.UTF-8/cs_CZ.UTF-8/' /etc/locale.gen \
+ && locale-gen \
+ && rm -rf /var/lib/apt/lists/*
+
+ENV LANG=cs_CZ.UTF-8 \
+    LC_ALL=cs_CZ.UTF-8 \
+    TZ=Europe/Prague
 
 RUN pip3 install poetry && \
     poetry config virtualenvs.create false

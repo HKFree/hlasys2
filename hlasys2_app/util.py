@@ -99,6 +99,18 @@ class UserDBData:
         Returns:
             None
         """
+        if not config.USERDB_API_USER or not config.USERDB_API_KEY:
+            dev_dict = {str(u["id"]): u["family_name"] for u in config.DEV_USERS}
+            match role_type:
+                case HkfreeRole.VV:
+                    self._vv = dev_dict
+                case HkfreeRole.SO:
+                    self._so = dev_dict
+                case HkfreeRole.PD:
+                    self._pd = dev_dict
+            print(f"> DEV: filled {role_type.name} from DEV_USERS")
+            return
+
         print(f"> Fetching {role_type.name} from UserDB")
         req = request.Request(config.USERDB_API_URL + quote(role_type.udb_api_name))
 
@@ -145,6 +157,11 @@ class UserDBData:
                 print("DEBUG: ", self.__class__, "called _refresh and needs refresh")
 
     def _fetch_cs(self) -> None:
+        if not config.USERDB_API_USER or not config.USERDB_API_KEY:
+            self._cs = {str(u["id"]): u["family_name"] for u in config.DEV_USERS}
+            print("> DEV: filled CS from DEV_USERS")
+            return
+
         print(f"> Fetching clenove spolku from UserDB")
         req = request.Request(
             "https://userdb.hkfree.org/userdb/api/hlasys/get-cleny-spolku"
@@ -431,11 +448,11 @@ def check_proposal_status(proposal: dict) -> bool:
             "UPDATE proposal SET decided = (datetime('now','localtime')) WHERE id = :id",
             {"id": updated_proposal["id"]},
         )
-        # db.execute(
-        #     """INSERT INTO event (proposal_id, author_id, author_name, decision, comment)
-        #        VALUES (:pid, 0, 'Systém', NULL, :comment)""",
-        #     {"pid": updated_proposal["id"], "comment": "Návrh byl schválen"},
-        # )
+        db.execute(
+            """INSERT INTO event (proposal_id, author_id, author_name, decision, comment)
+               VALUES (:pid, 0, 'Systém', NULL, :comment)""",
+            {"pid": updated_proposal["id"], "comment": "Návrh byl schválen"},
+        )
         db.commit()
         if config.DEBUG:
             print(f"DEBUG: Locking proposal {updated_proposal['id']} - accepted")
@@ -454,4 +471,3 @@ def check_proposal_status(proposal: dict) -> bool:
         if config.DEBUG:
             print(f"DEBUG: Locking proposal {updated_proposal['id']} - rejected")
         return True
-    return False
