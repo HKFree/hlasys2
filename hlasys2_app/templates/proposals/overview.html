@@ -4,8 +4,9 @@
 
 {% endblock head %}
 
+{% set filter_labels = {'pd': 'Představenstvo Družstva', 'vv': 'Výkonný Výbor', 'cs': 'Členové spolku', 'cd': 'Členové družstva', 'so': 'Správci Oblastí'} %}
 {% block header %}
-<h1>{% block title %}Přehled návrhů{% endblock %}</h1>
+<h1>{% block title %}Přehled návrhů{% if filter in filter_labels %} — {{ filter_labels[filter] }}{% endif %}{% if current_page > 1 %} (str. {{ current_page }}){% endif %}{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
@@ -60,6 +61,7 @@
     <thead>
         <tr>
             <th>Návrh</th>
+            <th>Vytvořeno</th>
             <th>Navrhovatel</th>
             <th>Odhad ceny</th>
             <th>Stav</th>
@@ -67,24 +69,26 @@
     </thead>
     <tbody>
         {% for p in proposals %}
+            {% set pending_cls = ' tr-user-pending' if p.user_pending else '' %}
             {% if p.accepted == True %}
-            <tr class="tr-proposal tr-proposal-accepted">
+            <tr class="tr-proposal tr-proposal-accepted{{ pending_cls }}">
             {% elif p.accepted == False %}
-            <tr class="tr-proposal tr-proposal-rejected">
+            <tr class="tr-proposal tr-proposal-rejected{{ pending_cls }}">
             {% else %}
-            <tr class="tr-proposal tr-proposal-undecided">
+            <tr class="tr-proposal tr-proposal-undecided{{ pending_cls }}">
             {% endif %}
                 <td>
                     <a href="{{ url_for('proposals.view_proposal', proposal_id=p.id) }}">
-                        <b>{{ p.subject }}</b> 
+                        <b>{{ p.subject }}</b>
                     </a>
                 </td>
+                <td><small class="s-overview-date">{{ p.created.strftime('%d.%m.') }}{% if p.created.year != now_year %}{{ p.created.strftime('%Y') }}{% endif %}</small></td>
                 <td>{{ p.author_name | truncate(20) }}</td>
                 <td>{{ "{:,}".format(p.cost) }} Kč</td>
                 <td>{{ p.state or '' }}</td>
             </tr>
         {% else %}
-            <tr><td colspan="4">Nebyly nalezeny žádné návrhy.</td></tr>
+            <tr><td colspan="5">Nebyly nalezeny žádné návrhy.</td></tr>
         {% endfor %}
     </tbody>
 </table>

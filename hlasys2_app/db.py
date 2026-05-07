@@ -22,7 +22,6 @@ def get_db():
             detect_types=sqlite3.PARSE_DECLTYPES,
             check_same_thread=False,
         )
-        # g.db.row_factory = sqlite3.Row
         g.db.row_factory = dict_factory
 
     return g.db
@@ -45,7 +44,7 @@ def init_db():
 def fill_db_example():
     db = get_db()
 
-    with current_app.open_resource("../example_data.sql") as f:
+    with current_app.open_resource("../example_data/better_example_data.sql") as f:
         db.executescript(f.read().decode("utf8"))
 
 

@@ -26,12 +26,12 @@
     --success-text: #2d6d4b;
     --success-border: #67a77d;
     /*--success-row-bg: rgba(103, 200, 125, 0.20);*/
-    --success-row-bg: rgba(52, 211, 153, 0.12);
+    --success-row-bg: rgba(52, 211, 153, 0.09);
     
     --danger-bg: #fff1ef;
     --danger-text: #a7382d;
     --danger-border: #e48d84;
-    --danger-row-bg: rgba(226, 74, 59, 0.2);
+    --danger-row-bg: rgba(226, 74, 59, 0.13);
     
     --warning-bg: #fff6e8;
     --warning-text: #9a6223;
@@ -73,12 +73,12 @@
     --success-bg: #1f3428;
     --success-text: #93d0a8;
     --success-border: #4f8b65;
-    --success-row-bg: rgba(79, 139, 101, 0.22);
+    --success-row-bg: rgba(79, 139, 101, 0.15);
 
     --danger-bg: #4a241f;
     --danger-text: #ffb2aa;
     --danger-border: #b95d53;
-    --danger-row-bg: rgba(240, 100, 85, 0.16);
+    --danger-row-bg: rgba(240, 100, 85, 0.11);
 
     --warning-bg: #4b3721;
     --warning-text: #f2ca8f;
@@ -324,10 +324,10 @@ hr {
 
 /* Row Status Styling */
 .tr-proposal-accepted { background-color: var(--success-row-bg); }
-.tr-proposal-accepted td:first-child { border-left: 3px solid var(--success-border); color: var(--success-text); font-weight: 600; }
+.tr-proposal-accepted td:first-child { border-left: 3px solid var(--success-border); color: var(--success-text); }
 
 .tr-proposal-rejected { background-color: var(--danger-row-bg); }
-.tr-proposal-rejected td:first-child { border-left: 3px solid var(--danger-border); color: var(--danger-text); font-weight: 600; }
+.tr-proposal-rejected td:first-child { border-left: 3px solid var(--danger-border); color: var(--danger-text); }
 
 .tr-proposal-undecided td:first-child { border-left: 3px solid var(--unknown-border); }
 
@@ -703,9 +703,19 @@ form input[type="checkbox"] {
     }
 
     .t-proposals td:nth-of-type(1) { font-size: 1.1rem; text-align: left; display: block; margin-bottom: 5px; }
-    .t-proposals td:nth-of-type(2):before { content: "Navrhovatel:"; float: left; font-weight: bold; color: var(--text-muted); }
-    .t-proposals td:nth-of-type(3):before { content: "Cena:"; float: left; font-weight: bold; color: var(--text-muted); }
-    .t-proposals td:nth-of-type(4):before { content: "Stav:"; float: left; font-weight: bold; color: var(--text-muted); }
+    .t-proposals td:nth-of-type(2):before { content: "Vytvořeno:"; float: left; font-weight: bold; color: var(--text-muted); }
+    .t-proposals td:nth-of-type(3):before { content: "Navrhovatel:"; float: left; font-weight: bold; color: var(--text-muted); }
+    .t-proposals td:nth-of-type(4):before { content: "Cena:"; float: left; font-weight: bold; color: var(--text-muted); }
+    .t-proposals td:nth-of-type(5):before { content: "Stav:"; float: left; font-weight: bold; color: var(--text-muted); }
+
+    /* Strip the duplicated 3px coloured cell border on mobile - the row's 5px left border already conveys status */
+    .t-proposals tr.tr-proposal-accepted td:first-child,
+    .t-proposals tr.tr-proposal-rejected td:first-child,
+    .t-proposals tr.tr-proposal-undecided td:first-child {
+        border-left: none;
+        color: inherit;
+        font-weight: inherit;
+    }
 
     #d-one-decision-box { grid-template-columns: 1fr; }
     .d-row search button[type="submit"] { width: 44px; }
@@ -881,7 +891,7 @@ footer a { color: var(--text-muted); text-decoration: underline; }
     border-color: var(--border-color) transparent transparent transparent;
 }
 
-.t-proposals td:nth-child(3) {
+.t-proposals td:nth-child(4) {
     text-align: right;
 }
 
@@ -889,4 +899,16 @@ a.disabled {
     color: gray;
     pointer-events: none;
     cursor: default;
+}
+
+.s-overview-date {
+    color: var(--text-muted);
+    font-size: 0.85em;
+    margin-right: 0.5em;
+    white-space: nowrap;
+}
+
+.tr-user-pending td:first-child b {
+    font-weight: 900;
+    font-size: 1.1em;
 }

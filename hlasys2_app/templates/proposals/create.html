@@ -1,5 +1,5 @@
 {% extends 'base.html' %} {% block header %}
-<h1 id="h-create-subj">Nový návrh</h1>
+<h1 id="h-create-subj">{% block title %}Nový návrh{% endblock %}</h1>
 {% endblock %} {% block content %}
 <div class="form-container">
     <form action="/proposal/create" method="post" enctype="multipart/form-data">
