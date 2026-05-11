@@ -7,34 +7,57 @@
 {% endblock %}
 
 {% block content %}
+<ol class="t-timeline">
     {% for event in timeline %}
-        <span class="event-time">
-            {{ event['created'].strftime('%A %d.%m.%Y %H:%M')}}
-        </span>
-        {% if event['decision'] == None and event['comment'] == None %} 
-            <br>
-            + navrh
-            <a href="{{ url_for('proposals.view_proposal', proposal_id=event['proposals_id']) }}">
-                {{ event['subject'] }}
-            </a> 
+        {% if event['decision'] == None and event['comment'] == None %}
+            {% set kind = 'proposal' %}
+            {% set icon = '📝' %}
+            {% set label = 'Nový návrh' %}
+            {% set prefix = '' %}
+            {% set link_id = event['proposals_id'] %}
+            {% set link_text = event['subject'] %}
         {% elif event['decision'] == None and event['comment'] != None %}
-            <br>
-            + komentář {{ event['comment'] | truncate(40) }} k návrhu
-            <a title="{{ event['events_subject'] }}" href="{{ url_for('proposals.view_proposal', proposal_id=event['proposal_id']) }}">
-                {{ event['events_subject'] | truncate(40) }}
-            </a>
+            {% set kind = 'comment' %}
+            {% set icon = '💬' %}
+            {% set label = 'Komentář' %}
+            {% set prefix = 'k návrhu' %}
+            {% set link_id = event['proposal_id'] %}
+            {% set link_text = event['events_subject'] %}
+        {% elif event['decision'] %}
+            {% set kind = 'vote-for' %}
+            {% set icon = '✔' %}
+            {% set label = 'Hlas PRO' %}
+            {% set prefix = 'k návrhu' %}
+            {% set link_id = event['proposal_id'] %}
+            {% set link_text = event['events_subject'] %}
         {% else %}
-            <br>
-            + hlas {{ '✔' if event['decision'] else '✖'}}
-            k návrhu 
-            <a title="{{ event['events_subject'] }}" href="{{ url_for('proposals.view_proposal', proposal_id=event['proposal_id']) }}">
-                {{ event['events_subject'] | truncate(40) }}</a>
-            
-            {% if event['comment'] %}
-                s komentářem {{ event['comment'] | truncate(40) }}
-            {% endif %}
+            {% set kind = 'vote-against' %}
+            {% set icon = '✖' %}
+            {% set label = 'Hlas PROTI' %}
+            {% set prefix = 'k návrhu' %}
+            {% set link_id = event['proposal_id'] %}
+            {% set link_text = event['events_subject'] %}
         {% endif %}
-        <hr>
+        <li class="t-timeline-item t-timeline-{{ kind }}">
+            <span class="t-timeline-icon">{{ icon }}</span>
+            <div class="t-timeline-body">
+                <div class="t-timeline-head">
+                    <span class="t-timeline-label">{{ label }}</span>
+                    <span class="t-timeline-time">{{ event['created'].strftime('%A %d.%m.%Y %H:%M') }}</span>
+                </div>
+                <div class="t-timeline-target">
+                    {% if prefix %}{{ prefix }}{% endif %}
+                    <a title="{{ link_text }}" href="{{ url_for('proposals.view_proposal', proposal_id=link_id) }}">
+                        {{ link_text | truncate(60) }}
+                    </a>
+                </div>
+                {% if event['comment'] %}
+                    <p class="t-timeline-text">{{ event['comment'] | urlize(nofollow=False, target='_blank') }}</p>
+                {% endif %}
+            </div>
+        </li>
+    {% else %}
+        <li class="t-timeline-empty">Zatím žádná aktivita.</li>
     {% endfor %}
-
+</ol>
 {% endblock %}

@@ -651,3 +651,73 @@
     background: #2e4c34;
     color: white;
 }
+
+/* -----------------------------------------
+   23. User Timeline (Retro)
+   ----------------------------------------- */
+[data-theme="retro"] .t-timeline::before {
+    background: black;
+    width: 3px;
+    border-radius: 0;
+}
+
+[data-theme="retro"] .t-timeline-item {
+    border: 2px solid black;
+    border-radius: 0;
+    box-shadow: 4px 4px 0 black;
+    background: white;
+    padding: 8px 12px;
+}
+
+[data-theme="retro"] .t-timeline-icon {
+    border: 2px solid black;
+    border-radius: 0;
+    background: #e7e7e7;
+    color: black;
+    box-shadow: 2px 2px 0 black;
+}
+
+[data-theme="retro"] .t-timeline-vote-for     .t-timeline-icon { background: #99fb97; }
+[data-theme="retro"] .t-timeline-vote-against .t-timeline-icon { background: #ff6c6c; }
+[data-theme="retro"] .t-timeline-proposal     .t-timeline-icon { background: #78bbf3; }
+[data-theme="retro"] .t-timeline-comment      .t-timeline-icon { background: #ffe070; }
+
+[data-theme="retro"] .t-timeline-label {
+    color: black;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 12px;
+}
+
+[data-theme="retro"] .t-timeline-time {
+    color: black;
+    font-family: "Courier New", monospace;
+    font-size: 11px;
+}
+
+[data-theme="retro"] .t-timeline-target,
+[data-theme="retro"] .t-timeline-target a {
+    color: black;
+}
+
+[data-theme="retro"] .t-timeline-target a {
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+[data-theme="retro"] .t-timeline-text {
+    background: #ffe070;
+    border: 2px solid black;
+    border-left-width: 4px;
+    border-radius: 0;
+    color: black;
+    box-shadow: 2px 2px 0 black;
+    margin-top: 8px;
+}
+
+[data-theme="retro"] .t-timeline-empty {
+    color: black;
+    border: 2px dashed black;
+    background: #e7e7e7;
+}

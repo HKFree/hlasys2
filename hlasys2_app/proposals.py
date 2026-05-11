@@ -10,7 +10,7 @@ from hlasys2_app.util import (
     HkfreeRole, next_filter, overview_filter, can_vote, 
     is_proposal_accepted, userdb_api, get_undecided, calculate_acceptance_treshold
 )
-from hlasys2_app.forms import CreateProposalForm, CreateCommentForm
+from hlasys2_app.forms import CreateProposalForm, CreateCommentForm, QuickVoteForm
 from hlasys2_app.notifications import notify_new_proposal
 from hlasys2_app.decorators import login_required
 from hlasys2_app import config
@@ -183,6 +183,7 @@ def view_proposal(proposal_id):
         user_id=user_id,
         HkfreeRole=HkfreeRole,
         users_change_state=config.USERS_CHANGE_STATE,
+        quick_vote_form=QuickVoteForm(),
     )
 
 

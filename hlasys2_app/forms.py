@@ -13,6 +13,13 @@ class VoteDecisionForm(FlaskForm):
     comment = TextAreaField("komentář (nepovinný)", name="comment")
 
 
+class QuickVoteForm(FlaskForm):
+    decision = RadioField(
+        choices=[("for", "PRO"), ("against", "PROTI")],
+        validators=[DataRequired()],
+    )
+
+
 class CreateProposalForm(FlaskForm):
     subject = StringField("Předmět", name="subject", validators=[DataRequired()])
     cost = IntegerField("Odhad ceny", validators=[InputRequired(), NumberRange(min=0)])

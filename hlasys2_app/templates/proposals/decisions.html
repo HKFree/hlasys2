@@ -24,15 +24,27 @@
         </div>
     {% endif %}
     {% if can_vote and (not proposal['decided'] or not user_voted) %}
-        <form action="{{ url_for('votes.vote_on_proposal', proposal_id=proposal.id) }}" method="get">
-            <button type="submit">
-                {% if user_voted %}
-                    Změnit můj hlas
-                {% else %}
-                    Hlasovat o návrhu
-                {% endif %}
-            </button>
-        </form>
+        {% if user_voted %}
+            <form action="{{ url_for('votes.vote_on_proposal', proposal_id=proposal.id) }}" method="get">
+                <button type="submit">Změnit můj hlas</button>
+            </form>
+        {% else %}
+            <form action="{{ url_for('votes.quick_vote', proposal_id=proposal.id) }}" method="post"
+                  onsubmit="this.querySelector('button').disabled=true;">
+                {{ quick_vote_form.csrf_token }}
+                <input type="hidden" name="decision" value="for">
+                <button type="submit" class="btn-vote-for">Hlasovat PRO</button>
+            </form>
+            <form action="{{ url_for('votes.quick_vote', proposal_id=proposal.id) }}" method="post"
+                  onsubmit="this.querySelector('button').disabled=true;">
+                {{ quick_vote_form.csrf_token }}
+                <input type="hidden" name="decision" value="against">
+                <button type="submit" class="btn-vote-against">Hlasovat PROTI</button>
+            </form>
+            <form action="{{ url_for('votes.vote_on_proposal', proposal_id=proposal.id) }}" method="get">
+                <button type="submit">Hlasovat s komentářem</button>
+            </form>
+        {% endif %}
     {% endif %}
     <form action="{{ url_for('proposals.add_comment', proposal_id=proposal.id) }}" method="get">
         <button type="submit" style="background-color: var(--text-muted);">Přidat komentář</button>

@@ -912,3 +912,147 @@ a.disabled {
     font-weight: 900;
     font-size: 1.1em;
 }
+
+.btn-vote-for {
+    background-color: var(--success-bg);
+    color: var(--success-text);
+    border: 1px solid var(--success-border);
+}
+.btn-vote-for:hover {
+    background-color: var(--success-border);
+    color: white;
+    border-color: var(--success-text);
+}
+
+.btn-vote-against {
+    background-color: var(--danger-bg);
+    color: var(--danger-text);
+    border: 1px solid var(--danger-border);
+}
+.btn-vote-against:hover {
+    background-color: var(--danger-border);
+    color: white;
+    border-color: var(--danger-text);
+}
+
+/* =========================================
+   User timeline
+   ========================================= */
+.t-timeline {
+    list-style: none;
+    margin: 1rem 0;
+    padding: 0 0 0 36px;
+    position: relative;
+}
+
+.t-timeline::before {
+    content: "";
+    position: absolute;
+    left: 15px;
+    top: 6px;
+    bottom: 6px;
+    width: 2px;
+    background: var(--border-color);
+    border-radius: 2px;
+}
+
+.t-timeline-item {
+    position: relative;
+    margin: 0 0 14px 0;
+    padding: 10px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.t-timeline-icon {
+    position: absolute;
+    left: -36px;
+    top: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9em;
+    z-index: 1;
+}
+
+.t-timeline-proposal     .t-timeline-icon { border-color: var(--info-text);    color: var(--info-text); }
+.t-timeline-comment      .t-timeline-icon { border-color: var(--warning-text); color: var(--warning-text); }
+.t-timeline-vote-for     .t-timeline-icon { border-color: var(--success-text); color: var(--success-text); }
+.t-timeline-vote-against .t-timeline-icon { border-color: var(--danger-text);  color: var(--danger-text); }
+
+.t-timeline-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.5em;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+}
+
+.t-timeline-label {
+    font-weight: 600;
+    font-size: 0.9em;
+    color: var(--text-main);
+}
+
+.t-timeline-vote-for     .t-timeline-label { color: var(--success-text); }
+.t-timeline-vote-against .t-timeline-label { color: var(--danger-text); }
+.t-timeline-proposal     .t-timeline-label { color: var(--info-text); }
+.t-timeline-comment      .t-timeline-label { color: var(--warning-text); }
+
+.t-timeline-time {
+    color: var(--text-muted);
+    font-size: 0.8em;
+    white-space: nowrap;
+}
+
+.t-timeline-target {
+    font-size: 0.95em;
+    line-height: 1.4;
+    color: var(--text-main);
+}
+
+.t-timeline-target a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+.t-timeline-target a:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+}
+
+.t-timeline-text {
+    margin: 8px 0 0 0;
+    padding: 6px 10px;
+    background: var(--bg-input);
+    border-left: 3px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--text-desc);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.t-timeline-empty {
+    list-style: none;
+    color: var(--text-muted);
+    font-style: italic;
+    padding: 1rem;
+    text-align: center;
+}
+
+@media (max-width: 600px) {
+    .t-timeline { padding-left: 28px; }
+    .t-timeline::before { left: 11px; }
+    .t-timeline-icon { left: -28px; width: 22px; height: 22px; font-size: 0.8em; top: 10px; }
+    .t-timeline-item { padding: 8px 10px; }
+    .t-timeline-head { flex-direction: column; align-items: flex-start; gap: 2px; }
+}
