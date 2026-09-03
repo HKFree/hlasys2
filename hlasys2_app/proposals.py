@@ -18,6 +18,132 @@ from hlasys2_app import config
 bp = Blueprint("proposals", __name__)
 
 
+def _build_overview_query(
+    filter: str, search_query: str, deleted: bool, page: int, limit: int = 25
+):
+    """
+    Build the WHERE clause, bound parameters, ORDER BY and pagination shared by
+    the live overview and the koš.
+
+    The caller supplies its own SELECT list: the live overview aggregates votes,
+    the koš does not. Returns params WITHOUT :limit/:offset so the same dict can
+    be reused for the COUNT query.
+
+    Returns:
+        tuple: (where_clause, params, order_by, limit, offset)
+    """
+    params = {}
+    where_conditions = ["p.deleted IS NOT NULL" if deleted else "p.deleted IS NULL"]
+
+    filter_sql = overview_filter(filter)
+    if filter_sql:
+        where_conditions.append(filter_sql.replace("WHERE", "").strip())
+
+    # The koš has no search box; ignore a stray search_query there.
+    searching = bool(search_query) and not deleted
+    if searching:
+        where_conditions.append(
+            "(p.subject LIKE :search OR p.description LIKE :search"
+            " OR p.author_name LIKE :search)"
+        )
+        params["search"] = f"%{search_query}%"
+
+    where_clause = f"WHERE {' AND '.join(where_conditions)}"
+    order_by = "ORDER BY p.deleted DESC" if deleted else "ORDER BY p.created DESC"
+
+    offset = (page - 1) * limit if page > 0 else 0
+    if searching:
+        # Search shows every hit on one page.
+        limit, offset = 10000, 0
+
+    return where_clause, params, order_by, limit, offset
+
+
+def _fetch_deleted_proposals(db, where_clause, params, order_by, limit, offset):
+    """
+    Rows for the koš. The deleter is recovered by matching the deletion event on
+    `event.created = proposal.deleted` - the two values are written from one
+    Python timestamp inside a single transaction (see deletion.py). Rows hidden
+    during the 2005-data migration have no such event and yield NULL.
+    """
+    sql = f"""
+        SELECT
+            p.id, p.subject, p.created, p.author_id, p.author_name,
+            p.cost, p.type, p.deleted,
+            (SELECT e.author_id FROM event e
+              WHERE e.proposal_id = p.id AND e.created = p.deleted
+              LIMIT 1) AS deleted_by_id,
+            (SELECT e.author_name FROM event e
+              WHERE e.proposal_id = p.id AND e.created = p.deleted
+              LIMIT 1) AS deleted_by_name
+        FROM proposal p
+        {where_clause}
+        {order_by}
+        LIMIT :limit OFFSET :offset
+    """
+    query_params = {**params, "limit": limit, "offset": offset}
+    return [dict(row) for row in db.execute(sql, query_params).fetchall()]
+
+
+def _fetch_live_proposals(db, where_clause, params, order_by, limit, offset):
+    """
+    Rows for the live overview, with vote tallies. Two-step: page the IDs first,
+    then aggregate only those - much cheaper than paginating across the join.
+    """
+    ids_sql = f"""
+        SELECT p.id FROM proposal p
+        {where_clause}
+        {order_by}
+        LIMIT :limit OFFSET :offset
+    """
+    id_params = {**params, "limit": limit, "offset": offset}
+    proposal_ids = [row["id"] for row in db.execute(ids_sql, id_params).fetchall()]
+
+    if not proposal_ids:
+        return []
+
+    id_placeholders = ", ".join([f":id_{i}" for i in range(len(proposal_ids))])
+    data_params = {f"id_{i}": pid for i, pid in enumerate(proposal_ids)}
+
+    data_sql = f"""
+        SELECT
+            p.id, p.author_name, p.author_id, p.subject, p.description,
+            p.acceptance_treshold, p.cost, p.type, p.created, p.state,
+            p.deciders, p.decided,
+            COALESCE(SUM(CASE WHEN e.decision = 1 THEN 1 END), 0) AS votes_for,
+            COALESCE(SUM(CASE WHEN e.decision = 0 THEN 1 END), 0) AS votes_against
+        FROM proposal p LEFT JOIN event e ON p.id = e.proposal_id
+        WHERE p.id IN ({id_placeholders})
+        GROUP BY p.id
+        {order_by}
+    """
+
+    # Identify proposals where the current user already voted, in one batched query
+    user_id = int(session["oidc_auth_profile"]["preferred_username"])
+    voted_sql = f"""
+        SELECT DISTINCT proposal_id FROM event
+        WHERE author_id = :uid AND decision IS NOT NULL
+          AND proposal_id IN ({id_placeholders})
+    """
+    voted_ids = {
+        row["proposal_id"]
+        for row in db.execute(voted_sql, {**data_params, "uid": user_id}).fetchall()
+    }
+
+    proposals = []
+    for row in db.execute(data_sql, data_params).fetchall():
+        proposal = dict(row)
+        proposal["accepted"] = is_proposal_accepted(proposal)
+        deciders = json.loads(proposal["deciders"])
+        proposal["user_pending"] = (
+            str(user_id) in deciders
+            and proposal["id"] not in voted_ids
+            and proposal["decided"] is None
+        )
+        proposals.append(proposal)
+    return proposals
+
+
 @bp.route("/overview", defaults={"filter": ""})
 @bp.route("/overview/", defaults={"filter": ""})
 @bp.route("/overview/<filter>")
