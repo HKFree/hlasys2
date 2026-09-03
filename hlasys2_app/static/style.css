@@ -1068,8 +1068,14 @@ a.disabled {
 }
 
 .btn-delete {
-    background-color: var(--danger-text);
-    color: #fff;
+    background-color: var(--danger-bg);
+    color: var(--danger-text);
+    border: 1px solid var(--danger-border);
+}
+.btn-delete:hover {
+    background-color: var(--danger-border);
+    color: white;
+    border-color: var(--danger-text);
 }
 
 .tr-proposal-deleted td,
