@@ -274,6 +274,43 @@ def can_vote(user_id: int, proposal: dict) -> bool:
     return user_id in proposal["deciders"]
 
 
+def can_delete_proposal(user_id: int, proposal: dict) -> bool:
+    """
+    Whether user_id may soft-delete this proposal.
+
+    Allowed only while the proposal is live and undecided, and only for its
+    author or for a decider on a small committee. CS is excluded from the
+    decider case on purpose - it has ~116 deciders, which would put deletion of
+    somebody else's proposal in far too many hands.
+
+    Args:
+        user_id (int): The acting user.
+        proposal (dict): Proposal row. 'deciders' may be the raw JSON string or
+            an already-parsed dict, because view_proposal parses it in place.
+
+    Returns:
+        bool: True if deletion is permitted.
+    """
+    if proposal["deleted"] is not None or proposal["decided"] is not None:
+        return False
+
+    if int(proposal["author_id"]) == int(user_id):
+        return True
+
+    # Read through getattr: config.py is bind-mounted read-only in production
+    # and will not contain this key on the first deploy.
+    decider_types = getattr(config, "DECIDER_DELETE_TYPES", [0, 1, 2])
+    if int(proposal["type"]) not in decider_types:
+        return False
+
+    deciders = proposal["deciders"]
+    if isinstance(deciders, str):
+        deciders = json.loads(deciders)
+
+    # Dict key lookup, never a substring test against the raw JSON.
+    return str(user_id) in deciders
+
+
 def user_voted(user_id: int, proposal_id: int) -> bool:
     """
     Check if a user has already voted on a given proposal.
