@@ -8,6 +8,12 @@
 {% endblock %}
 
 {% block content %}
+    {% if proposal.deleted %}
+    <div class="d-deleted-banner">
+        🗑 <b>Návrh byl smazán {{ proposal.deleted.strftime('%d.%m.%Y v %H:%M') }}</b>
+        {% if deletion_event %}<br>{{ deletion_event.comment }}{% endif %}
+    </div>
+    {% endif %}
     <div>
         <div id="txt-desc">{{ proposal.description | trim | urlize(nofollow=False, target='_blank') }}</div>
         <hr>
@@ -24,7 +30,7 @@
     </div>
     <hr>
     
-    {% if user_id in users_change_state %}
+    {% if user_id in users_change_state and not proposal.deleted %}
     <div>
         <b>Změnit stav na:</b> 
         <a class="state-btn" href="{{ url_for('proposals.change_state', proposal_id=proposal.id, new_state='Objednáno') }}">Objednáno</a>

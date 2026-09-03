@@ -14,6 +14,11 @@ SLACK_WEBHOOK_URL_CS = SLACK_WEBHOOK_URL
 
 USERS_CHANGE_STATE = [9000]
 
+# Proposal types whose deciders may delete an undecided proposal, on top of its
+# author. 0 = VV, 1 = SO, 2 = PD, 3 = CS, 4 = CD. CS is left out on purpose - it
+# has ~116 deciders. Optional; defaults to [0, 1, 2] when absent.
+DECIDER_DELETE_TYPES = [0, 1, 2]
+
 DEBUG = False
 
 DEV_USERS = []

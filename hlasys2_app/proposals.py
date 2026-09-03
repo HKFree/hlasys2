@@ -7,7 +7,7 @@ from threading import Thread
 
 from hlasys2_app.db import get_db
 from hlasys2_app.util import (
-    HkfreeRole, next_filter, overview_filter, can_vote, 
+    HkfreeRole, next_filter, overview_filter, can_vote, can_delete_proposal,
     is_proposal_accepted, userdb_api, get_undecided, calculate_acceptance_treshold
 )
 from hlasys2_app.forms import CreateProposalForm, CreateCommentForm, QuickVoteForm
@@ -208,11 +208,21 @@ def view_proposal(proposal_id):
         flash("Takový návrh neexistuje.", "danger")
         return redirect(url_for("proposals.overview"))
 
-    if proposal_row['deleted'] is not None:
-        flash("Tento návrh byl smazán.", "warning")
-        return redirect(url_for("proposals.overview"))
-
     proposal = dict(proposal_row)
+
+    # The deletion event is the one whose created matches proposal.deleted; both
+    # were written from a single timestamp in deletion.py. Matched in SQL so no
+    # Python datetime adapter is involved.
+    deletion_event = None
+    if proposal["deleted"] is not None:
+        deletion_event = db.execute(
+            """SELECT e.author_id, e.author_name, e.comment
+               FROM event e
+               JOIN proposal p ON p.id = e.proposal_id AND e.created = p.deleted
+               WHERE p.id = :pid
+               LIMIT 1""",
+            {"pid": proposal_id},
+        ).fetchone()
 
     # This query efficiently finds the latest vote for each user on this proposal.
     latest_votes_sql = """
@@ -247,6 +257,9 @@ def view_proposal(proposal_id):
         events=events,
         undecided_voters=get_undecided(proposal),
         can_vote=(str(user_id) in proposal['deciders']),
+        # proposal_row, not proposal: deciders is parsed in place above.
+        can_delete=can_delete_proposal(user_id, proposal_row),
+        deletion_event=deletion_event,
         user_voted=user_voted,
         user_id=user_id,
         HkfreeRole=HkfreeRole,

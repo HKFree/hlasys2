@@ -14,6 +14,7 @@
         <p style="margin-top: 5px;">Stav realizace: <b>{{ proposal.state }}</b></p>
     {% endif %}
 </div>
+{% if not proposal.deleted %}
 <div class="d-vote-btn">
     {% if proposal['decided'] and user_voted %}
         <div class="d-one-decision-row d-one-proposal-locked">
@@ -49,7 +50,13 @@
     <form action="{{ url_for('proposals.add_comment', proposal_id=proposal.id) }}" method="get">
         <button type="submit" style="background-color: var(--text-muted);">Přidat komentář</button>
     </form>
+    {% if can_delete %}
+        <form action="{{ url_for('deletion.delete_proposal', proposal_id=proposal.id) }}" method="get">
+            <button type="submit" class="btn-delete">Smazat návrh</button>
+        </form>
+    {% endif %}
 </div>
+{% endif %}
 
 <div id="d-one-decision-box">
     <div class="d-one-decision-col">
