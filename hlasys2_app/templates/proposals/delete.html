@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block title %}Opravdu smazat návrh?{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    <div id="d-one-bot">
+        <p><b>„{{ proposal.subject }}"</b></p>
+        <p>
+            <small>
+                návrh <b>{{ proposal.id }}</b> pro
+                <strong>{{ HkfreeRole(proposal.type).long_name }}</strong> ·
+                vložil {{ proposal.author_name }}
+                dne {{ proposal.created.strftime('%d.%m.%Y') }}
+            </small>
+        </p>
+    </div>
+
+    {% set total_votes = votes.votes_for + votes.votes_against %}
+    {% if total_votes > 0 %}
+    <div class="d-one-decision-row d-one-rejected">
+        <b>⚠ U návrhu už {% if total_votes == 1 %}je 1 hlas{% else %}jsou {{ total_votes }} hlasy{% endif %}
+        ({{ votes.votes_for }} PRO, {{ votes.votes_against }} PROTI).</b><br>
+        Smazáním zmizí návrh i s nimi z přehledu.
+    </div>
+    {% endif %}
+
+    <hr>
+
+    <form method="post">
+        {{ form.csrf_token }}
+        <p>
+            {{ form.reason.label }}<br>
+            {{ form.reason() }}
+        </p>
+        <div class="d-vote-btn">
+            <button type="submit" class="btn-delete">Smazat návrh</button>
+            <a class="state-btn"
+               href="{{ url_for('proposals.view_proposal', proposal_id=proposal.id) }}">Zpět</a>
+        </div>
+    </form>
+
+    <p><small><b>Smazání nelze vrátit zpět.</b></small></p>
+{% endblock %}

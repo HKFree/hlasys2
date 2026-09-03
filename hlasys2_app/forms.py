@@ -41,3 +41,11 @@ class CreateProposalForm(FlaskForm):
 
 class CreateCommentForm(FlaskForm):
     comment = TextAreaField("komentář", name="comment", validators=[DataRequired()])
+
+
+class DeleteProposalForm(FlaskForm):
+    reason = TextAreaField(
+        "Důvod smazání (nepovinný)",
+        name="reason",
+        render_kw={"rows": 3, "placeholder": "Např. duplicita, viz návrh 1230"},
+    )

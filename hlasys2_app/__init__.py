@@ -43,6 +43,10 @@ def create_app():
 
     app.register_blueprint(votes.bp)
 
+    from . import deletion
+
+    app.register_blueprint(deletion.bp)
+
     try:
         os.makedirs(app.instance_path)
     except OSError:
