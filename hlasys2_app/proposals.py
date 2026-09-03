@@ -18,6 +18,14 @@ from hlasys2_app import config
 bp = Blueprint("proposals", __name__)
 
 
+def _is_deleted(db, proposal_id: int) -> bool:
+    """Whether the proposal exists and has been soft-deleted."""
+    row = db.execute(
+        "SELECT deleted FROM proposal WHERE id = :id", {"id": proposal_id}
+    ).fetchone()
+    return bool(row) and row["deleted"] is not None
+
+
 def _build_overview_query(
     filter: str, search_query: str, deleted: bool, page: int, limit: int = 25
 ):
@@ -30,7 +38,7 @@ def _build_overview_query(
     be reused for the COUNT query.
 
     Returns:
-        tuple: (where_clause, params, order_by, limit, offset)
+        tuple: (where_clause, params, order_by, limit, offset, searching)
     """
     params = {}
     where_conditions = ["p.deleted IS NOT NULL" if deleted else "p.deleted IS NULL"]
@@ -56,7 +64,7 @@ def _build_overview_query(
         # Search shows every hit on one page.
         limit, offset = 10000, 0
 
-    return where_clause, params, order_by, limit, offset
+    return where_clause, params, order_by, limit, offset, searching
 
 
 def _fetch_deleted_proposals(db, where_clause, params, order_by, limit, offset):
@@ -66,18 +74,20 @@ def _fetch_deleted_proposals(db, where_clause, params, order_by, limit, offset):
     Python timestamp inside a single transaction (see deletion.py). Rows hidden
     during the 2005-data migration have no such event and yield NULL.
     """
+    # One LEFT JOIN rather than a correlated subquery per column: `event` has no
+    # index, so each subquery would cost a full scan. GROUP BY collapses the
+    # (impossible in practice) case of two events sharing the exact timestamp.
     sql = f"""
         SELECT
             p.id, p.subject, p.created, p.author_id, p.author_name,
             p.cost, p.type, p.deleted,
-            (SELECT e.author_id FROM event e
-              WHERE e.proposal_id = p.id AND e.created = p.deleted
-              LIMIT 1) AS deleted_by_id,
-            (SELECT e.author_name FROM event e
-              WHERE e.proposal_id = p.id AND e.created = p.deleted
-              LIMIT 1) AS deleted_by_name
+            d.author_id AS deleted_by_id,
+            d.author_name AS deleted_by_name
         FROM proposal p
+        LEFT JOIN event d
+               ON d.proposal_id = p.id AND d.created = p.deleted
         {where_clause}
+        GROUP BY p.id
         {order_by}
         LIMIT :limit OFFSET :offset
     """
@@ -168,17 +178,18 @@ def overview(filter):
             )
 
     page = request.args.get("page", default=1, type=int)
-    where_clause, params, order_by, limit, offset = _build_overview_query(
+    where_clause, params, order_by, limit, offset, searching = _build_overview_query(
         filter, search_query, show_deleted, page
     )
 
     # First, get the total count for pagination
     count_sql = f"SELECT COUNT(p.id) AS count FROM proposal p {where_clause}"
     total_proposals = db.execute(count_sql, params).fetchone()["count"]
-    total_pages = math.ceil(total_proposals / limit) if total_proposals > 0 else 0
-    if search_query:
-        # When searching, show all results on a single page
+    if searching:
+        # When searching, every hit goes on a single page.
         total_pages = 1
+    else:
+        total_pages = math.ceil(total_proposals / limit) if total_proposals > 0 else 0
 
     fetch = _fetch_deleted_proposals if show_deleted else _fetch_live_proposals
     proposals = fetch(db, where_clause, params, order_by, limit, offset)
@@ -327,9 +338,15 @@ def create_proposal():
 @login_required
 def add_comment(proposal_id: int):
     """Handles adding a comment to a proposal."""
+    db = get_db()
+
+    # A deleted proposal is inert. Enforced here, not just by hiding the button.
+    if _is_deleted(db, proposal_id):
+        flash("Tento návrh byl smazán, nelze do něj přidávat komentáře.", "warning")
+        return redirect(url_for("proposals.view_proposal", proposal_id=proposal_id))
+
     form = CreateCommentForm()
     if form.validate_on_submit():
-        db = get_db()
         db.execute(
             """
             INSERT INTO event (proposal_id, author_id, author_name, comment)
@@ -359,6 +376,12 @@ def change_state(proposal_id: int, new_state: str):
         return redirect(url_for("proposals.view_proposal", proposal_id=proposal_id))
 
     db = get_db()
+
+    # A deleted proposal is inert. Enforced here, not just by hiding the buttons.
+    if _is_deleted(db, proposal_id):
+        flash("Tento návrh byl smazán, nelze měnit jeho stav.", "warning")
+        return redirect(url_for("proposals.view_proposal", proposal_id=proposal_id))
+
     current_state = db.execute(
         "SELECT state FROM proposal WHERE id = :id", {"id": proposal_id}
     ).fetchone()["state"]

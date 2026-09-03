@@ -11,7 +11,7 @@
     {% if proposal.deleted %}
     <div class="d-deleted-banner">
         🗑 <b>Návrh byl smazán {{ proposal.deleted.strftime('%d.%m.%Y v %H:%M') }}</b>
-        {% if deletion_event %}<br>{{ deletion_event.comment }}{% endif %}
+        {% if deletion_event %}<br>{{ deletion_event.comment | urlize(nofollow=False, target='_blank') }}{% endif %}
     </div>
     {% endif %}
     <div>

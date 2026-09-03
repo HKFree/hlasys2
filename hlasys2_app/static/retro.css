@@ -721,3 +721,16 @@
     border: 2px dashed black;
     background: #e7e7e7;
 }
+
+/* The generic retro submit-button rule outranks .btn-delete on specificity,
+   so restate the danger affordance at matching weight. */
+[data-theme="retro"] form button[type="submit"].btn-delete {
+    background-color: var(--danger-bg);
+    color: var(--danger-text);
+    border: 2px outset var(--danger-border);
+}
+
+[data-theme="retro"] form button[type="submit"].btn-delete:hover {
+    background-color: var(--danger-border);
+    color: white;
+}

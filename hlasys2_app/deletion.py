@@ -80,6 +80,12 @@ def delete_proposal(proposal_id: int):
     db = get_db()
     form = DeleteProposalForm()
 
+    if form.is_submitted() and not form.validate():
+        # Almost always an expired or missing CSRF token. Say so rather than
+        # silently re-rendering an unchanged page (cf. votes.quick_vote).
+        flash("Neplatný požadavek, zkus to prosím znovu.", "danger")
+        return redirect(url_for("deletion.delete_proposal", proposal_id=proposal_id))
+
     if form.validate_on_submit():
         # A single timestamp for both writes. The deletion event is later
         # identified by `event.created = proposal.deleted`, so these two values

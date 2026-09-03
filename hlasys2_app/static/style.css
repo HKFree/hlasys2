@@ -708,10 +708,15 @@ form input[type="checkbox"] {
     .t-proposals td:nth-of-type(4):before { content: "Cena:"; float: left; font-weight: bold; color: var(--text-muted); }
     .t-proposals td:nth-of-type(5):before { content: "Stav:"; float: left; font-weight: bold; color: var(--text-muted); }
 
+    /* The koš swaps the last two columns for Smazal / Smazáno */
+    .t-proposals tr.tr-proposal-deleted td:nth-of-type(4):before { content: "Smazal:"; }
+    .t-proposals tr.tr-proposal-deleted td:nth-of-type(5):before { content: "Smazáno:"; }
+
     /* Strip the duplicated 3px coloured cell border on mobile - the row's 5px left border already conveys status */
     .t-proposals tr.tr-proposal-accepted td:first-child,
     .t-proposals tr.tr-proposal-rejected td:first-child,
-    .t-proposals tr.tr-proposal-undecided td:first-child {
+    .t-proposals tr.tr-proposal-undecided td:first-child,
+    .t-proposals tr.tr-proposal-deleted td:first-child {
         border-left: none;
         color: inherit;
         font-weight: inherit;

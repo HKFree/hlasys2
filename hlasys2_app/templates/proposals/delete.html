@@ -6,7 +6,7 @@
 
 {% block content %}
     <div id="d-one-bot">
-        <p><b>„{{ proposal.subject }}"</b></p>
+        <p><b>„{{ proposal.subject }}“</b></p>
         <p>
             <small>
                 návrh <b>{{ proposal.id }}</b> pro
@@ -19,8 +19,13 @@
 
     {% set total_votes = votes.votes_for + votes.votes_against %}
     {% if total_votes > 0 %}
+    {# Czech counts: 1 -> "je 1 hlas", 2-4 -> "jsou 3 hlasy", 5+ -> "je 5 hlasů" #}
     <div class="d-one-decision-row d-one-rejected">
-        <b>⚠ U návrhu už {% if total_votes == 1 %}je 1 hlas{% else %}jsou {{ total_votes }} hlasy{% endif %}
+        <b>⚠ U návrhu už
+        {%- if total_votes == 1 %} je 1 hlas
+        {%- elif total_votes < 5 %} jsou {{ total_votes }} hlasy
+        {%- else %} je {{ total_votes }} hlasů
+        {%- endif %}
         ({{ votes.votes_for }} PRO, {{ votes.votes_against }} PROTI).</b><br>
         Smazáním zmizí návrh i s nimi z přehledu.
     </div>
