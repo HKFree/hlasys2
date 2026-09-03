@@ -91,6 +91,7 @@ config will not contain the new key on first deploy.
 | File | Change |
 |---|---|
 | `util.py` | add `can_delete_proposal()` |
+| `proposals.py` | add `_is_deleted()`, used to gate `add_comment` and `change_state` |
 | `deletion.py` | **new** blueprint mirroring `votes.py`: `_load_deletable_proposal()`, `GET/POST /proposal/<id>/delete` |
 | `proposals.py` | extract `_build_overview_query()`; koš mode in `overview()`; `view_proposal` no longer redirects deleted proposals |
 | `forms.py` | `DeleteProposalForm` - optional `reason` TextArea, CSRF |
@@ -179,8 +180,11 @@ danger-styled, rendered only when `can_delete_proposal()` passes.
 
 - `proposals.py:31` - a numeric search matching a deleted proposal currently redirects
   into a bounce loop; resolved once the detail page renders deleted proposals
-- `votes.py:96` and `add_comment` continue to hard-block server-side, independent of
-  what templates hide
+- A deleted proposal must be inert, and that has to be enforced server-side rather
+  than by hiding buttons. `votes.py:96` already blocked. `add_comment` and
+  `change_state` did **not** - both were reachable by typing the URL, `add_comment` by
+  any logged-in user regardless of role. Both now gate on a shared `_is_deleted()`
+  helper.
 - Deleting an already-deleted or already-decided proposal: the guard is in the
   `UPDATE ... WHERE` clause and re-checked via `rowcount`, so a double submit produces
   one flash and no second event
@@ -189,7 +193,12 @@ danger-styled, rendered only when `can_delete_proposal()` passes.
 
 ## Testing
 
-`tests/test_deletion.py`, run with `pytest` (added as a dev dependency):
+Run with `pytest` (added as a dev dependency). `tests/conftest.py` seeds
+`hlasys2_app/config.py` from `config.example.py` when absent, so the suite runs on a
+clean checkout and in CI.
+
+`tests/test_permissions.py` and `tests/test_overview_query.py` cover the two pure
+functions, which need no Flask request context:
 
 - permission matrix for `can_delete_proposal` - author, decider on VV/SO/PD, decider on
   CS, non-member, already decided, already deleted
@@ -197,7 +206,15 @@ danger-styled, rendered only when `can_delete_proposal()` passes.
   deciders include `277`
 - `_build_overview_query` in normal vs. koš mode - WHERE clause, ORDER BY, pagination
 
-Both functions are pure and need no Flask request context.
+`tests/test_deletion.py` runs against a real SQLite database built from `schema.sql`,
+covering what pure tests cannot:
+
+- the `event.created = proposal.deleted` audit join, including a legacy row that must
+  resolve to no deleter
+- the TOCTOU guard - a double submit adds no second event
+- the read-only invariant, asserted at the route level: commenting, state changes and
+  voting on a deleted proposal must all be rejected server-side
+- an invalid POST must flash rather than silently re-render
 
 ## Out of scope
 
