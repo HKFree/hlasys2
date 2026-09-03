@@ -149,104 +149,46 @@ def _fetch_live_proposals(db, where_clause, params, order_by, limit, offset):
 @bp.route("/overview/<filter>")
 @login_required
 def overview(filter):
-    """Displays a paginated overview of proposals, with filtering and searching."""
+    """Paginated overview of proposals, with filtering, search and a koš mode."""
     db = get_db()
-    search_query = request.args.get("search_query", default="").strip()
-    
+    show_deleted = request.args.get("deleted", default="") == "1"
+    # The koš has no search box, so never honour a stray search_query there.
+    search_query = (
+        "" if show_deleted else request.args.get("search_query", default="").strip()
+    )
+
     # If the search query is a plain integer, try direct proposal ID lookup
     if search_query.isdigit():
         proposal_row = db.execute(
-                "SELECT id FROM proposal WHERE id = :id", {"id": int(search_query)}
-                ).fetchone()
+            "SELECT id FROM proposal WHERE id = :id", {"id": int(search_query)}
+        ).fetchone()
         if proposal_row:
-            return redirect(url_for("proposals.view_proposal", proposal_id=proposal_row["id"]))
+            return redirect(
+                url_for("proposals.view_proposal", proposal_id=proposal_row["id"])
+            )
 
     page = request.args.get("page", default=1, type=int)
-    limit = 25
-    offset = (page - 1) * limit if page > 0 else 0
-
-    params = {}
-    where_conditions = ["p.deleted IS NULL"]
-
-    # Apply category filter and search term to the query
-    filter_sql = overview_filter(filter)
-    if filter_sql:
-        where_conditions.append(filter_sql.replace("WHERE", "").strip())
-
-    if search_query:
-        search_clause = "(p.subject LIKE :search OR p.description LIKE :search OR p.author_name LIKE :search)"
-        where_conditions.append(search_clause)
-        params["search"] = f"%{search_query}%"
-
-    where_clause = f"WHERE {' AND '.join(where_conditions)}"
+    where_clause, params, order_by, limit, offset = _build_overview_query(
+        filter, search_query, show_deleted, page
+    )
 
     # First, get the total count for pagination
     count_sql = f"SELECT COUNT(p.id) AS count FROM proposal p {where_clause}"
-    total_proposals = db.execute(count_sql, params).fetchone()['count']
+    total_proposals = db.execute(count_sql, params).fetchone()["count"]
     total_pages = math.ceil(total_proposals / limit) if total_proposals > 0 else 0
-    
-    # When searching, show all results on a single page
     if search_query:
-        limit = 10000 
-        offset = 0
+        # When searching, show all results on a single page
         total_pages = 1
 
-    # This two-step query is more efficient for pagination with joins.
-    # 1. Fetch only the IDs for the current page.
-    ids_sql = f"""
-        SELECT p.id FROM proposal p
-        {where_clause}
-        ORDER BY p.created DESC
-        LIMIT :limit OFFSET :offset
-    """
-    params.update({"limit": limit, "offset": offset})
-    proposal_ids = [row["id"] for row in db.execute(ids_sql, params).fetchall()]
-    
-    proposals = []
-    if proposal_ids:
-        # 2. Fetch the full data only for the selected IDs.
-        id_placeholders = ", ".join([f":id_{i}" for i in range(len(proposal_ids))])
-        data_params = {f"id_{i}": pid for i, pid in enumerate(proposal_ids)}
-        
-        data_sql = f"""
-            SELECT
-                p.id, p.author_name, p.author_id, p.subject, p.description, p.acceptance_treshold,
-                p.cost, p.type, p.created, p.state, p.deciders, p.decided,
-                COALESCE(SUM(CASE WHEN e.decision = 1 THEN 1 END), 0) AS votes_for,
-                COALESCE(SUM(CASE WHEN e.decision = 0 THEN 1 END), 0) AS votes_against
-            FROM proposal p LEFT JOIN event e ON p.id = e.proposal_id
-            WHERE p.id IN ({id_placeholders})
-            GROUP BY p.id
-            ORDER BY p.created DESC
-        """
-
-        # Identify proposals where the current user already voted, in one batched query
-        user_id = int(session["oidc_auth_profile"]["preferred_username"])
-        voted_params = {**data_params, "uid": user_id}
-        voted_sql = f"""
-            SELECT DISTINCT proposal_id FROM event
-            WHERE author_id = :uid AND decision IS NOT NULL
-              AND proposal_id IN ({id_placeholders})
-        """
-        voted_ids = {row["proposal_id"] for row in db.execute(voted_sql, voted_params).fetchall()}
-
-        for row in db.execute(data_sql, data_params).fetchall():
-            proposal = dict(row)
-            proposal["accepted"] = is_proposal_accepted(proposal)
-            deciders = json.loads(proposal["deciders"])
-            user_can_vote = str(user_id) in deciders
-            proposal["user_pending"] = (
-                user_can_vote
-                and proposal["id"] not in voted_ids
-                and proposal["decided"] is None
-            )
-            proposals.append(proposal)
+    fetch = _fetch_deleted_proposals if show_deleted else _fetch_live_proposals
+    proposals = fetch(db, where_clause, params, order_by, limit, offset)
 
     return render_template(
         "proposals/overview.html",
         proposals=proposals,
         filter=filter,
         search_query=search_query,
+        show_deleted=show_deleted,
         total_pages=int(total_pages),
         current_page=int(page),
         next_filter=next_filter,

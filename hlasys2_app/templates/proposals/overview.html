@@ -5,49 +5,52 @@
 {% endblock head %}
 
 {% set filter_labels = {'pd': 'Představenstvo Družstva', 'vv': 'Výkonný Výbor', 'cs': 'Členové spolku', 'cd': 'Členové družstva', 'so': 'Správci Oblastí'} %}
+{% set kos = 1 if show_deleted else None %}
 {% block header %}
-<h1>{% block title %}Přehled návrhů{% if filter in filter_labels %} — {{ filter_labels[filter] }}{% endif %}{% if current_page > 1 %} (str. {{ current_page }}){% endif %}{% endblock %}</h1>
+<h1>{% block title %}{% if show_deleted %}Koš{% else %}Přehled návrhů{% endif %}{% if filter in filter_labels %} — {{ filter_labels[filter] }}{% endif %}{% if current_page > 1 %} (str. {{ current_page }}){% endif %}{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
 <div class="d-row-toggle">
-    <a href="/overview/{{ next_filter(filter, 'pd') }}">
+    <a href="{{ url_for('proposals.overview', filter=next_filter(filter, 'pd'), deleted=kos) }}">
         <span>{% if 'pd' in filter %}✔{% else %}✖{% endif %}</span> Představenstvo Družstva
     </a>
-    <a href="/overview/{{ next_filter(filter, 'vv') }}">
+    <a href="{{ url_for('proposals.overview', filter=next_filter(filter, 'vv'), deleted=kos) }}">
         <span>{% if 'vv' in filter %}✔{% else %}✖{% endif %}</span> Výkonný Výbor
     </a>
-    <a href="/overview/{{ next_filter(filter, 'cs') }}">
+    <a href="{{ url_for('proposals.overview', filter=next_filter(filter, 'cs'), deleted=kos) }}">
         <span>{% if 'cs' in filter %}✔{% else %}✖{% endif %}</span> Členové spolku
     </a>
-    <a href="/overview/{{ next_filter(filter, 'cd') }}">
+    <a href="{{ url_for('proposals.overview', filter=next_filter(filter, 'cd'), deleted=kos) }}">
         <span>{% if 'cd' in filter %}✔{% else %}✖{% endif %}</span> Členové družstva
     </a>
-    <a href="/overview/{{ next_filter(filter, 'so') }}">
+    <a href="{{ url_for('proposals.overview', filter=next_filter(filter, 'so'), deleted=kos) }}">
         <span>{% if 'so' in filter %}✔{% else %}✖{% endif %}</span> Správce Oblastí (archiv)
     </a>
-
-    
+    <a href="{{ url_for('proposals.overview', filter=filter, deleted=None if show_deleted else 1) }}">
+        <span>{% if show_deleted %}✔{% else %}✖{% endif %}</span> 🗑 Koš
+    </a>
 </div>
 
 <div class="d-row-toggle">
     {% if total_pages > 1 %}
     <div class="pagination-controls">
-        
-        <a {{ "class=disabled" if current_page == 0 }} href="{{ url_for('proposals.overview', filter=filter, page=0) }}">&laquo;&laquo;</a>
-        
-        <a {{ "class=disabled" if current_page == 0 }} href="{{ url_for('proposals.overview', filter=filter, page=current_page-1) }}">&laquo;</a>
+
+        <a {{ "class=disabled" if current_page == 0 }} href="{{ url_for('proposals.overview', filter=filter, page=0, deleted=kos) }}">&laquo;&laquo;</a>
+
+        <a {{ "class=disabled" if current_page == 0 }} href="{{ url_for('proposals.overview', filter=filter, page=current_page-1, deleted=kos) }}">&laquo;</a>
 
         <span class="page-info">Strana {{ current_page }} z {{ total_pages }}</span>
 
-        <a {{ "class=disabled" if current_page == total_pages }} href="{{ url_for('proposals.overview', filter=filter, page=current_page+1) }}">&raquo;</a>
-        
-        <a {{ "class=disabled" if current_page == total_pages }} href="{{ url_for('proposals.overview', filter=filter, page=total_pages) }}">&raquo;&raquo;</a>
+        <a {{ "class=disabled" if current_page == total_pages }} href="{{ url_for('proposals.overview', filter=filter, page=current_page+1, deleted=kos) }}">&raquo;</a>
+
+        <a {{ "class=disabled" if current_page == total_pages }} href="{{ url_for('proposals.overview', filter=filter, page=total_pages, deleted=kos) }}">&raquo;&raquo;</a>
 
     </div>
     {% endif %}
 </div>
 
+{% if not show_deleted %}
 <div class="d-row">
     <search>
         <form action="{{ url_for('proposals.overview', filter=filter) }}">
@@ -56,6 +59,7 @@
         </form>
     </search>
 </div>
+{% endif %}
 
 <table class="t-proposals">
     <thead>
@@ -63,12 +67,36 @@
             <th>Návrh</th>
             <th>Vytvořeno</th>
             <th>Navrhovatel</th>
+            {% if show_deleted %}
+            <th>Smazal</th>
+            <th>Smazáno</th>
+            {% else %}
             <th>Odhad ceny</th>
             <th>Stav</th>
+            {% endif %}
         </tr>
     </thead>
     <tbody>
         {% for p in proposals %}
+            {% if show_deleted %}
+            <tr class="tr-proposal tr-proposal-deleted">
+                <td>
+                    <a href="{{ url_for('proposals.view_proposal', proposal_id=p.id) }}">
+                        <b>{{ p.subject }}</b>
+                    </a>
+                </td>
+                <td><small class="s-overview-date">{{ p.created.strftime('%d.%m.') }}{% if p.created.year != now_year %}{{ p.created.strftime('%Y') }}{% endif %}</small></td>
+                <td>{{ p.author_name | truncate(20) }}</td>
+                <td>
+                    {% if p.deleted_by_name %}
+                        <a href="{{ url_for('users.user_overview', user_id=p.deleted_by_id) }}">{{ p.deleted_by_name | truncate(20) }}</a>
+                    {% else %}
+                        <span class="text-muted">—</span>
+                    {% endif %}
+                </td>
+                <td><small class="s-overview-date">{{ p.deleted.strftime('%d.%m.%Y %H:%M') }}</small></td>
+            </tr>
+            {% else %}
             {% set pending_cls = ' tr-user-pending' if p.user_pending else '' %}
             {% if p.accepted == True %}
             <tr class="tr-proposal tr-proposal-accepted{{ pending_cls }}">
@@ -87,8 +115,9 @@
                 <td>{{ "{:,}".format(p.cost) }} Kč</td>
                 <td>{{ p.state or '' }}</td>
             </tr>
+            {% endif %}
         {% else %}
-            <tr><td colspan="5">Nebyly nalezeny žádné návrhy.</td></tr>
+            <tr><td colspan="5">{% if show_deleted %}Koš je prázdný.{% else %}Nebyly nalezeny žádné návrhy.{% endif %}</td></tr>
         {% endfor %}
     </tbody>
 </table>
@@ -98,17 +127,17 @@
 <div class="d-row-toggle">
     {% if total_pages > 1 %}
         <div class="pagination-controls">
-            
-            <a {{ "class=disabled" if current_page == 0 }} href="{{ url_for('proposals.overview', filter=filter, page=0) }}">&laquo;&laquo;</a>
-            
-            <a {{ "class=disabled" if current_page == 0 }} href="{{ url_for('proposals.overview', filter=filter, page=current_page-1) }}">&laquo;</a>
-    
+
+            <a {{ "class=disabled" if current_page == 0 }} href="{{ url_for('proposals.overview', filter=filter, page=0, deleted=kos) }}">&laquo;&laquo;</a>
+
+            <a {{ "class=disabled" if current_page == 0 }} href="{{ url_for('proposals.overview', filter=filter, page=current_page-1, deleted=kos) }}">&laquo;</a>
+
             <span class="page-info">Strana {{ current_page }} z {{ total_pages }}</span>
-    
-            <a {{ "class=disabled" if current_page == total_pages }} href="{{ url_for('proposals.overview', filter=filter, page=current_page+1) }}">&raquo;</a>
-            
-            <a {{ "class=disabled" if current_page == total_pages }} href="{{ url_for('proposals.overview', filter=filter, page=total_pages) }}">&raquo;&raquo;</a>
-    
+
+            <a {{ "class=disabled" if current_page == total_pages }} href="{{ url_for('proposals.overview', filter=filter, page=current_page+1, deleted=kos) }}">&raquo;</a>
+
+            <a {{ "class=disabled" if current_page == total_pages }} href="{{ url_for('proposals.overview', filter=filter, page=total_pages, deleted=kos) }}">&raquo;&raquo;</a>
+
         </div>
     {% endif %}
 
