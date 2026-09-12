@@ -98,14 +98,28 @@ test("a raw <img onerror> payload is neutralized by the renderer itself", () => 
     assert.match(html, /&lt;img/);
 });
 
-test("underscore emphasis/strong is left as literal text", () => {
-    assert.match(render("je _aktivne_ dnes", Marked), /_aktivne_/);
-    assert.match(render("je __tucne__ dnes", Marked), /__tucne__/);
-});
-
-test("asterisk emphasis/strong still works normally", () => {
+test("underscore and asterisk emphasis/strong both render normally", () => {
+    // CommonMark's own intraword-underscore suppression (verified in the
+    // "does not flag ordinary prose" test above via looksLikeMarkdown, and
+    // directly below) already keeps snake_case/URLs literal, so a
+    // genuine "_word_" or "__word__" with real word boundaries is safe to
+    // render as real emphasis - this is also the only way to write bold
+    // or italic text that wraps a link (`__[text](url)__`).
+    assert.match(render("je _aktivne_ dnes", Marked), /<em>aktivne<\/em>/);
+    assert.match(render("je __tucne__ dnes", Marked), /<strong>tucne<\/strong>/);
     assert.match(render("je *aktivne* dnes", Marked), /<em>aktivne<\/em>/);
     assert.match(render("je **tucne** dnes", Marked), /<strong>tucne<\/strong>/);
+});
+
+test("intraword underscores (snake_case, URLs) still do not trigger emphasis", () => {
+    const html = render("soubor muj_dlouhy_nazev.txt", Marked);
+    assert.match(html, /muj_dlouhy_nazev\.txt/);
+    assert.doesNotMatch(html, /<em>|<strong>/);
+});
+
+test("bold/italic markers can wrap a link (a real proposal from the field)", () => {
+    const html = render("__[pica](https://nodeca.github.io/pica/demo/)__ - popis", Marked);
+    assert.match(html, /<strong><a href="https:\/\/nodeca\.github\.io\/pica\/demo\/">pica<\/a><\/strong>/);
 });
 
 test("multi-line prose keeps line breaks (breaks:true) instead of collapsing to one paragraph", () => {
@@ -163,4 +177,31 @@ test("inserts placeholder link text and selects the URL when there is no selecti
     const r = applyLinkInsert("", 0, 0, "text odkazu", "https://");
     assert.equal(r.value, "[text odkazu](https://)");
     assert.equal(r.value.slice(r.selectionStart, r.selectionEnd), "https://");
+});
+
+// --- Compact rendering: blank-line-separated bullets stay tight ----------
+//
+// GFM calls this a "loose list" and wraps every item in <p>, which looks
+// like large wasted gaps since a <p>'s margin can't collapse across the
+// enclosing <li> boundary. Authors leaving blank lines for readability in a
+// plaintext box almost never intend that; tight rendering matches what they
+// expect to see.
+
+test("a blank-line-separated bullet list renders tight, not wrapped in <p>", () => {
+    const html = render("- prvni polozka\n\n- druha polozka", Marked);
+    assert.doesNotMatch(html, /<li><p>/);
+    assert.match(html, /<li>prvni polozka<\/li>/);
+});
+
+test("a genuine second paragraph within a single list item is still wrapped", () => {
+    const html = render("- prvni radek\n\n  druhy odstavec ve stejne polozce", Marked);
+    // The item's own first line stays unwrapped; the deliberate second
+    // paragraph nested under it keeps its <p>, so it's still visually
+    // distinct from the item's leading line.
+    assert.match(html, /<li>prvni radek<p>druhy odstavec/);
+});
+
+test("nested sub-lists still render correctly when the parent list is tightened", () => {
+    const html = render("- top\n  - nested\n\n- top2", Marked);
+    assert.match(html, /<li>top<ul>\s*<li>nested<\/li>/);
 });

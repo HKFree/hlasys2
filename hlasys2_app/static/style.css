@@ -1109,20 +1109,30 @@ a.disabled {
 .md-rendered h1, .md-rendered h2, .md-rendered h3,
 .md-rendered h4, .md-rendered h5, .md-rendered h6 {
     color: var(--text-main);
-    margin: 1em 0 0.4em;
+    margin: 0.7em 0 0.25em;
     line-height: 1.25;
 }
 
-.md-rendered p { margin: 0.6em 0; }
+.md-rendered p { margin: 0.4em 0; }
 
 .md-rendered ul, .md-rendered ol {
-    margin: 0.6em 0;
-    padding-left: 1.6em;
+    margin: 0.4em 0;
+    padding-left: 1.4em;
+}
+
+.md-rendered li {
+    margin: 0.15em 0;
+}
+
+/* A list item's nested sub-list sits right after its own text; give it
+   a little breathing room without falling back to the full block margin. */
+.md-rendered li > ul, .md-rendered li > ol {
+    margin: 0.2em 0;
 }
 
 .md-rendered blockquote {
-    margin: 0.8em 0;
-    padding: 0.2em 1em;
+    margin: 0.5em 0;
+    padding: 0.15em 0.9em;
     border-left: 3px solid var(--primary);
     color: var(--text-muted);
     background: var(--bg-card);
@@ -1150,27 +1160,27 @@ a.disabled {
 .md-rendered hr {
     border: none;
     border-top: 1px solid var(--border-color);
-    margin: 1em 0;
+    margin: 0.7em 0;
 }
 
 .md-rendered img {
     max-width: 100%;
-    max-height: 480px;
+    max-height: 420px;
     height: auto;
     border-radius: var(--radius);
     display: block;
-    margin: 0.6em 0;
+    margin: 0.4em 0;
 }
 
 .md-rendered table {
     border-collapse: collapse;
     width: 100%;
-    margin: 0.8em 0;
+    margin: 0.5em 0;
 }
 
 .md-rendered th, .md-rendered td {
     border: 1px solid var(--border-color);
-    padding: 0.4em 0.7em;
+    padding: 0.3em 0.6em;
     text-align: left;
 }
 
