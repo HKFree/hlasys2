@@ -36,15 +36,16 @@
             <div class="md-tab-panel md-rendered" data-md-panel="preview" id="description-preview" hidden></div>
             <details class="md-cheatsheet">
                 <summary>Nápověda k formátování (nepovinné)</summary>
+                <p class="text-muted"><i>Formátování je jen volitelná nadstavba — píšete-li obyčejný text bez značek níže, nic se pro vás nemění a zobrazí se přesně tak, jak jej napíšete.</i></p>
                 <ul>
                     <li><code># Nadpis</code> — nadpis</li>
-                    <li><code>**tučně**</code> — <strong>tučně</strong></li>
+                    <li><code>**tučně**</code> — <strong>tučně</strong> <span class="text-muted">(Ctrl+B)</span></li>
+                    <li><code>*kurzívou*</code> — <em>kurzívou</em> <span class="text-muted">(Ctrl+I)</span></li>
                     <li><code>- položka</code> — odrážkový seznam</li>
-                    <li><code>[text](https://...)</code> — odkaz</li>
+                    <li><code>[text](https://...)</code> — odkaz <span class="text-muted">(Ctrl+K)</span></li>
                     <li><code>&gt; citace</code> — citace</li>
                     <li><code>`kód`</code> — vloženy kód</li>
                 </ul>
-                <p class="text-muted"><i>Formátování je nepovinné — pokud text žádnou z výše uvedených značek neobsahuje, zobrazí se jako obyčejný text.</i></p>
             </details>
         </div>
 
@@ -116,6 +117,42 @@
 
             writeTab.addEventListener('click', showWrite);
             previewTab.addEventListener('click', showPreview);
+
+            // --- Keyboard shortcuts: Ctrl/Cmd+B bold, +I italic, +K link ---
+            var SHORTCUTS = {
+                'b': function () {
+                    return window.HlasysMarkdown.applyInlineWrap(
+                        textarea.value, textarea.selectionStart, textarea.selectionEnd,
+                        '**', '**', 'tučný text'
+                    );
+                },
+                'i': function () {
+                    return window.HlasysMarkdown.applyInlineWrap(
+                        textarea.value, textarea.selectionStart, textarea.selectionEnd,
+                        '*', '*', 'text kurzívou'
+                    );
+                },
+                'k': function () {
+                    return window.HlasysMarkdown.applyLinkInsert(
+                        textarea.value, textarea.selectionStart, textarea.selectionEnd,
+                        'text odkazu', 'https://'
+                    );
+                }
+            };
+
+            textarea.addEventListener('keydown', function (e) {
+                if (!window.HlasysMarkdown) return;
+                if (!(e.ctrlKey || e.metaKey) || e.shiftKey || e.altKey) return;
+
+                var handler = SHORTCUTS[e.key.toLowerCase()];
+                if (!handler) return;
+
+                e.preventDefault();
+                var result = handler();
+                textarea.value = result.value;
+                textarea.setSelectionRange(result.selectionStart, result.selectionEnd);
+                textarea.focus();
+            });
         })();
     </script>
 {% endblock scripts %}

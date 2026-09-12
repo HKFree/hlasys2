@@ -14,7 +14,7 @@ const require = createRequire(import.meta.url);
 const { Marked } = require("../../hlasys2_app/static/vendor/marked.umd.js");
 const HlasysMarkdown = require("../../hlasys2_app/static/markdown.js");
 
-const { looksLikeMarkdown, render } = HlasysMarkdown;
+const { looksLikeMarkdown, render, applyInlineWrap, applyLinkInsert } = HlasysMarkdown;
 
 // --- Detection -----------------------------------------------------------
 
@@ -122,4 +122,45 @@ test("GFM tables render", () => {
 test("horizontal rules still work", () => {
     const html = render("text\n\n---\n\ndalsi", Marked);
     assert.match(html, /<hr>/);
+});
+
+// --- Editor shortcuts: applyInlineWrap (Ctrl+B / Ctrl+I) -------------------
+
+test("wraps a selection with markers", () => {
+    const r = applyInlineWrap("je dulezity text", 3, 11, "**", "**", "placeholder");
+    assert.equal(r.value, "je **dulezity** text");
+    assert.equal(r.value.slice(r.selectionStart, r.selectionEnd), "dulezity");
+});
+
+test("inserts a placeholder and selects it when there is no selection", () => {
+    const r = applyInlineWrap("", 0, 0, "**", "**", "tucny text");
+    assert.equal(r.value, "**tucny text**");
+    assert.equal(r.value.slice(r.selectionStart, r.selectionEnd), "tucny text");
+});
+
+test("toggles off markers when the selection is already wrapped", () => {
+    const wrapped = applyInlineWrap("je dulezity text", 3, 11, "**", "**", "x");
+    // Re-apply to the now-selected inner text ("dulezity") -> should unwrap.
+    const unwrapped = applyInlineWrap(wrapped.value, wrapped.selectionStart, wrapped.selectionEnd, "**", "**", "x");
+    assert.equal(unwrapped.value, "je dulezity text");
+});
+
+test("italic and bold markers do not collide when toggling", () => {
+    // A bold selection re-wrapped with the italic marker should nest, not unwrap.
+    const r = applyInlineWrap("**bold**", 2, 6, "*", "*", "x");
+    assert.equal(r.value, "**" + "*bold*" + "**");
+});
+
+// --- Editor shortcuts: applyLinkInsert (Ctrl+K) ----------------------------
+
+test("wraps a selection as link text and selects the URL placeholder", () => {
+    const r = applyLinkInsert("prectete si toto", 12, 16, "text odkazu", "https://");
+    assert.equal(r.value, "prectete si [toto](https://)");
+    assert.equal(r.value.slice(r.selectionStart, r.selectionEnd), "https://");
+});
+
+test("inserts placeholder link text and selects the URL when there is no selection", () => {
+    const r = applyLinkInsert("", 0, 0, "text odkazu", "https://");
+    assert.equal(r.value, "[text odkazu](https://)");
+    assert.equal(r.value.slice(r.selectionStart, r.selectionEnd), "https://");
 });

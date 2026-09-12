@@ -117,6 +117,65 @@
         return sanitize(DOMPurifyInstance, render(src, MarkedCtor));
     }
 
+    // --- 4b. Editor keyboard shortcuts -----------------------------------
+    //
+    // Pure string transforms on (value, selectionStart, selectionEnd) so
+    // they're unit-testable without a DOM/textarea (see
+    // tests/js/markdown.test.mjs). The DOM wiring (keydown listener,
+    // reading/writing textarea.value and .selectionStart/End) lives in
+    // create.html, next to the write/preview tab wiring it complements.
+    //
+    // Wrapping is a toggle: applying the same shortcut to an already-wrapped
+    // selection (e.g. **bold** -> Ctrl+B again) removes the markers instead
+    // of nesting them.
+    function applyInlineWrap(value, start, end, before, after, placeholder) {
+        const hasSelection = start !== end;
+        const selected = value.slice(start, end);
+        const beforeCtx = value.slice(Math.max(0, start - before.length), start);
+        const afterCtx = value.slice(end, end + after.length);
+        // Guard against matching a single-char marker (e.g. italic `*`)
+        // against the boundary of a longer run of the same character (e.g.
+        // bold `**`) - without this, toggling italic inside **bold** would
+        // strip one asterisk from each side instead of nesting correctly.
+        const beforeExtra = value.slice(Math.max(0, start - before.length - 1), start - before.length);
+        const afterExtra = value.slice(end + after.length, end + after.length + 1);
+        const isExactBoundary =
+            beforeExtra !== before[before.length - 1] && afterExtra !== after[0];
+
+        if (hasSelection && beforeCtx === before && afterCtx === after && isExactBoundary) {
+            const newValue =
+                value.slice(0, start - before.length) +
+                selected +
+                value.slice(end + after.length);
+            return {
+                value: newValue,
+                selectionStart: start - before.length,
+                selectionEnd: start - before.length + selected.length,
+            };
+        }
+
+        const text = hasSelection ? selected : placeholder;
+        const newValue = value.slice(0, start) + before + text + after + value.slice(end);
+        return {
+            value: newValue,
+            selectionStart: start + before.length,
+            selectionEnd: start + before.length + text.length,
+        };
+    }
+
+    // Inserts `[selected or placeholder text](placeholderUrl)` and selects
+    // the URL portion, so pasting a URL immediately after triggering the
+    // shortcut just works - mirrors common markdown editor behaviour.
+    function applyLinkInsert(value, start, end, placeholderText, placeholderUrl) {
+        const hasSelection = start !== end;
+        const linkText = hasSelection ? value.slice(start, end) : placeholderText;
+        const insertion = "[" + linkText + "](" + placeholderUrl + ")";
+        const newValue = value.slice(0, start) + insertion + value.slice(end);
+        const urlStart = start + 1 + linkText.length + 2;
+        const urlEnd = urlStart + placeholderUrl.length;
+        return { value: newValue, selectionStart: urlStart, selectionEnd: urlEnd };
+    }
+
     // --- 5. Post-processing of the resulting DOM -------------------------
     // DOMPurify's allowlist governs *tags/attrs*, not link/image behaviour.
     // Force these regardless of what the markdown produced.
@@ -147,6 +206,8 @@
         renderMarkdown,
         hardenRenderedDom,
         enhanceElement,
+        applyInlineWrap,
+        applyLinkInsert,
     };
 
     if (typeof module !== "undefined" && module.exports) {
