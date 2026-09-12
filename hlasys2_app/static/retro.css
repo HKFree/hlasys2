@@ -734,3 +734,20 @@
     background-color: var(--danger-border);
     color: white;
 }
+
+/* --- Markdown rendering --- */
+[data-theme="retro"] .md-rendered,
+[data-theme="retro"] .md-tab,
+[data-theme="retro"] #description-preview,
+[data-theme="retro"] .md-cheatsheet {
+    font-family: Arial, Serif;
+}
+
+[data-theme="retro"] .md-rendered pre,
+[data-theme="retro"] .md-rendered code {
+    font-family: monospace;
+}
+
+[data-theme="retro"] .md-tab.active {
+    border-bottom-color: var(--bg-input);
+}

@@ -15,7 +15,7 @@
     </div>
     {% endif %}
     <div>
-        <div id="txt-desc">{{ proposal.description | trim | urlize(nofollow=False, target='_blank') }}</div>
+        <div id="txt-desc" data-markdown-source>{{ proposal.description | trim | urlize(nofollow=False, target='_blank') }}</div>
         <hr>
         <div id="d-one-bot">
             <p>Odhadovaná cena: <b>{{ "{:,}".format(proposal.cost) }} Kč</b></p>
@@ -64,3 +64,9 @@
         <p>Zatím se zde nic nestalo.</p>
     {% endfor %}
 {% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='vendor/marked.umd.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/purify.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='markdown.js') }}"></script>
+{% endblock scripts %}

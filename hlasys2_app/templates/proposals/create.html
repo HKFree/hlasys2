@@ -24,8 +24,28 @@
             </p>
         </div>
 
-        <div>
-            {{ form.description.label }} {{ form.description(class="form-control") }}
+        <div class="md-editor">
+            {{ form.description.label }}
+            <div class="md-tabs" role="tablist">
+                <button type="button" class="md-tab active" data-md-tab="write" role="tab" aria-selected="true">Psát</button>
+                <button type="button" class="md-tab" data-md-tab="preview" role="tab" aria-selected="false">Náhled</button>
+            </div>
+            <div class="md-tab-panel" data-md-panel="write">
+                {{ form.description(class="form-control", id="description") }}
+            </div>
+            <div class="md-tab-panel md-rendered" data-md-panel="preview" id="description-preview" hidden></div>
+            <details class="md-cheatsheet">
+                <summary>Nápověda k formátování (nepovinné)</summary>
+                <ul>
+                    <li><code># Nadpis</code> — nadpis</li>
+                    <li><code>**tučně**</code> — <strong>tučně</strong></li>
+                    <li><code>- položka</code> — odrážkový seznam</li>
+                    <li><code>[text](https://...)</code> — odkaz</li>
+                    <li><code>&gt; citace</code> — citace</li>
+                    <li><code>`kód`</code> — vloženy kód</li>
+                </ul>
+                <p class="text-muted"><i>Formátování je nepovinné — pokud text žádnou z výše uvedených značek neobsahuje, zobrazí se jako obyčejný text.</i></p>
+            </details>
         </div>
 
         <div>{{ form.cost.label }} {{ form.cost(class="form-control") }}</div>
@@ -47,3 +67,55 @@
     </form>
 </div>
 {% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='vendor/marked.umd.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/purify.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='markdown.js') }}"></script>
+    <script>
+        (function () {
+            var writeTab = document.querySelector('[data-md-tab="write"]');
+            var previewTab = document.querySelector('[data-md-tab="preview"]');
+            var writePanel = document.querySelector('[data-md-panel="write"]');
+            var previewPanel = document.getElementById('description-preview');
+            var textarea = document.getElementById('description');
+
+            if (!writeTab || !previewTab || !textarea) return;
+
+            function showWrite() {
+                writeTab.classList.add('active');
+                previewTab.classList.remove('active');
+                writeTab.setAttribute('aria-selected', 'true');
+                previewTab.setAttribute('aria-selected', 'false');
+                writePanel.hidden = false;
+                previewPanel.hidden = true;
+            }
+
+            function showPreview() {
+                var src = textarea.value;
+                previewPanel.style.whiteSpace = '';
+                if (window.HlasysMarkdown && typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined' && window.HlasysMarkdown.looksLikeMarkdown(src)) {
+                    previewPanel.innerHTML = window.HlasysMarkdown.renderMarkdown(src, marked.Marked, DOMPurify);
+                    window.HlasysMarkdown.hardenRenderedDom(previewPanel);
+                } else if (src.trim() === '') {
+                    previewPanel.textContent = 'Zatím nic k náhledu.';
+                } else {
+                    // Not detected as markdown: preview identically to the
+                    // eventual plaintext render (pre-wrap, no markdown parsing).
+                    previewPanel.textContent = src;
+                    previewPanel.style.whiteSpace = 'pre-wrap';
+                }
+
+                writeTab.classList.remove('active');
+                previewTab.classList.add('active');
+                writeTab.setAttribute('aria-selected', 'false');
+                previewTab.setAttribute('aria-selected', 'true');
+                writePanel.hidden = true;
+                previewPanel.hidden = false;
+            }
+
+            writeTab.addEventListener('click', showWrite);
+            previewTab.addEventListener('click', showPreview);
+        })();
+    </script>
+{% endblock scripts %}
