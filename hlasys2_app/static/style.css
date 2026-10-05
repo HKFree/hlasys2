@@ -42,6 +42,10 @@
     --unknown-text: #9a6223;
     --unknown-border: #e1b97c;
 
+    /* Row highlight: proposal is waiting for *my* vote */
+    --pending-row-bg: cornsilk;
+    --pending-row-border: #d8b65c;
+
     /* Flash Message: Info */
     --info-bg: #f7ebe8;
     --info-text: #8f3c31;
@@ -87,6 +91,9 @@
     --unknown-bg: #4b3721;
     --unknown-text: #f2ca8f;
     --unknown-border: #9c7242;
+
+    --pending-row-bg: #4a3d22;
+    --pending-row-border: #b79545;
 
     --info-bg: #452824;
     --info-text: #f0bbb3;
@@ -694,6 +701,12 @@ form input[type="checkbox"] {
         /* Undecided has no background tint by default */
     }
 
+    /* Waiting for the user's vote wins over the status tint */
+    .t-proposals tr.tr-user-pending {
+        background-color: var(--pending-row-bg);
+        border-left-color: var(--pending-row-border);
+    }
+
     .t-proposals td {
         border-bottom: none;
         padding: 6px 0;
@@ -911,6 +924,15 @@ a.disabled {
     font-size: 0.85em;
     margin-right: 0.5em;
     white-space: nowrap;
+}
+
+/* Proposal still waiting for the logged-in user's vote – highlight the whole row */
+.tr-user-pending {
+    background-color: var(--pending-row-bg);
+}
+
+.tr-user-pending td:first-child {
+    border-left-color: var(--pending-row-border);
 }
 
 .tr-user-pending td:first-child b {
