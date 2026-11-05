@@ -3,6 +3,7 @@
 {% set filter_labels = {'pd': 'Představenstvo Družstva', 'vv': 'Výkonný Výbor', 'cs': 'Členové spolku', 'cd': 'Členové družstva', 'so': 'Správci Oblastí (archiv)'} %}
 {% set kos = 1 if show_deleted else None %}
 {% set subset = filter != '' %}
+{% block layout_class %}layout-wide{% endblock %}
 {% block header %}
 <h1>{% block title %}{% if show_deleted %}Koš{% else %}Přehled návrhů{% endif %}{% if subset %} — {% for code in selected_filter %}{{ filter_labels[code] }}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}{% if current_page > 1 %} (str. {{ current_page }}){% endif %}{% endblock %}</h1>
 {% endblock %}

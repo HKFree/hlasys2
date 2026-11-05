@@ -39,7 +39,7 @@
         {% endif %}
 
         <nav>
-            <div class="nav-content">
+            <div class="nav-content {% block layout_class %}{% endblock %}">
                 <a href="{{ url_for('proposals.overview') }}">
                     <h1>hkfree.org hlasys <small>v{{hlasys2_version}}</small></h1>
                 </a>
@@ -70,7 +70,7 @@
             {% endif %}
         {% endwith %}
 
-        <section class="content">
+        <section class="content {{ self.layout_class() }}">
             <header>
                 {% block header %}{% endblock %}
             </header>

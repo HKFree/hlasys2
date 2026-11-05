@@ -947,6 +947,21 @@ footer a { color: var(--text-muted); text-decoration: underline; }
     text-align: right;
 }
 
+/* The overview gets a wider page; only the title column may wrap */
+.nav-content.layout-wide,
+.content.layout-wide {
+    max-width: 1100px;
+}
+
+.t-proposals td.td-created,
+.t-proposals td.td-author,
+.t-proposals td.td-cost,
+.t-proposals td.td-state,
+.t-proposals td.td-deleted-by,
+.t-proposals td.td-deleted-at {
+    white-space: nowrap;
+}
+
 a.disabled {
     color: gray;
     pointer-events: none;
