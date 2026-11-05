@@ -950,7 +950,7 @@ footer a { color: var(--text-muted); text-decoration: underline; }
 /* The overview gets a wider page; only the title column may wrap */
 .nav-content.layout-wide,
 .content.layout-wide {
-    max-width: 1100px;
+    max-width: 1000px;
 }
 
 .t-proposals td.td-created,
