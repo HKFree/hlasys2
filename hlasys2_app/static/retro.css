@@ -46,6 +46,14 @@
     --info-text: black;
     --info-border: black;
 
+    /* Voting groups - plain old web colours */
+    --group-pd: #0000aa;
+    --group-vv: #800080;
+    --group-cs: #007070;
+    --group-so: #707070;
+    --group-cd: #707000;
+    --group-on-text: white;
+
     /* Kill all modern styling */
     --radius: 0px;               /* Sharp corners everywhere */
     --shadow: none;              /* No shadows */
@@ -207,7 +215,7 @@
     border-left: none;
     background-color: #99fb97;
 }
-[data-theme="retro"] .tr-proposal-accepted td:first-child {
+[data-theme="retro"] .tr-proposal-accepted .td-subject {
     color: black;
 }
 
@@ -215,7 +223,7 @@
     border-left: none;
     background-color: #ff6c6c;
 }
-[data-theme="retro"] .tr-proposal-rejected td:first-child {
+[data-theme="retro"] .tr-proposal-rejected .td-subject {
     color: black;
 }
 
@@ -266,6 +274,16 @@
     background-color: #d0d0d0;
     border-color: black;
     color: black;
+}
+
+[data-theme="retro"] .d-row-toggle a.pill-on {
+    background-color: var(--group-color);
+    color: var(--group-on-text);
+    border-style: solid;
+}
+
+[data-theme="retro"] .d-row-toggle a.pill-off {
+    border-style: dashed;
 }
 
 [data-theme="retro"] .pagination-controls a {
@@ -614,9 +632,12 @@
         border-left-color: black;
     }
 
-    [data-theme="retro"] .t-proposals td:nth-of-type(2):before,
-    [data-theme="retro"] .t-proposals td:nth-of-type(3):before,
-    [data-theme="retro"] .t-proposals td:nth-of-type(4):before {
+    [data-theme="retro"] .t-proposals td.td-created:before,
+    [data-theme="retro"] .t-proposals td.td-author:before,
+    [data-theme="retro"] .t-proposals td.td-cost:before,
+    [data-theme="retro"] .t-proposals td.td-state:before,
+    [data-theme="retro"] .t-proposals td.td-deleted-by:before,
+    [data-theme="retro"] .t-proposals td.td-deleted-at:before {
         color: black;
         font-family: Arial, Serif;
         font-size: 13px;

@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 
-from flask import Flask, redirect, session, flash, request
+from flask import Flask, redirect, session, flash, request, url_for
 from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_oidc import OpenIDConnect
 import locale
@@ -55,7 +55,7 @@ def create_app():
     @app.route("/")
     @login_required
     def hello():
-        return redirect("/overview/pd")
+        return redirect(url_for("proposals.overview"))
 
     @app.route("/whoami")
     @login_required

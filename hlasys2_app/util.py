@@ -335,57 +335,88 @@ def user_voted(user_id: int, proposal_id: int) -> bool:
     return vote is not None
 
 
-def next_filter(current_filter: str, add: str) -> str:
+# Overview filter codes, in the order they are written into the URL.
+FILTER_CODES = {
+    "pd": HkfreeRole.PD,
+    "vv": HkfreeRole.VV,
+    "cs": HkfreeRole.CS,
+    "so": HkfreeRole.SO,
+    "cd": HkfreeRole.CD,
+}
+
+# Groups offered as toggle pills on the overview. CD (unused) is still
+# accepted in the URL, just not offered.
+FILTER_PILLS = ("pd", "vv", "cs", "so")
+
+# Groups selected when the URL has no filter. SO is the archive, off by default.
+DEFAULT_FILTER = ("pd", "vv", "cs")
+
+# The archive is shown on its own: turning it on turns the rest off and vice versa.
+ARCHIVE_FILTER = "so"
+
+
+def parse_filter(raw: str) -> list[str]:
     """
-    Update the current filter by adding or removing a specified role filter.
-    If the role is already in the filter, it will be removed, otherwise, it will be added.
+    Parse the overview filter from the URL into a list of group codes.
+
+    The filter is a concatenation of two-letter codes (e.g. "pdvv"). Unknown
+    codes are ignored. An empty or unparseable filter selects DEFAULT_FILTER.
 
     Args:
-        current_filter (str): The current filter string.
-        add (str): The role to add or remove (e.g., "vv", "so").
+        raw (str): Filter segment of the URL.
 
     Returns:
-        str: The updated filter string.
+        list[str]: Selected codes in FILTER_CODES order, never empty.
     """
-    # next_str = current_filter
-    # if add in current_filter:
-    #     next_str = next_str.replace(add, "")
-    # else:
-    #     next_str += add
-
-    # return next_str
-    return add
+    raw = (raw or "").lower()
+    chunks = {raw[i:i + 2] for i in range(0, len(raw), 2)}
+    selected = [code for code in FILTER_CODES if code in chunks]
+    return selected or list(DEFAULT_FILTER)
 
 
-def overview_filter(current_filter: str) -> str:
+def filter_to_url(selected: list[str]) -> str:
     """
-    Generate an SQL WHERE clause to filter proposals based on the current role filter.
-    Hardcoded roles are represented by 0 (VV), 1 (SO), 2 (PD)..
+    Canonical URL form of a selection. The default selection is the empty
+    string, so the plain /overview URL is what everybody lands on.
+    """
+    ordered = [code for code in FILTER_CODES if code in selected]
+    if not ordered or set(ordered) == set(DEFAULT_FILTER):
+        return ""
+    return "".join(ordered)
+
+
+def toggle_filter(selected: list[str], code: str) -> str:
+    """
+    URL filter after toggling one group on or off. Turning off the last
+    selected group turns all default groups back on. The archive is exclusive:
+    turning it on deselects every other group, and turning on any other group
+    deselects the archive.
 
     Args:
-        current_filter (str): The current filter string, containing role names (e.g. 'vv', 'so', 'pd')
+        selected (list[str]): Currently selected codes (see parse_filter).
+        code (str): The code to toggle.
 
     Returns:
-        str: The generated SQL WHERE clause based on the current filter.
+        str: The new filter for the URL.
     """
-    sql_str = "WHERE type IN (0, 1, 2, 3, 4) "
+    if code == ARCHIVE_FILTER:
+        return "" if ARCHIVE_FILTER in selected else ARCHIVE_FILTER
+    return filter_to_url(list((set(selected) - {ARCHIVE_FILTER}) ^ {code}))
 
-    if "vv" not in current_filter:
-        sql_str = sql_str.replace("0, ", "")
-    if "so" not in current_filter:
-        sql_str = sql_str.replace("1, ", "")
-    if "pd" not in current_filter:
-        sql_str = sql_str.replace("2, ", "")
-    if "cs" not in current_filter:
-        sql_str = sql_str.replace("3, ", "")
-    if "cd" not in current_filter:
-        sql_str = sql_str.replace("4", "")
 
-    sql_str = sql_str.replace(", )", ")")
+def overview_filter(selected: list[str]) -> tuple[str, dict]:
+    """
+    SQL condition restricting proposals to the selected groups.
 
-    if current_filter == "":
-        sql_str = "WHERE 1 = 0"
-    return sql_str
+    Args:
+        selected (list[str]): Selected codes (see parse_filter).
+
+    Returns:
+        tuple: (condition without WHERE, bound parameters)
+    """
+    params = {f"type_{i}": int(FILTER_CODES[code]) for i, code in enumerate(selected)}
+    placeholders = ", ".join(f":{name}" for name in params)
+    return f"p.type IN ({placeholders})", params
 
 
 def is_proposal_accepted(proposal: dict) -> bool | None:

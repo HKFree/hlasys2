@@ -7,8 +7,9 @@ from threading import Thread
 
 from hlasys2_app.db import get_db
 from hlasys2_app.util import (
-    HkfreeRole, next_filter, overview_filter, can_vote, can_delete_proposal,
-    is_proposal_accepted, userdb_api, get_undecided, calculate_acceptance_treshold
+    HkfreeRole, overview_filter, parse_filter, filter_to_url, toggle_filter,
+    FILTER_PILLS, can_vote, can_delete_proposal, is_proposal_accepted,
+    userdb_api, get_undecided, calculate_acceptance_treshold
 )
 from hlasys2_app.forms import CreateProposalForm, CreateCommentForm, QuickVoteForm
 from hlasys2_app.notifications import notify_new_proposal
@@ -43,9 +44,9 @@ def _build_overview_query(
     params = {}
     where_conditions = ["p.deleted IS NOT NULL" if deleted else "p.deleted IS NULL"]
 
-    filter_sql = overview_filter(filter)
-    if filter_sql:
-        where_conditions.append(filter_sql.replace("WHERE", "").strip())
+    type_condition, type_params = overview_filter(parse_filter(filter))
+    where_conditions.append(type_condition)
+    params.update(type_params)
 
     # The koš has no search box; ignore a stray search_query there.
     searching = bool(search_query) and not deleted
@@ -154,8 +155,7 @@ def _fetch_live_proposals(db, where_clause, params, order_by, limit, offset):
     return proposals
 
 
-@bp.route("/overview", defaults={"filter": ""})
-@bp.route("/overview/", defaults={"filter": ""})
+@bp.route("/overview", defaults={"filter": ""}, strict_slashes=False)
 @bp.route("/overview/<filter>")
 @login_required
 def overview(filter):
@@ -176,6 +176,9 @@ def overview(filter):
             return redirect(
                 url_for("proposals.view_proposal", proposal_id=proposal_row["id"])
             )
+
+    selected = parse_filter(filter)
+    filter = filter_to_url(selected)
 
     page = request.args.get("page", default=1, type=int)
     where_clause, params, order_by, limit, offset, searching = _build_overview_query(
@@ -198,11 +201,14 @@ def overview(filter):
         "proposals/overview.html",
         proposals=proposals,
         filter=filter,
+        selected_filter=selected,
+        filter_pills=FILTER_PILLS,
+        toggle_filter=toggle_filter,
         search_query=search_query,
         show_deleted=show_deleted,
         total_pages=int(total_pages),
         current_page=int(page),
-        next_filter=next_filter,
+        HkfreeRole=HkfreeRole,
     )
 
 

@@ -40,11 +40,11 @@
 
         <nav>
             <div class="nav-content">
-                <a href="{{ url_for('proposals.overview', filter='pd') }}">
+                <a href="{{ url_for('proposals.overview') }}">
                     <h1>hkfree.org hlasys <small>v{{hlasys2_version}}</small></h1>
                 </a>
                 <ul>
-                    <li><a href="{{ url_for('proposals.overview', filter='pd') }}">Přehled</a>
+                    <li><a href="{{ url_for('proposals.overview') }}">Přehled</a>
                     <li><a href="{{ url_for('users.user_overview', user_id=session["oidc_auth_profile"]["preferred_username"]) }}">Moje timeline</a>
                     <li><a href="{{ url_for('proposals.create_proposal') }}">Nový návrh</a>
                     <li>

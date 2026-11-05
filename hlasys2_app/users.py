@@ -37,7 +37,7 @@ def user_overview(user_id):
 
     if not user_event and not user_proposal:
         flash("Tento uživatel zatím nemá timeline...", "warning")
-        return redirect("/overview/vvsopd")
+        return redirect(url_for("proposals.overview"))
 
     timeline = db.execute(
         """

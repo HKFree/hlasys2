@@ -51,6 +51,15 @@
     --info-text: #8f3c31;
     --info-border: #e3b5ad;
 
+    /* Voting groups (overview pills and row labels). Kept clear of the
+       green/red/amber used for row status. */
+    --group-pd: #2f6db5;
+    --group-vv: #7b4fb3;
+    --group-cs: #1f8a80;
+    --group-so: #8a7a6a;
+    --group-cd: #9a7b1f;
+    --group-on-text: #ffffff;
+
     /* Misc */
     --radius: 10px;
     --shadow: 0 8px 24px rgba(44, 38, 35, 0.08);
@@ -98,6 +107,13 @@
     --info-bg: #452824;
     --info-text: #f0bbb3;
     --info-border: #8d544c;
+
+    --group-pd: #6ea0e0;
+    --group-vv: #b08ae0;
+    --group-cs: #4fc2b5;
+    --group-so: #b5a595;
+    --group-cd: #d4b45a;
+    --group-on-text: #1f1a17;
 
     --shadow: 0 10px 30px rgba(0,0,0,0.28);
 }
@@ -329,14 +345,16 @@ hr {
     vertical-align: middle;
 }
 
-/* Row Status Styling */
-.tr-proposal-accepted { background-color: var(--success-row-bg); }
-.tr-proposal-accepted td:first-child { border-left: 3px solid var(--success-border); color: var(--success-text); }
+/* Row Status Styling - the row sets --status-stripe, the leading cell draws it */
+.tr-proposal-accepted { background-color: var(--success-row-bg); --status-stripe: var(--success-border); }
+.tr-proposal-accepted .td-subject { color: var(--success-text); }
 
-.tr-proposal-rejected { background-color: var(--danger-row-bg); }
-.tr-proposal-rejected td:first-child { border-left: 3px solid var(--danger-border); color: var(--danger-text); }
+.tr-proposal-rejected { background-color: var(--danger-row-bg); --status-stripe: var(--danger-border); }
+.tr-proposal-rejected .td-subject { color: var(--danger-text); }
 
-.tr-proposal-undecided td:first-child { border-left: 3px solid var(--unknown-border); }
+.tr-proposal-undecided { --status-stripe: var(--unknown-border); }
+
+.t-proposals td.td-subject { border-left: 3px solid var(--status-stripe, transparent); }
 
 /* =========================================
    5. Controls & Toggles
@@ -715,22 +733,19 @@ form input[type="checkbox"] {
         text-align: right;
     }
 
-    .t-proposals td:nth-of-type(1) { font-size: 1.1rem; text-align: left; display: block; margin-bottom: 5px; }
-    .t-proposals td:nth-of-type(2):before { content: "Vytvořeno:"; float: left; font-weight: bold; color: var(--text-muted); }
-    .t-proposals td:nth-of-type(3):before { content: "Navrhovatel:"; float: left; font-weight: bold; color: var(--text-muted); }
-    .t-proposals td:nth-of-type(4):before { content: "Cena:"; float: left; font-weight: bold; color: var(--text-muted); }
-    .t-proposals td:nth-of-type(5):before { content: "Stav:"; float: left; font-weight: bold; color: var(--text-muted); }
-
-    /* The koš swaps the last two columns for Smazal / Smazáno */
-    .t-proposals tr.tr-proposal-deleted td:nth-of-type(4):before { content: "Smazal:"; }
-    .t-proposals tr.tr-proposal-deleted td:nth-of-type(5):before { content: "Smazáno:"; }
+    .t-proposals td.td-subject { font-size: 1.1rem; text-align: left; display: block; margin-bottom: 5px; }
+    .t-proposals td.td-created:before { content: "Vytvořeno:"; float: left; font-weight: bold; color: var(--text-muted); }
+    .t-proposals td.td-author:before { content: "Navrhovatel:"; float: left; font-weight: bold; color: var(--text-muted); }
+    .t-proposals td.td-cost:before { content: "Cena:"; float: left; font-weight: bold; color: var(--text-muted); }
+    .t-proposals td.td-state:before { content: "Stav:"; float: left; font-weight: bold; color: var(--text-muted); }
+    .t-proposals td.td-deleted-by:before { content: "Smazal:"; float: left; font-weight: bold; color: var(--text-muted); }
+    .t-proposals td.td-deleted-at:before { content: "Smazáno:"; float: left; font-weight: bold; color: var(--text-muted); }
 
     /* Strip the duplicated 3px coloured cell border on mobile - the row's 5px left border already conveys status */
-    .t-proposals tr.tr-proposal-accepted td:first-child,
-    .t-proposals tr.tr-proposal-rejected td:first-child,
-    .t-proposals tr.tr-proposal-undecided td:first-child,
-    .t-proposals tr.tr-proposal-deleted td:first-child {
+    .t-proposals tr.tr-proposal td.td-subject {
         border-left: none;
+    }
+    .t-proposals tr.tr-proposal td.td-subject {
         color: inherit;
         font-weight: inherit;
     }
@@ -909,7 +924,7 @@ footer a { color: var(--text-muted); text-decoration: underline; }
     border-color: var(--border-color) transparent transparent transparent;
 }
 
-.t-proposals td:nth-child(4) {
+.t-proposals td.td-cost {
     text-align: right;
 }
 
@@ -931,11 +946,11 @@ a.disabled {
     background-color: var(--pending-row-bg);
 }
 
-.tr-user-pending td:first-child {
-    border-left-color: var(--pending-row-border);
+.tr-user-pending {
+    --status-stripe: var(--pending-row-border);
 }
 
-.tr-user-pending td:first-child b {
+.tr-user-pending td.td-subject b {
     font-weight: 900;
     font-size: 1.1em;
 }
@@ -1110,8 +1125,8 @@ a.disabled {
     color: var(--text-muted);
 }
 
-.tr-proposal-deleted td:first-child {
-    border-left: 3px solid var(--text-muted);
+.tr-proposal-deleted {
+    --status-stripe: var(--text-muted);
 }
 
 /* =========================================
@@ -1270,4 +1285,40 @@ a.disabled {
 .md-cheatsheet ul {
     margin: 0.4em 0;
     padding-left: 1.4em;
+}
+
+/* =========================================
+   Overview: voting group filter pills & row labels
+   ========================================= */
+.group-pd { --group-color: var(--group-pd); }
+.group-vv { --group-color: var(--group-vv); }
+.group-cs { --group-color: var(--group-cs); }
+.group-so { --group-color: var(--group-so); }
+.group-cd { --group-color: var(--group-cd); }
+
+.d-row-toggle a.pill-on {
+    background-color: var(--group-color);
+    border-color: var(--group-color);
+    color: var(--group-on-text);
+}
+
+.d-row-toggle a.pill-on:hover {
+    color: var(--group-on-text);
+    border-color: var(--text-main);
+}
+
+.d-row-toggle a.pill-off {
+    color: var(--text-muted);
+    border-style: dashed;
+    border-color: var(--group-color);
+}
+
+/* Group code in front of the proposal title */
+.group-prefix {
+    margin-right: 0.4em;
+    color: var(--group-color);
+    font-size: 0.8em;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    cursor: help;
 }
