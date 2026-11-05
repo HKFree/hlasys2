@@ -81,10 +81,10 @@
                     </a>
                 </td>
                 <td class="td-created"><small class="s-overview-date">{{ p.created.strftime('%d.%m.') }}{% if p.created.year != now_year %}{{ p.created.strftime('%Y') }}{% endif %}</small></td>
-                <td class="td-author">{{ p.author_name | truncate(20) }}</td>
+                <td class="td-author">{{ p.author_name | truncate(32) }}</td>
                 <td class="td-deleted-by">
                     {% if p.deleted_by_name %}
-                        <a href="{{ url_for('users.user_overview', user_id=p.deleted_by_id) }}">{{ p.deleted_by_name | truncate(20) }}</a>
+                        <a href="{{ url_for('users.user_overview', user_id=p.deleted_by_id) }}">{{ p.deleted_by_name | truncate(32) }}</a>
                     {% else %}
                         <span class="text-muted">—</span>
                     {% endif %}
@@ -107,7 +107,7 @@
                     </a>
                 </td>
                 <td class="td-created"><small class="s-overview-date">{{ p.created.strftime('%d.%m.') }}{% if p.created.year != now_year %}{{ p.created.strftime('%Y') }}{% endif %}</small></td>
-                <td class="td-author">{{ p.author_name | truncate(20) }}</td>
+                <td class="td-author">{{ p.author_name | truncate(32) }}</td>
                 <td class="td-cost">{{ "{:,}".format(p.cost) }} Kč</td>
                 <td class="td-state">{{ p.state or '' }}</td>
             </tr>

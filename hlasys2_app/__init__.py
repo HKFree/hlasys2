@@ -71,6 +71,7 @@ def create_app():
                 session["oidc_auth_profile"] = {
                     "preferred_username": str(user["preferred_username"]),
                     "family_name": user["family_name"],
+                    "given_name": user.get("given_name"),
                 }
                 flash(f"Přepnuto na uživatele: {user['family_name']}", "success")
             else:

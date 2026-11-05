@@ -1,6 +1,6 @@
-from flask import Blueprint, render_template, redirect, session, request, flash, url_for
+from flask import Blueprint, render_template, redirect, request, flash, url_for
 from hlasys2_app.db import get_db
-from hlasys2_app.util import check_proposal_status, can_vote
+from hlasys2_app.util import check_proposal_status, can_vote, current_user
 from hlasys2_app.forms import VoteDecisionForm, QuickVoteForm
 from hlasys2_app.decorators import login_required
 
@@ -107,9 +107,7 @@ def _load_votable_proposal(proposal_id: int, user_id: int):
 @bp.route("/proposal/<int:proposal_id>/vote", methods=["GET", "POST"])
 @login_required
 def vote_on_proposal(proposal_id: int):
-    current_user_profile = session["oidc_auth_profile"]
-    user_id = int(current_user_profile["preferred_username"])
-    user_name = current_user_profile["family_name"]
+    user_id, user_name = current_user()
 
     proposal, redir = _load_votable_proposal(proposal_id, user_id)
     if redir is not None:
@@ -142,9 +140,7 @@ def vote_on_proposal(proposal_id: int):
 @login_required
 def quick_vote(proposal_id: int):
     """One-click PRO/PROTI vote without comment screen."""
-    current_user_profile = session["oidc_auth_profile"]
-    user_id = int(current_user_profile["preferred_username"])
-    user_name = current_user_profile["family_name"]
+    user_id, user_name = current_user()
 
     proposal, redir = _load_votable_proposal(proposal_id, user_id)
     if redir is not None:

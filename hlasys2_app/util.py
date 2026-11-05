@@ -1,3 +1,5 @@
+from flask import session
+
 from .db import get_db
 from urllib import request
 from urllib.parse import quote
@@ -256,6 +258,31 @@ class UserDBData:
 
 # Initialize the userdb_api instance as a singleton
 userdb_api = UserDBData()
+
+
+def display_name(real_name: str | None, nick: str | None) -> str:
+    """
+    Name stored with votes, comments and proposals: "<real name> - <nick>".
+    Falls back to whichever one is present, and drops the nick when it merely
+    repeats the real name.
+    """
+    real_name = (real_name or "").strip()
+    nick = (nick or "").strip()
+    if real_name and nick and real_name.casefold() != nick.casefold():
+        return f"{real_name} - {nick}"
+    return real_name or nick
+
+
+def current_user() -> tuple[int, str]:
+    """
+    The logged-in user as (id, display name).
+
+    hkfree SSO puts the UserDB id in preferred_username, the real name in
+    family_name and the nick in given_name.
+    """
+    profile = session["oidc_auth_profile"]
+    name = display_name(profile.get("family_name"), profile.get("given_name"))
+    return int(profile["preferred_username"]), name
 
 
 def can_vote(user_id: int, proposal: dict) -> bool:
