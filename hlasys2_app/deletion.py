@@ -1,13 +1,13 @@
 from datetime import datetime
 
 from flask import (
-    Blueprint, flash, redirect, render_template, session, url_for
+    Blueprint, flash, redirect, render_template, url_for
 )
 
 from hlasys2_app.db import get_db
 from hlasys2_app.decorators import login_required
 from hlasys2_app.forms import DeleteProposalForm
-from hlasys2_app.util import HkfreeRole, can_delete_proposal
+from hlasys2_app.util import HkfreeRole, can_delete_proposal, current_user
 
 bp = Blueprint("deletion", __name__)
 
@@ -70,8 +70,7 @@ def _count_votes(db, proposal_id: int) -> dict:
 @login_required
 def delete_proposal(proposal_id: int):
     """Confirmation screen (GET) and the soft delete itself (POST)."""
-    user_id = int(session["oidc_auth_profile"]["preferred_username"])
-    user_name = session["oidc_auth_profile"]["family_name"]
+    user_id, user_name = current_user()
 
     proposal, redir = _load_deletable_proposal(proposal_id, user_id)
     if redir is not None:

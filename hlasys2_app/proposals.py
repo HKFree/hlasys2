@@ -1,14 +1,15 @@
 from flask import (
     Blueprint, flash, redirect, render_template, 
-    session, request, url_for, current_app
+    request, url_for, current_app
 )
 import math, json, copy
 from threading import Thread
 
 from hlasys2_app.db import get_db
 from hlasys2_app.util import (
-    HkfreeRole, next_filter, overview_filter, can_vote, can_delete_proposal,
-    is_proposal_accepted, userdb_api, get_undecided, calculate_acceptance_treshold
+    HkfreeRole, overview_filter, parse_filter, filter_to_url, toggle_filter,
+    FILTER_PILLS, current_user, can_vote, can_delete_proposal, is_proposal_accepted,
+    userdb_api, get_undecided, calculate_acceptance_treshold
 )
 from hlasys2_app.forms import CreateProposalForm, CreateCommentForm, QuickVoteForm
 from hlasys2_app.notifications import notify_new_proposal
@@ -43,9 +44,9 @@ def _build_overview_query(
     params = {}
     where_conditions = ["p.deleted IS NOT NULL" if deleted else "p.deleted IS NULL"]
 
-    filter_sql = overview_filter(filter)
-    if filter_sql:
-        where_conditions.append(filter_sql.replace("WHERE", "").strip())
+    type_condition, type_params = overview_filter(parse_filter(filter))
+    where_conditions.append(type_condition)
+    params.update(type_params)
 
     # The koš has no search box; ignore a stray search_query there.
     searching = bool(search_query) and not deleted
@@ -129,7 +130,7 @@ def _fetch_live_proposals(db, where_clause, params, order_by, limit, offset):
     """
 
     # Identify proposals where the current user already voted, in one batched query
-    user_id = int(session["oidc_auth_profile"]["preferred_username"])
+    user_id, _ = current_user()
     voted_sql = f"""
         SELECT DISTINCT proposal_id FROM event
         WHERE author_id = :uid AND decision IS NOT NULL
@@ -154,8 +155,7 @@ def _fetch_live_proposals(db, where_clause, params, order_by, limit, offset):
     return proposals
 
 
-@bp.route("/overview", defaults={"filter": ""})
-@bp.route("/overview/", defaults={"filter": ""})
+@bp.route("/overview", defaults={"filter": ""}, strict_slashes=False)
 @bp.route("/overview/<filter>")
 @login_required
 def overview(filter):
@@ -176,6 +176,9 @@ def overview(filter):
             return redirect(
                 url_for("proposals.view_proposal", proposal_id=proposal_row["id"])
             )
+
+    selected = parse_filter(filter)
+    filter = filter_to_url(selected)
 
     page = request.args.get("page", default=1, type=int)
     where_clause, params, order_by, limit, offset, searching = _build_overview_query(
@@ -198,11 +201,14 @@ def overview(filter):
         "proposals/overview.html",
         proposals=proposals,
         filter=filter,
+        selected_filter=selected,
+        filter_pills=FILTER_PILLS,
+        toggle_filter=toggle_filter,
         search_query=search_query,
         show_deleted=show_deleted,
         total_pages=int(total_pages),
         current_page=int(page),
-        next_filter=next_filter,
+        HkfreeRole=HkfreeRole,
     )
 
 
@@ -211,7 +217,7 @@ def overview(filter):
 def view_proposal(proposal_id):
     """Displays a single proposal and its associated events and votes."""
     db = get_db()
-    user_id = int(session["oidc_auth_profile"]["preferred_username"])
+    user_id, _ = current_user()
 
     proposal_row = db.execute("SELECT * FROM proposal WHERE id = :id", {"id": proposal_id}).fetchone()
 
@@ -267,7 +273,7 @@ def view_proposal(proposal_id):
         proposal=proposal,
         events=events,
         undecided_voters=get_undecided(proposal),
-        can_vote=(str(user_id) in proposal['deciders']),
+        can_vote=can_vote(user_id, proposal),
         # proposal_row, not proposal: deciders is parsed in place above.
         can_delete=can_delete_proposal(user_id, proposal_row),
         deletion_event=deletion_event,
@@ -287,6 +293,7 @@ def create_proposal():
     
     if form.validate_on_submit():
         db = get_db()
+        user_id, user_name = current_user()
         deciders = userdb_api.get_deciders(int(form.type.data))
 
         cursor = db.execute(
@@ -295,8 +302,8 @@ def create_proposal():
             VALUES (:author_id, :author_name, :type, :subject, :description, :cost, :deciders, :acceptance_treshold)
             """,
             {
-                "author_id": session["oidc_auth_profile"]["preferred_username"],
-                "author_name": session["oidc_auth_profile"]["family_name"],
+                "author_id": user_id,
+                "author_name": user_name,
                 "type": form.type.data,
                 "subject": form.subject.data,
                 "description": form.description.data,
@@ -309,7 +316,6 @@ def create_proposal():
         flash("Návrh byl úspěšně vytvořen.", "success")
         
         try:
-            author_fullname = session["oidc_auth_profile"]["family_name"]
             full_url = f"{config.APP_BASE_URL}{url_for('proposals.view_proposal', proposal_id=cursor.lastrowid)}"
             # full_url = url_for('proposals.view_proposal', proposal_id=new_proposal_id, _external=True)
             
@@ -319,7 +325,7 @@ def create_proposal():
                     HkfreeRole(int(form.type.data)), 
                     cursor.lastrowid, 
                     form.subject.data, 
-                    author_fullname, 
+                    user_name, 
                     form.cost.data, 
                     form.description.data,
                     full_url
@@ -347,6 +353,7 @@ def add_comment(proposal_id: int):
 
     form = CreateCommentForm()
     if form.validate_on_submit():
+        user_id, user_name = current_user()
         db.execute(
             """
             INSERT INTO event (proposal_id, author_id, author_name, comment)
@@ -354,8 +361,8 @@ def add_comment(proposal_id: int):
             """,
             {
                 "pid": proposal_id,
-                "uid": int(session["oidc_auth_profile"]["preferred_username"]),
-                "uname": session["oidc_auth_profile"]["family_name"],
+                "uid": user_id,
+                "uname": user_name,
                 "comment": form.comment.data,
             },
         )
@@ -370,7 +377,7 @@ def add_comment(proposal_id: int):
 @login_required
 def change_state(proposal_id: int, new_state: str):
     """Changes the state of a proposal (e.g., 'Ordered'). For authorized users only."""
-    user_id = int(session["oidc_auth_profile"]["preferred_username"])
+    user_id, user_name = current_user()
     if user_id not in config.USERS_CHANGE_STATE:
         flash("Nemáte oprávnění měnit stav návrhu.", "danger")
         return redirect(url_for("proposals.view_proposal", proposal_id=proposal_id))
@@ -404,7 +411,7 @@ def change_state(proposal_id: int, new_state: str):
             """,
             {
                 "pid": proposal_id, "uid": user_id, 
-                "uname": session["oidc_auth_profile"]["family_name"],
+                "uname": user_name,
                 "comment": f"Změna stavu z '{current_state or 'Nic'}' na '{new_state}'",
             },
         )

@@ -1,53 +1,46 @@
 {% extends 'base.html' %}
 
-{% block head %}
-
-{% endblock head %}
-
-{% set filter_labels = {'pd': 'Představenstvo Družstva', 'vv': 'Výkonný Výbor', 'cs': 'Členové spolku', 'cd': 'Členové družstva', 'so': 'Správci Oblastí'} %}
+{% set filter_labels = {'pd': 'Představenstvo Družstva', 'vv': 'Výkonný Výbor', 'cs': 'Členové spolku', 'cd': 'Členové družstva', 'so': 'Správci Oblastí (archiv)'} %}
 {% set kos = 1 if show_deleted else None %}
+{% set subset = filter != '' %}
 {% block header %}
-<h1>{% block title %}{% if show_deleted %}Koš{% else %}Přehled návrhů{% endif %}{% if filter in filter_labels %} — {{ filter_labels[filter] }}{% endif %}{% if current_page > 1 %} (str. {{ current_page }}){% endif %}{% endblock %}</h1>
+<h1>{% block title %}{% if show_deleted %}Koš{% else %}Přehled návrhů{% endif %}{% if subset %} — {% for code in selected_filter %}{{ filter_labels[code] }}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}{% if current_page > 1 %} (str. {{ current_page }}){% endif %}{% endblock %}</h1>
 {% endblock %}
+
+{% macro pagination() %}
+    {% if total_pages > 1 %}
+    <div class="pagination-controls">
+        <a {{ "class=disabled" if current_page <= 1 }} href="{{ url_for('proposals.overview', filter=filter, page=1, deleted=kos) }}">&laquo;&laquo;</a>
+        <a {{ "class=disabled" if current_page <= 1 }} href="{{ url_for('proposals.overview', filter=filter, page=current_page-1, deleted=kos) }}">&laquo;</a>
+        <span class="page-info">Strana {{ current_page }} z {{ total_pages }}</span>
+        <a {{ "class=disabled" if current_page >= total_pages }} href="{{ url_for('proposals.overview', filter=filter, page=current_page+1, deleted=kos) }}">&raquo;</a>
+        <a {{ "class=disabled" if current_page >= total_pages }} href="{{ url_for('proposals.overview', filter=filter, page=total_pages, deleted=kos) }}">&raquo;&raquo;</a>
+    </div>
+    {% endif %}
+{% endmacro %}
+
+{% macro group_label(p) %}
+    {%- set role = HkfreeRole(p.type) -%}
+    <span class="group-prefix" title="{{ role.long_name }}">{{ role.name }}</span>
+{%- endmacro %}
 
 {% block content %}
 <div class="d-row-toggle">
-    <a href="{{ url_for('proposals.overview', filter=next_filter(filter, 'pd'), deleted=kos) }}">
-        <span>{% if 'pd' in filter %}✔{% else %}✖{% endif %}</span> Představenstvo Družstva
+    {% for code in filter_pills %}
+    {% set on = code in selected_filter %}
+    <a class="pill-group group-{{ code }} {{ 'pill-on' if on else 'pill-off' }}"
+       aria-pressed="{{ 'true' if on else 'false' }}"
+       href="{{ url_for('proposals.overview', filter=toggle_filter(selected_filter, code), deleted=kos) }}">
+        <span>{% if on %}✔{% else %}✖{% endif %}</span> {{ filter_labels[code] }}
     </a>
-    <a href="{{ url_for('proposals.overview', filter=next_filter(filter, 'vv'), deleted=kos) }}">
-        <span>{% if 'vv' in filter %}✔{% else %}✖{% endif %}</span> Výkonný Výbor
-    </a>
-    <a href="{{ url_for('proposals.overview', filter=next_filter(filter, 'cs'), deleted=kos) }}">
-        <span>{% if 'cs' in filter %}✔{% else %}✖{% endif %}</span> Členové spolku
-    </a>
-    <a href="{{ url_for('proposals.overview', filter=next_filter(filter, 'cd'), deleted=kos) }}">
-        <span>{% if 'cd' in filter %}✔{% else %}✖{% endif %}</span> Členové družstva
-    </a>
-    <a href="{{ url_for('proposals.overview', filter=next_filter(filter, 'so'), deleted=kos) }}">
-        <span>{% if 'so' in filter %}✔{% else %}✖{% endif %}</span> Správce Oblastí (archiv)
-    </a>
+    {% endfor %}
     <a href="{{ url_for('proposals.overview', filter=filter, deleted=None if show_deleted else 1) }}">
         <span>{% if show_deleted %}✔{% else %}✖{% endif %}</span> 🗑 Koš
     </a>
 </div>
 
 <div class="d-row-toggle">
-    {% if total_pages > 1 %}
-    <div class="pagination-controls">
-
-        <a {{ "class=disabled" if current_page == 0 }} href="{{ url_for('proposals.overview', filter=filter, page=0, deleted=kos) }}">&laquo;&laquo;</a>
-
-        <a {{ "class=disabled" if current_page == 0 }} href="{{ url_for('proposals.overview', filter=filter, page=current_page-1, deleted=kos) }}">&laquo;</a>
-
-        <span class="page-info">Strana {{ current_page }} z {{ total_pages }}</span>
-
-        <a {{ "class=disabled" if current_page == total_pages }} href="{{ url_for('proposals.overview', filter=filter, page=current_page+1, deleted=kos) }}">&raquo;</a>
-
-        <a {{ "class=disabled" if current_page == total_pages }} href="{{ url_for('proposals.overview', filter=filter, page=total_pages, deleted=kos) }}">&raquo;&raquo;</a>
-
-    </div>
-    {% endif %}
+    {{ pagination() }}
 </div>
 
 {% if not show_deleted %}
@@ -78,42 +71,45 @@
     </thead>
     <tbody>
         {% for p in proposals %}
+            {% set group_cls = ' group-' ~ HkfreeRole(p.type).name | lower %}
             {% if show_deleted %}
-            <tr class="tr-proposal tr-proposal-deleted">
-                <td>
+            <tr class="tr-proposal tr-proposal-deleted{{ group_cls }}">
+                <td class="td-subject">
+                    {{ group_label(p) }}
                     <a href="{{ url_for('proposals.view_proposal', proposal_id=p.id) }}">
                         <b>{{ p.subject }}</b>
                     </a>
                 </td>
-                <td><small class="s-overview-date">{{ p.created.strftime('%d.%m.') }}{% if p.created.year != now_year %}{{ p.created.strftime('%Y') }}{% endif %}</small></td>
-                <td>{{ p.author_name | truncate(20) }}</td>
-                <td>
+                <td class="td-created"><small class="s-overview-date">{{ p.created.strftime('%d.%m.') }}{% if p.created.year != now_year %}{{ p.created.strftime('%Y') }}{% endif %}</small></td>
+                <td class="td-author">{{ p.author_name | truncate(32) }}</td>
+                <td class="td-deleted-by">
                     {% if p.deleted_by_name %}
-                        <a href="{{ url_for('users.user_overview', user_id=p.deleted_by_id) }}">{{ p.deleted_by_name | truncate(20) }}</a>
+                        <a href="{{ url_for('users.user_overview', user_id=p.deleted_by_id) }}">{{ p.deleted_by_name | truncate(32) }}</a>
                     {% else %}
                         <span class="text-muted">—</span>
                     {% endif %}
                 </td>
-                <td><small class="s-overview-date">{{ p.deleted.strftime('%d.%m.%Y %H:%M') }}</small></td>
+                <td class="td-deleted-at"><small class="s-overview-date">{{ p.deleted.strftime('%d.%m.%Y %H:%M') }}</small></td>
             </tr>
             {% else %}
             {% set pending_cls = ' tr-user-pending' if p.user_pending else '' %}
             {% if p.accepted == True %}
-            <tr class="tr-proposal tr-proposal-accepted{{ pending_cls }}">
+            <tr class="tr-proposal tr-proposal-accepted{{ pending_cls }}{{ group_cls }}">
             {% elif p.accepted == False %}
-            <tr class="tr-proposal tr-proposal-rejected{{ pending_cls }}">
+            <tr class="tr-proposal tr-proposal-rejected{{ pending_cls }}{{ group_cls }}">
             {% else %}
-            <tr class="tr-proposal tr-proposal-undecided{{ pending_cls }}">
+            <tr class="tr-proposal tr-proposal-undecided{{ pending_cls }}{{ group_cls }}">
             {% endif %}
-                <td>
+                <td class="td-subject">
+                    {{ group_label(p) }}
                     <a href="{{ url_for('proposals.view_proposal', proposal_id=p.id) }}">
                         <b>{{ p.subject }}</b>
                     </a>
                 </td>
-                <td><small class="s-overview-date">{{ p.created.strftime('%d.%m.') }}{% if p.created.year != now_year %}{{ p.created.strftime('%Y') }}{% endif %}</small></td>
-                <td>{{ p.author_name | truncate(20) }}</td>
-                <td>{{ "{:,}".format(p.cost) }} Kč</td>
-                <td>{{ p.state or '' }}</td>
+                <td class="td-created"><small class="s-overview-date">{{ p.created.strftime('%d.%m.') }}{% if p.created.year != now_year %}{{ p.created.strftime('%Y') }}{% endif %}</small></td>
+                <td class="td-author">{{ p.author_name | truncate(32) }}</td>
+                <td class="td-cost">{{ "{:,}".format(p.cost) }} Kč</td>
+                <td class="td-state">{{ p.state or '' }}</td>
             </tr>
             {% endif %}
         {% else %}
@@ -125,22 +121,7 @@
 <br>
 
 <div class="d-row-toggle">
-    {% if total_pages > 1 %}
-        <div class="pagination-controls">
-
-            <a {{ "class=disabled" if current_page == 0 }} href="{{ url_for('proposals.overview', filter=filter, page=0, deleted=kos) }}">&laquo;&laquo;</a>
-
-            <a {{ "class=disabled" if current_page == 0 }} href="{{ url_for('proposals.overview', filter=filter, page=current_page-1, deleted=kos) }}">&laquo;</a>
-
-            <span class="page-info">Strana {{ current_page }} z {{ total_pages }}</span>
-
-            <a {{ "class=disabled" if current_page == total_pages }} href="{{ url_for('proposals.overview', filter=filter, page=current_page+1, deleted=kos) }}">&raquo;</a>
-
-            <a {{ "class=disabled" if current_page == total_pages }} href="{{ url_for('proposals.overview', filter=filter, page=total_pages, deleted=kos) }}">&raquo;&raquo;</a>
-
-        </div>
-    {% endif %}
-
+    {{ pagination() }}
 </div>
 
 {% endblock %}

@@ -12,6 +12,7 @@ def login_required(f):
                 session["oidc_auth_profile"] = {
                     "preferred_username": str(default_user["id"]),
                     "family_name": default_user["family_name"],
+                    "given_name": default_user.get("given_name"),
                 }
             return f(*args, **kwargs)
         else:
