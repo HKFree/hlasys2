@@ -273,6 +273,14 @@ def display_name(real_name: str | None, nick: str | None) -> str:
     return real_name or nick
 
 
+def short_name(name: str | None) -> str:
+    """
+    Real-name part of a stored display name ("<real name> - <nick>"), for
+    places too narrow for both. Names without a nick are returned unchanged.
+    """
+    return (name or "").split(" - ", 1)[0]
+
+
 def current_user() -> tuple[int, str]:
     """
     The logged-in user as (id, display name).

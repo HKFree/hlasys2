@@ -80,3 +80,24 @@ def test_backfill_apply_is_idempotent_and_skips_unknown_users(app, db_path):
         assert backfill_names(apply=False) == {}
 
     assert event_names(db_path) == ["Jakub Novák - Jakub", "Někdo Cizí"]
+
+
+def test_short_name_keeps_only_the_real_name():
+    from hlasys2_app.util import short_name
+
+    assert short_name("Ondřej Pithart - Ondra Lhota") == "Ondřej Pithart"
+    assert short_name("Ondřej Pithart") == "Ondřej Pithart"
+    assert short_name("Systém") == "Systém"
+    assert short_name("Real Name - nick - with dash") == "Real Name"
+    assert short_name(None) == ""
+
+
+def test_overview_shows_the_real_name_with_the_full_name_on_hover(app, db_path):
+    from tests.test_deletion import login
+
+    add_proposal(db_path, author_name="Jakub Novák - Jakub")
+    with app.test_client() as client:
+        login(client, DECIDER)
+        body = client.get("/overview").get_data(as_text=True)
+
+    assert '<td class="td-author" title="Jakub Novák - Jakub">Jakub Novák</td>' in body

@@ -6,7 +6,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_oidc import OpenIDConnect
 import locale
 
-from .util import HkfreeRole
+from .util import HkfreeRole, short_name
 from .config import HlasysConfig, FLASK_SECRET_KEY, HLASYS_ENV, DEV_USERS
 from .decorators import login_required
 from .version import HLASYS2_VERSION, HLASYS2_COMMIT_HASH
@@ -77,6 +77,8 @@ def create_app():
             else:
                 flash("Uživatel nenalezen", "danger")
             return redirect(request.referrer or "/")
+
+    app.add_template_filter(short_name)
 
     @app.context_processor
     def inject_version():
