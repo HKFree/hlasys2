@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, session, request, flash, url_for
 from hlasys2_app.db import get_db
-from hlasys2_app.util import check_proposal_status
+from hlasys2_app.util import check_proposal_status, can_vote
 from hlasys2_app.forms import VoteDecisionForm, QuickVoteForm
 from hlasys2_app.decorators import login_required
 
@@ -97,7 +97,7 @@ def _load_votable_proposal(proposal_id: int, user_id: int):
         flash("Tento návrh byl smazán.", "warning")
         return None, redirect(url_for("proposals.overview"))
 
-    if not str(user_id) in proposal["deciders"]:
+    if not can_vote(user_id, proposal):
         flash("Tady hlasovat nemůžeš!", "danger")
         return None, redirect(url_for("proposals.view_proposal", proposal_id=proposal_id))
 

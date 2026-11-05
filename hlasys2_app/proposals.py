@@ -267,7 +267,7 @@ def view_proposal(proposal_id):
         proposal=proposal,
         events=events,
         undecided_voters=get_undecided(proposal),
-        can_vote=(str(user_id) in proposal['deciders']),
+        can_vote=can_vote(user_id, proposal),
         # proposal_row, not proposal: deciders is parsed in place above.
         can_delete=can_delete_proposal(user_id, proposal_row),
         deletion_event=deletion_event,

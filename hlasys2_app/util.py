@@ -260,18 +260,23 @@ userdb_api = UserDBData()
 
 def can_vote(user_id: int, proposal: dict) -> bool:
     """
-    Check if a user can vote on a given proposal.
-    A user can vote if they are a member of the role associated with the proposal
-    and have not voted yet.
+    Whether user_id is one of the proposal's deciders.
 
     Args:
         user_id (int): The ID of the user.
-        proposal (dict): The proposal dictionary containing 'type' and 'id'.
+        proposal (dict): Proposal row. 'deciders' may be the raw JSON string or
+            an already-parsed dict, because view_proposal parses it in place.
 
     Returns:
-        bool: True if the user can vote, False otherwise.
+        bool: True if the user is a decider, False otherwise.
     """
-    return user_id in proposal["deciders"]
+    deciders = proposal["deciders"]
+    if isinstance(deciders, str):
+        deciders = json.loads(deciders)
+
+    # Dict key lookup, never a substring test against the raw JSON - otherwise
+    # user 27 would pass for decider 277.
+    return str(user_id) in deciders
 
 
 def can_delete_proposal(user_id: int, proposal: dict) -> bool:
@@ -303,12 +308,7 @@ def can_delete_proposal(user_id: int, proposal: dict) -> bool:
     if int(proposal["type"]) not in decider_types:
         return False
 
-    deciders = proposal["deciders"]
-    if isinstance(deciders, str):
-        deciders = json.loads(deciders)
-
-    # Dict key lookup, never a substring test against the raw JSON.
-    return str(user_id) in deciders
+    return can_vote(user_id, proposal)
 
 
 def user_voted(user_id: int, proposal_id: int) -> bool:

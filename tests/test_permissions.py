@@ -1,6 +1,6 @@
 import json
 
-from hlasys2_app.util import can_delete_proposal
+from hlasys2_app.util import can_delete_proposal, can_vote
 
 DECIDERS = {"277": "Jakub", "797": "zitnyp", "1980": "pavkriz"}
 
@@ -56,3 +56,14 @@ def test_deciders_accepts_a_parsed_dict():
 def test_decider_check_is_not_a_substring_match():
     """User 27 must not inherit rights from decider 277 (cf. votes.py:100)."""
     assert can_delete_proposal(27, make_proposal()) is False
+
+
+def test_decider_can_vote():
+    assert can_vote(277, make_proposal()) is True
+    assert can_vote(277, make_proposal(deciders=dict(DECIDERS))) is True
+
+
+def test_vote_check_is_not_a_substring_match():
+    """User 27 must not be able to vote as decider 277."""
+    assert can_vote(27, make_proposal()) is False
+    assert can_vote(98, make_proposal()) is False  # "1980"
