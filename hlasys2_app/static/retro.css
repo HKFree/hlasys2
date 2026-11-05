@@ -60,6 +60,71 @@
 }
 
 /* -----------------------------------------
+   1b. Keep the original sizing
+   The modern themes were made more compact; retro keeps the spacing it was
+   designed with. The rules below restore those base values; :where() keeps
+   them at the base specificity, so everything more specific (including the
+   retro rules further down) still wins.
+   ----------------------------------------- */
+:where([data-theme="retro"]) body { line-height: 1.6; font-size: 16px; }
+:where([data-theme="retro"]) nav { padding: 1rem; }
+:where([data-theme="retro"]) .nav-content { max-width: 900px; }
+:where([data-theme="retro"]) nav h1 { font-size: 1.25rem; }
+:where([data-theme="retro"]) nav ul { gap: 1.5rem; align-items: normal; }
+:where([data-theme="retro"]) nav a { font-size: 0.95rem; white-space: normal; }
+:where([data-theme="retro"]) .content { max-width: 960px; margin: 20px auto; padding: 30px; }
+:where([data-theme="retro"]) header h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 0.5rem; }
+:where([data-theme="retro"]) hr { margin: 1.5rem 0; }
+:where([data-theme="retro"]) .d-row search input[type="search"] { padding: 12px 16px; font-size: 1rem; }
+:where([data-theme="retro"]) .d-row search button[type="submit"] { width: 50px; }
+:where([data-theme="retro"]) .d-row search button[type="submit"]::before { font-size: 1.2rem; }
+:where([data-theme="retro"]) .t-proposals { margin-top: 1rem; }
+:where([data-theme="retro"]) .t-proposals th { padding: 12px; font-size: 0.85rem; }
+:where([data-theme="retro"]) .t-proposals td { padding: 12px; }
+:where([data-theme="retro"]) .d-row-toggle { gap: 0.5rem; margin-bottom: 1rem; }
+:where([data-theme="retro"]) .d-row-toggle a { padding: 6px 14px; font-size: 0.9rem; }
+:where([data-theme="retro"]) .pagination-controls a { padding: 6px 12px; }
+:where([data-theme="retro"]) .d-one-decision-row { padding: 0.75rem; }
+:where([data-theme="retro"]) #txt-desc { font-size: 1.05rem; padding: 1rem; }
+:where([data-theme="retro"]) .d-one-decision-col { padding: 1rem; overflow: scroll; }
+:where([data-theme="retro"]) .d-one-decision-col p { padding-bottom: 0.5rem; margin-bottom: 0.5rem; }
+:where([data-theme="retro"]) .d-one-decision-col ul li { margin-bottom: 4px; }
+:where([data-theme="retro"]) .d-one-decision-col a { color: var(--primary); }
+:where([data-theme="retro"]) .d-vote-btn { gap: 1.5rem; padding: 1rem; }
+:where([data-theme="retro"]) button, :where([data-theme="retro"]) .state-btn, :where([data-theme="retro"]) input[type="submit"] { padding: 10px 20px; font-size: 1rem; }
+:where([data-theme="retro"]) form div { margin-bottom: 1.5rem; }
+:where([data-theme="retro"]) form label { margin-bottom: 0.5rem; }
+:where([data-theme="retro"]) form input[type="text"],
+:where([data-theme="retro"]) form input[type="number"],
+:where([data-theme="retro"]) form textarea,
+:where([data-theme="retro"]) form select { padding: 12px; font-size: 1rem; }
+:where([data-theme="retro"]) form ul li { margin-bottom: 0.5rem; }
+:where([data-theme="retro"]) .event-time-log { font-size: 1.1rem; }
+:where([data-theme="retro"]) .p-comment { padding: 1rem; margin: 0 0 1rem 0; }
+:where([data-theme="retro"]) .flashes { margin-bottom: 1.5rem; }
+:where([data-theme="retro"]) .flashes li { padding: 1rem 1.25rem; margin-bottom: 0.75rem; }
+:where([data-theme="retro"]) .t-proposals .tr-user-pending td.td-subject a b { font-weight: 900; font-size: 1.1em; }
+:where([data-theme="retro"]) .t-proposals td.td-subject a { color: var(--primary); }
+:where([data-theme="retro"]) .t-proposals td.td-subject a b { font-weight: bold; }
+:where([data-theme="retro"]) .t-proposals td.td-subject a:hover { color: var(--primary-hover); text-decoration: underline; }
+:where([data-theme="retro"]) .t-proposals tr.tr-proposal-deleted td.td-subject a { color: var(--text-muted); }
+:where([data-theme="retro"]) footer { padding: 20px; margin-top: 20px; font-size: 0.8rem; }
+
+@media (max-width: 768px) {
+    :where([data-theme="retro"]) .content { padding: 15px; }
+    :where([data-theme="retro"]) nav ul { flex-wrap: nowrap; gap: 1.5rem; }
+    :where([data-theme="retro"]) .t-proposals tr { margin-bottom: 15px; padding: 10px; }
+    :where([data-theme="retro"]) .t-proposals td { padding: 6px 0; }
+    :where([data-theme="retro"]) .t-proposals td.td-subject { font-size: 1.1rem; margin-bottom: 5px; }
+    :where([data-theme="retro"]) .d-row search button[type="submit"] { width: 44px; }
+    :where([data-theme="retro"]) .t-proposals td.td-state:empty { display: flex; }
+}
+
+@media (max-width: 600px) {
+    :where([data-theme="retro"]) .d-vote-btn { gap: 1rem; padding: 1.25rem; }
+}
+
+/* -----------------------------------------
    2. Global Font & Body Overrides
    ----------------------------------------- */
 [data-theme="retro"] body {

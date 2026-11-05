@@ -65,57 +65,72 @@
     --shadow: 0 8px 24px rgba(44, 38, 35, 0.08);
 }
 
-/* Dark Mode Overrides */
+/* Dark Mode Overrides - neutral graphite, red kept as the accent */
 [data-theme="dark"] {
-    --primary: #f06455;
-    --primary-hover: #ff8a7d;
-    --bg-body: #1f1a17;
-    --bg-card: #2b2420;
-    --bg-input: #201b18;
-    --bg-desc: #332b26;
-    --bg-locked: #433831;
-    
-    --text-main: #f3ece6;
-    --text-muted: #c8b9ae;
-    --text-desc: #dfd1c6;
-    --text-nav: rgba(255, 255, 255, 0.92);
+    --primary: #f2705f;
+    --primary-hover: #ff9184;
+    --bg-body: #131518;
+    --bg-card: #1b1e22;
+    --bg-input: #15171a;
+    --bg-desc: #202328;
+    --bg-locked: #262a2f;
 
-    --border-color: #4c4038;
-    --border-locked: #66574d;
+    --text-main: #e4e6e9;
+    --text-muted: #969da6;
+    --text-desc: #cdd1d6;
+    --text-nav: rgba(255, 255, 255, 0.85);
 
-    --success-bg: #1f3428;
-    --success-text: #93d0a8;
-    --success-border: #4f8b65;
-    --success-row-bg: rgba(79, 139, 101, 0.15);
+    --border-color: #2d3137;
+    --border-locked: #3b4047;
 
-    --danger-bg: #4a241f;
-    --danger-text: #ffb2aa;
-    --danger-border: #b95d53;
-    --danger-row-bg: rgba(240, 100, 85, 0.11);
+    --success-bg: #14261c;
+    --success-text: #7ccf9c;
+    --success-border: #2f6a48;
+    --success-row-bg: rgba(74, 222, 128, 0.06);
 
-    --warning-bg: #4b3721;
-    --warning-text: #f2ca8f;
-    --warning-border: #9c7242;
+    --danger-bg: #2e1718;
+    --danger-text: #ff9a90;
+    --danger-border: #8a3a33;
+    --danger-row-bg: rgba(248, 113, 113, 0.07);
 
-    --unknown-bg: #4b3721;
-    --unknown-text: #f2ca8f;
-    --unknown-border: #9c7242;
+    --warning-bg: #2c2412;
+    --warning-text: #eec46e;
+    --warning-border: #6e5523;
 
-    --pending-row-bg: #4a3d22;
-    --pending-row-border: #b79545;
+    --unknown-bg: #2c2412;
+    --unknown-text: #eec46e;
+    --unknown-border: #6e5523;
 
-    --info-bg: #452824;
-    --info-text: #f0bbb3;
-    --info-border: #8d544c;
+    --pending-row-bg: rgba(250, 204, 21, 0.07);
+    --pending-row-border: #c9a227;
+
+    --info-bg: #182231;
+    --info-text: #9cc0f5;
+    --info-border: #314a6e;
 
     --group-pd: #6ea0e0;
     --group-vv: #b08ae0;
     --group-cs: #4fc2b5;
-    --group-so: #b5a595;
+    --group-so: #a8adb5;
     --group-cd: #d4b45a;
-    --group-on-text: #1f1a17;
+    --group-on-text: #131518;
 
-    --shadow: 0 10px 30px rgba(0,0,0,0.28);
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+/* Dark nav: a dark bar with a red accent line instead of a full red bar */
+[data-theme="dark"] nav {
+    background-color: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: inset 0 3px 0 var(--primary);
+}
+
+[data-theme="dark"] nav h1 {
+    color: var(--text-main);
+}
+
+[data-theme="dark"] .theme-selector {
+    background: rgba(255, 255, 255, 0.06);
 }
 
 * {
@@ -128,8 +143,8 @@ body {
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background-color: var(--bg-body);
     color: var(--text-main);
-    line-height: 1.6;
-    font-size: 16px;
+    line-height: 1.5;
+    font-size: 15px;
     padding-bottom: 40px;
 }
 
@@ -148,7 +163,7 @@ a:hover {
    ========================================= */
 nav {
     background-color: var(--primary);
-    padding: 1rem;
+    padding: 0.55rem 1rem;
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -156,7 +171,7 @@ nav {
 }
 
 .nav-content {
-    max-width: 900px;
+    max-width: 880px;
     margin: 0 auto;
     display: flex;
     align-items: center;
@@ -167,7 +182,7 @@ nav {
 }
 
 nav h1 {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     color: white;
     margin: 0;
     font-weight: 600;
@@ -182,15 +197,17 @@ nav h1 small {
 nav ul {
     list-style: none;
     display: flex;
-    gap: 1.5rem;
+    align-items: center;
+    gap: 1.25rem;
     margin: 0;
 }
 
 nav a {
     color: var(--text-nav);
+    white-space: nowrap;
     text-decoration: none;
     font-weight: 500;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     transition: opacity 0.2s;
 }
 
@@ -202,20 +219,20 @@ nav a:hover {
 
 /* The Main Container */
 .content {
-    max-width: 960px;
-    margin: 20px auto;
+    max-width: 880px;
+    margin: 16px auto;
     background-color: var(--bg-card);
     border-radius: var(--radius);
-    padding: 30px;
+    padding: 20px 24px;
     box-shadow: var(--shadow);
     border: 1px solid var(--border-color);
 }
 
 /* Headers */
 header h1 {
-    font-size: 2.2rem;
-    font-weight: 800;
-    margin-bottom: 0.5rem;
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 0.6rem;
     color: var(--text-main);
     line-height: 1.2;
     background: none;
@@ -230,7 +247,7 @@ header strong {
 hr {
     border: 0;
     border-top: 1px solid var(--border-color);
-    margin: 1.5rem 0;
+    margin: 1rem 0;
 }
 
 /* =========================================
@@ -249,8 +266,8 @@ hr {
     background: transparent;
     border: none;
     cursor: pointer;
-    padding: 4px 8px;
-    font-size: 1.1rem;
+    padding: 3px 6px;
+    font-size: 0.95rem;
     line-height: 1;
     border-radius: 4px;
     opacity: 0.5;
@@ -286,8 +303,8 @@ hr {
 .d-row search input[type="search"] {
     flex-grow: 1;
     border: none;
-    padding: 12px 16px;
-    font-size: 1rem;
+    padding: 7px 12px;
+    font-size: 0.95rem;
     outline: none;
     box-shadow: none;
     background-color: transparent;
@@ -295,7 +312,7 @@ hr {
 }
 
 .d-row search button[type="submit"] {
-    width: 50px;
+    width: 42px;
     background-color: var(--primary);
     color: white;
     border: none;
@@ -314,7 +331,7 @@ hr {
 
 .d-row search button[type="submit"]::before {
     content: "\1F50D";
-    font-size: 1.2rem;
+    font-size: 1rem;
     font-weight: bold;
     line-height: 1;
 }
@@ -326,21 +343,21 @@ hr {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
 }
 
 .t-proposals th {
     text-align: left;
-    padding: 12px;
+    padding: 6px 10px;
     border-bottom: 2px solid var(--border-color);
     color: var(--text-muted);
-    font-size: 0.85rem;
+    font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .t-proposals td {
-    padding: 12px;
+    padding: 6px 10px;
     border-bottom: 1px solid var(--border-color);
     vertical-align: middle;
 }
@@ -362,20 +379,20 @@ hr {
 .d-row-toggle {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.4rem;
     background: transparent;
     border: none;
     padding: 0;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
 }
 
 .d-row-toggle a {
     background-color: var(--bg-card);
     border: 1px solid var(--border-color);
     color: var(--text-main);
-    padding: 6px 14px;
+    padding: 3px 11px;
     border-radius: 20px;
-    font-size: 0.9rem;
+    font-size: 0.82rem;
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -394,7 +411,7 @@ hr {
     align-items: center;
 }
 .pagination-controls a {
-    padding: 6px 12px;
+    padding: 3px 10px;
     border: 1px solid var(--border-color);
     border-radius: 4px;
     text-decoration: none;
@@ -405,7 +422,7 @@ hr {
    6. Proposal Details & Decisions
    ========================================= */
 .d-one-decision-row {
-    padding: 0.75rem;
+    padding: 0.4rem 0.75rem;
     border-radius: var(--radius);
     text-align: center;
     border: 1px solid transparent;
@@ -417,10 +434,10 @@ hr {
 .d-one-unknown { background-color: var(--unknown-bg); color: var(--unknown-text); border-color: var(--unknown-border); }
 
 #txt-desc {
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     color: var(--text-desc);
     background: var(--bg-desc);
-    padding: 1rem;
+    padding: 0.75rem 1rem;
     border-radius: var(--radius);
     border: 1px solid var(--border-color);
     white-space: pre-wrap;
@@ -453,8 +470,8 @@ hr {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: var(--radius);
-    padding: 1rem;
-    overflow: scroll;
+    padding: 0.6rem 0.75rem;
+    overflow: auto;
     max-height: 20vh;
 }
 
@@ -462,8 +479,8 @@ hr {
     text-align: center;
     font-weight: bold;
     border-bottom: 1px solid var(--border-color);
-    padding-bottom: 0.5rem;
-    margin-bottom: 0.5rem;
+    padding-bottom: 0.35rem;
+    margin-bottom: 0.35rem;
 }
 
 .d-one-decision-col ul {
@@ -471,12 +488,13 @@ hr {
     padding: 0;
 }
 .d-one-decision-col ul li {
-    margin-bottom: 4px;
+    margin-bottom: 2px;
 }
 
-/* Fix links inside decision boxes to be readable in dark mode */
+/* Voter names in the decision boxes: plain text colour, so a red link does
+   not read as a vote against */
 .d-one-decision-col a {
-    color: var(--primary);
+    color: var(--text-main);
     font-weight: 500;
 }
 .d-one-decision-col a:hover {
@@ -491,10 +509,10 @@ hr {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    gap: 1.5rem;
+    gap: 0.6rem;
     flex-wrap: wrap;
     background-color: var(--bg-card);
-    padding: 1rem;
+    padding: 0.75rem 0;
 }
 
 .d-one-proposal-locked {
@@ -522,8 +540,8 @@ button, .state-btn, input[type="submit"] {
     cursor: pointer;
     border: none;
     border-radius: var(--radius);
-    padding: 10px 20px;
-    font-size: 1rem;
+    padding: 6px 14px;
+    font-size: 0.9rem;
     font-weight: 500;
     transition: all 0.2s;
     margin: 0;
@@ -559,13 +577,13 @@ input[type="submit"]:hover {
    8. Forms & Inputs
    ========================================= */
 form div {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 }
 
 form label {
     display: block;
     font-weight: 600;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.3rem;
     color: var(--text-main);
 }
 
@@ -574,10 +592,10 @@ form input[type="number"],
 form textarea,
 form select {
     width: 100%;
-    padding: 12px;
+    padding: 7px 10px;
     border: 1px solid var(--border-color);
     border-radius: var(--radius);
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-family: inherit;
     background-color: var(--bg-input);
     color: var(--text-main);
@@ -598,7 +616,7 @@ form ul {
 form ul li {
     display: flex;
     align-items: center;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
 }
 
 form input[type="radio"],
@@ -624,7 +642,7 @@ form input[type="checkbox"] {
 }
 
 .event-time-log {
-    font-size: 1.1rem;
+    font-size: 0.85rem;
     color: var(--text-muted);
     font-weight: 600;
     letter-spacing: 0.5px;
@@ -633,8 +651,8 @@ form input[type="checkbox"] {
 .p-comment {
     background: var(--bg-card);
     border-left: 3px solid var(--primary);
-    padding: 1rem;
-    margin-bottom: 1rem;
+    padding: 0.4rem 0.75rem;
+    margin: 0.4rem 0 0 0;
     box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     white-space: pre-line;
 }
@@ -645,12 +663,12 @@ form input[type="checkbox"] {
 .flashes {
     list-style: none;
     padding: 0;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.5rem;
 }
 
 .flashes li {
-    padding: 1rem 1.25rem;
-    margin-bottom: 0.75rem;
+    padding: 0.55rem 0.9rem;
+    margin-bottom: 0.5rem;
     border-radius: var(--radius);
     border: 1px solid transparent;
     font-weight: 500;
@@ -681,11 +699,11 @@ form input[type="checkbox"] {
         border-radius: 0;
         border: none;
         border-top: 1px solid var(--border-color);
-        padding: 15px;
+        padding: 12px;
     }
 
     .nav-content { flex-direction: column; gap: 10px; }
-    nav ul { width: 100%; justify-content: center; font-size: 0.9rem; }
+    nav ul { width: 100%; justify-content: center; font-size: 0.9rem; flex-wrap: wrap; gap: 0.4rem 1rem; }
 
     .t-proposals thead { display: none; }
     .t-proposals, .t-proposals tbody, .t-proposals tr, .t-proposals td {
@@ -694,11 +712,11 @@ form input[type="checkbox"] {
     }
     
     .t-proposals tr {
-        margin-bottom: 15px;
+        margin-bottom: 8px;
         border: 1px solid var(--border-color);
         border-radius: var(--radius);
         background: var(--bg-card); /* Default background */
-        padding: 10px;
+        padding: 6px 10px;
         border-left-width: 5px;     /* Thicker left border for status */
         border-left-style: solid;
     }
@@ -727,19 +745,20 @@ form input[type="checkbox"] {
 
     .t-proposals td {
         border-bottom: none;
-        padding: 6px 0;
+        padding: 2px 0;
         display: flex;
         justify-content: space-between;
         text-align: right;
     }
 
-    .t-proposals td.td-subject { font-size: 1.1rem; text-align: left; display: block; margin-bottom: 5px; }
+    .t-proposals td.td-subject { font-size: 1rem; text-align: left; display: block; margin-bottom: 2px; }
     .t-proposals td.td-created:before { content: "Vytvořeno:"; float: left; font-weight: bold; color: var(--text-muted); }
     .t-proposals td.td-author:before { content: "Navrhovatel:"; float: left; font-weight: bold; color: var(--text-muted); }
     .t-proposals td.td-cost:before { content: "Cena:"; float: left; font-weight: bold; color: var(--text-muted); }
     .t-proposals td.td-state:before { content: "Stav:"; float: left; font-weight: bold; color: var(--text-muted); }
     .t-proposals td.td-deleted-by:before { content: "Smazal:"; float: left; font-weight: bold; color: var(--text-muted); }
     .t-proposals td.td-deleted-at:before { content: "Smazáno:"; float: left; font-weight: bold; color: var(--text-muted); }
+    .t-proposals td.td-state:empty { display: none; }
 
     /* Strip the duplicated 3px coloured cell border on mobile - the row's 5px left border already conveys status */
     .t-proposals tr.tr-proposal td.td-subject {
@@ -756,10 +775,10 @@ form input[type="checkbox"] {
 
 footer {
     text-align: center;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: var(--text-muted);
-    padding: 20px;
-    margin-top: 20px;
+    padding: 12px;
+    margin-top: 12px;
 }
 footer a { color: var(--text-muted); text-decoration: underline; }
 
@@ -950,9 +969,8 @@ a.disabled {
     --status-stripe: var(--pending-row-border);
 }
 
-.tr-user-pending td.td-subject b {
-    font-weight: 900;
-    font-size: 1.1em;
+.t-proposals .tr-user-pending td.td-subject a b {
+    font-weight: 800;
 }
 
 .btn-vote-for {
@@ -1321,4 +1339,20 @@ a.disabled {
     font-weight: 800;
     letter-spacing: 0.5px;
     cursor: help;
+}
+
+/* Proposal titles in the overview read as text; the status tint, stripe and
+   group prefix carry the colour. */
+.t-proposals td.td-subject a {
+    color: var(--text-main);
+}
+.t-proposals td.td-subject a b {
+    font-weight: 600;
+}
+.t-proposals td.td-subject a:hover {
+    color: var(--primary);
+    text-decoration: none;
+}
+.t-proposals tr.tr-proposal-deleted td.td-subject a {
+    color: var(--text-muted);
 }
